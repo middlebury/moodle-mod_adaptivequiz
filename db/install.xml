@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/adaptivequiz/db" VERSION="20130311" COMMENT="XMLDB file for Moodle mod/adaptivequiz"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="adaptivequiz" COMMENT="Adaptive quiz instances table" NEXT="adaptivequiz_question">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="course id foreign key" PREVIOUS="id" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the activity instance" PREVIOUS="course" NEXT="intro"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Description of activity" PREVIOUS="name" NEXT="introformat"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="activity intro text format" PREVIOUS="intro" NEXT="attempts"/>
+        <FIELD NAME="attempts" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of allowed attempts" PREVIOUS="introformat" NEXT="password"/>
+        <FIELD NAME="password" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="A password that the student must enter before starting or continuing an adaptive quiz attempt." PREVIOUS="attempts" NEXT="browsersecurity"/>
+        <FIELD NAME="browsersecurity" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Restriciton on the browser the student must use. E.g. securewindow." PREVIOUS="password" NEXT="attemptfeedback"/>
+        <FIELD NAME="attemptfeedback" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Feedback given to students when their attempt has been completed." PREVIOUS="browsersecurity" NEXT="attemptfeedbackformat"/>
+        <FIELD NAME="attemptfeedbackformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of attempt feedback" PREVIOUS="attemptfeedback" NEXT="highestlevel"/>
+        <FIELD NAME="highestlevel" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The highest difficulty level the adaptive quiz will go to." PREVIOUS="attemptfeedbackformat" NEXT="lowestlevel"/>
+        <FIELD NAME="lowestlevel" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The lowest difficulty level the adaptive quiz will go to." PREVIOUS="highestlevel" NEXT="minimumquestions"/>
+        <FIELD NAME="minimumquestions" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The minimum number of questions that mus be attempted by the user" PREVIOUS="lowestlevel" NEXT="maximumquestions"/>
+        <FIELD NAME="maximumquestions" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The maximum number of question that can be attempted by the user" PREVIOUS="minimumquestions" NEXT="standarderror"/>
+        <FIELD NAME="standarderror" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.0" SEQUENCE="false" DECIMALS="5" COMMENT="The standard error that must be met before ending the attempt." PREVIOUS="maximumquestions" NEXT="startinglevel"/>
+        <FIELD NAME="startinglevel" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The level of difficult all attempts will start with" PREVIOUS="standarderror" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time created timestamp" PREVIOUS="startinglevel" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time modified timesampt" PREVIOUS="timecreated"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="course_foreign"/>
+        <KEY NAME="course_foreign" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT="Foreign key to the course table." PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="adaptivequiz_question" COMMENT="An association table for activity instance and question categories." PREVIOUS="adaptivequiz" NEXT="adaptivequiz_attempt">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="instance"/>
+        <FIELD NAME="instance" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Activity instance id.  Foreign key to activityquiz." PREVIOUS="id" NEXT="questioncategory"/>
+        <FIELD NAME="questioncategory" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Question category id. Foreign key to questions." PREVIOUS="instance"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="instance_foreign"/>
+        <KEY NAME="instance_foreign" TYPE="foreign" FIELDS="instance" REFTABLE="adaptivequiz" REFFIELDS="id" COMMENT="Foreign key to adaptivequiz table." PREVIOUS="primary" NEXT="questioncategory_foreign"/>
+        <KEY NAME="questioncategory_foreign" TYPE="foreign" FIELDS="questioncategory" REFTABLE="question_categories" REFFIELDS="id" COMMENT="Foreign key to questino_categories table." PREVIOUS="instance_foreign"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="adaptivequiz_attempt" COMMENT="Logging of attempts" PREVIOUS="adaptivequiz_question">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="instance"/>
+        <FIELD NAME="instance" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Activity instance the attempt was for" PREVIOUS="id" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User id. Foreign key from user." PREVIOUS="instance" NEXT="uniqueid"/>
+        <FIELD NAME="uniqueid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Question usage id.  Foreign key to question_usages." PREVIOUS="userid" NEXT="attemptstate"/>
+        <FIELD NAME="attemptstate" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false" COMMENT="The state of the attempt" PREVIOUS="uniqueid" NEXT="attemptstopcriteria"/>
+        <FIELD NAME="attemptstopcriteria" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The reason why the attempt was stopped" PREVIOUS="attemptstate" NEXT="questionsattempted"/>
+        <FIELD NAME="questionsattempted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The number of question attempted" PREVIOUS="attemptstopcriteria" NEXT="standarderror"/>
+        <FIELD NAME="standarderror" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.0" SEQUENCE="false" DECIMALS="5" COMMENT="The standard error that was achieved during the attempt" PREVIOUS="questionsattempted" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time created timestamp" PREVIOUS="standarderror" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time modified timestamp" PREVIOUS="timecreated"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="instance_foreign"/>
+        <KEY NAME="instance_foreign" TYPE="foreign" FIELDS="instance" REFTABLE="adaptivequiz" REFFIELDS="id" COMMENT="Foreign key to adaptivequiz table." PREVIOUS="primary" NEXT="userid_foreign"/>
+        <KEY NAME="userid_foreign" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT="Foreign key to user table." PREVIOUS="instance_foreign" NEXT="uniqueid_foreign"/>
+        <KEY NAME="uniqueid_foreign" TYPE="foreign" FIELDS="uniqueid" REFTABLE="question_usages" REFFIELDS="id" COMMENT="Foreign key to question_usages table." PREVIOUS="userid_foreign"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="instance_userid_idx" UNIQUE="false" FIELDS="instance, userid" COMMENT="Instance and user id index"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
