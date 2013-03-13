@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <table name="context">
+        <column>id</column>
+        <column>contextlevel</column>
+        <column>instanceid</column>
+        <column>path</column>
+        <column>depth</column>
+        <row>
+            <value>16</value>
+            <value>50</value>
+            <value>2</value>
+            <value>/1/3/16</value>
+            <value>3</value>
+        </row>
+    </table>
+    <table name="course">
+        <column>id</column>
+        <column>category</column>
+        <column>fullname</column>
+        <column>shortname</column>
+        <row>
+            <value>2</value>
+            <value>1</value>
+            <value>101</value>
+            <value>101</value>
+        </row>
+    </table>
+    <table name="question_categories">
+        <column>id</column>
+        <column>name</column>
+        <column>contextid</column>
+        <column>info</column>
+        <row>
+            <value>1</value>
+            <value>Default for 101</value>
+            <value>16</value>
+            <value>default question category</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>Default for Miscellaneous</value>
+            <value>3</value>
+            <value>default question category</value>
+        </row>
+        <row>
+            <value>3</value>
+            <value>Default for System</value>
+            <value>1</value>
+            <value>default question category</value>
+        </row>
+        <row>
+            <value>4</value>
+            <value>Test reattempt</value>
+            <value>16</value>
+            <value>Data test for fetch_question</value>
+        </row>
+    </table>
+    <table name="question">
+        <column>id</column>
+        <column>category</column>
+        <column>parent</column>
+        <column>name</column>
+        <column>questiontext</column>
+        <column>generalfeedback</column>
+        <column>defaultmark</column>
+        <column>qtype</column>
+        <row>
+            <value>1</value>
+            <value>1</value>
+            <value>0</value>
+            <value>true or false 1</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>4</value>
+            <value>0</value>
+            <value>true or false 2</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>3</value>
+            <value>4</value>
+            <value>0</value>
+            <value>true or false 3</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>4</value>
+            <value>4</value>
+            <value>0</value>
+            <value>true or false 4</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>5</value>
+            <value>4</value>
+            <value>0</value>
+            <value>true or false 5</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>6</value>
+            <value>4</value>
+            <value>0</value>
+            <value>true or false 6</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+    </table>
+    <table name="question_answers">
+        <column>id</column>
+        <column>question</column>
+        <column>answer</column>
+        <column>fraction</column>
+        <column>feedback</column>
+        <row>
+            <value>1</value>
+            <value>1</value>
+            <value>true</value>
+            <value>1.0</value>
+            <value>feedback for true</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>1</value>
+            <value>false</value>
+            <value>0.0</value>
+            <value>feedback for false</value>
+        </row>
+    </table>
+    <table name="question_truefalse">
+        <column>id</column>
+        <column>question</column>
+        <column>trueanswer</column>
+        <column>falseanswer</column>
+        <row>
+            <value>1</value>
+            <value>1</value>
+            <value>1</value>
+            <value>2</value>
+        </row>
+    </table>
+    <table name="course_modules">
+        <column>id</column>
+        <column>course</column>
+        <column>module</column>
+        <column>falseanswer</column>
+
+    </table>
+    <table name="tag">
+        <column>id</column>
+        <column>userid</column>
+        <column>name</column>
+        <column>rawname</column>
+        <column>tagtype</column>
+        <column>flag</column>
+        <row>
+            <value>1</value>
+            <value>2</value>
+            <value>adpq_5</value>
+            <value>adpq_5</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>2</value>
+            <value>phpunittag_5</value>
+            <value>phpunittag_5</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>3</value>
+            <value>2</value>
+            <value>phpunittag_888</value>
+            <value>phpunittag_888</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>4</value>
+            <value>2</value>
+            <value>adpq_6</value>
+            <value>adpq_6</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>5</value>
+            <value>2</value>
+            <value>adpq_7</value>
+            <value>adpq_7</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>6</value>
+            <value>2</value>
+            <value>adpq_8</value>
+            <value>adpq_8</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>7</value>
+            <value>2</value>
+            <value>adpq_9</value>
+            <value>adpq_9</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>8</value>
+            <value>2</value>
+            <value>adpq_10</value>
+            <value>adpq_10</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+    </table>
+    <table name="tag_instance">
+        <column>id</column>
+        <column>tagid</column>
+        <column>itemtype</column>
+        <column>itemid</column>
+        <column>tiuserid</column>
+        <row>
+            <value>1</value>
+            <value>1</value>
+            <value>question</value>
+            <value>1</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>4</value>
+            <value>question</value>
+            <value>2</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>3</value>
+            <value>5</value>
+            <value>question</value>
+            <value>3</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>4</value>
+            <value>6</value>
+            <value>question</value>
+            <value>4</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>5</value>
+            <value>7</value>
+            <value>question</value>
+            <value>5</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>6</value>
+            <value>8</value>
+            <value>question</value>
+            <value>6</value>
+            <value>0</value>
+        </row>
+    </table>
+</dataset>

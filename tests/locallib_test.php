@@ -28,6 +28,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
 
+/**
+ * @group mod_adaptivequiz
+ */
 class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
 
     private $activitycontext;
