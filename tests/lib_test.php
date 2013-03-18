@@ -28,6 +28,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/mod/adaptivequiz/lib.php');
 
+/**
+ * @group mod_adaptivequiz
+ */
 class mod_adaptivequiz_lib_testcase extends advanced_testcase {
     /**
      * Provide input data to the parameters of the test_questioncat_association_insert() method.

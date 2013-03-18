@@ -29,6 +29,9 @@ global $CFG;
 require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/fetchquestion.class.php');
 
+/**
+ * @group mod_adaptivequiz
+ */
 class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
     /** @var stdClass $activityinstance adaptivequiz activity instance object */
     protected $activityinstance = null;
@@ -131,15 +134,11 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->setup_test_data_xml();
         $this->setup_generator_data();
 
-        $attempt = $this->getMock(
-                'fetchquestion',
-                array('retrieve_question_categories'),
-                array($this->activityinstance)
-        );
+        $attempt = $this->getMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance));
 
         $attempt->expects($this->exactly(2))
-            ->method('retrieve_question_categories')
-            ->will($this->returnValue('1,2,3'));
+                ->method('retrieve_question_categories')
+                ->will($this->returnValue('1,2,3'));
 
         $data = $attempt->find_questions_with_tags(array(99));
         $this->assertEquals(0, count($data));
@@ -187,15 +186,11 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->setup_test_data_xml();
         $this->setup_generator_data();
 
-        $mockclass = $this->getMock(
-                'fetchquestion',
-                array('retrieve_question_categories'),
-                array($this->activityinstance)
-        );
+        $mockclass = $this->getMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance));
 
         $mockclass->expects($this->once())
-            ->method('retrieve_question_categories')
-            ->will($this->returnValue('1,2,3'));
+                ->method('retrieve_question_categories')
+                ->will($this->returnValue('1,2,3'));
 
         $data = $mockclass->find_questions_with_tags(array(1), array(1));
         $this->assertEquals(0, count($data));
@@ -290,35 +285,27 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $dummyclass = new stdClass();
 
         // Test calling fetch_question(), returning an empty set of tag ids and reattempting 5 times
-        $mockclass = $this->getMock(
-                'fetchquestion',
-                array('retrieve_tag', 'find_questions_with_tags'),
-                array($this->activityinstance, 5)
-        );
+        $mockclass = $this->getMock('fetchquestion', array('retrieve_tag', 'find_questions_with_tags'), array($this->activityinstance, 5));
 
         $mockclass->expects($this->exactly(5))
-            ->method('retrieve_tag')
-            ->will($this->returnValue(array()));
+                ->method('retrieve_tag')
+                ->will($this->returnValue(array()));
 
         $mockclass->expects($this->never())
-            ->method('find_questions_with_tags');
+                ->method('find_questions_with_tags');
 
         $this->assertEquals(0, count($mockclass->fetch_questions()));
 
         // Test calling fetch_question(), return a tag id, but return empty question ids and reattempting 5 times
-        $mockclasstwo = $this->getMock(
-                'fetchquestion',
-                array('retrieve_tag', 'find_questions_with_tags'),
-                array($this->activityinstance, 5)
-        );
+        $mockclasstwo = $this->getMock('fetchquestion', array('retrieve_tag', 'find_questions_with_tags'), array($this->activityinstance, 5));
 
         $mockclasstwo->expects($this->exactly(5))
-            ->method('retrieve_tag')
-            ->will($this->returnValue(array(1 => 1)));
+                ->method('retrieve_tag')
+                ->will($this->returnValue(array(1 => 1)));
 
         $mockclasstwo->expects($this->exactly(5))
-            ->method('find_questions_with_tags')
-            ->will($this->returnValue(array()));
+                ->method('find_questions_with_tags')
+                ->will($this->returnValue(array()));
 
         $this->assertEquals(0, count($mockclasstwo->fetch_questions()));
     }
@@ -328,19 +315,15 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
      * @return void
      */
     public function test_fetch_question() {
-        $mockclass = $this->getMock(
-                'fetchquestion',
-                array('retrieve_tag', 'find_questions_with_tags'),
-                array($this->activityinstance, 5)
-        );
+        $mockclass = $this->getMock('fetchquestion', array('retrieve_tag', 'find_questions_with_tags'), array($this->activityinstance, 5));
 
         $mockclass->expects($this->once())
-            ->method('retrieve_tag')
-            ->will($this->returnValue(array(1 => 1)));
+                ->method('retrieve_tag')
+                ->will($this->returnValue(array(1 => 1)));
 
         $mockclass->expects($this->once())
-            ->method('find_questions_with_tags')
-            ->will($this->returnValue(array(2, 4, 6, 8, 10)));
+                ->method('find_questions_with_tags')
+                ->will($this->returnValue(array(2, 4, 6, 8, 10)));
 
         $data = array(2, 4, 6, 8, 10);
         $this->assertEquals($data, $mockclass->fetch_questions());
