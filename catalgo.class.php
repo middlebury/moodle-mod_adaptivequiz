@@ -238,9 +238,14 @@ class catalgo {
         // Find the last question attempted by the user
         $slotid = $this->find_last_quest_used_by_attempt();
 
+        if (empty($slotid)) {
+            return null;
+        }
+
         // Check if the question was marked
         if (!$this->was_answer_submitted_to_question($slotid)) {
-            return null;
+            // If no answer was submitted then the question muast be marked as incorrect
+            return false;
         }
 
         // Retrieve the mark received
