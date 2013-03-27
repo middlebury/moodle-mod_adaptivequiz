@@ -162,4 +162,38 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $this->footer();
         return $output;
     }
+
+    /**
+     * This function the attempt feedback
+     * @param string $attemptfeedback attempt feedback
+     * @param int $cmid course module id
+     * @return string HTML markup
+     */
+    public function print_attemptfeedback($attemptfeedback, $cmid) {
+        $output = '';
+        $output .= $this->header();
+        $output .= $this->create_attemptfeedback($attemptfeedback, $cmid);
+        $output .= $this->footer();
+        return $output;
+    }
+
+    /**
+     * This function the attempt feedback
+     * @param string $attemptfeedback attempt feedback
+     * @param int $cmid course module id
+     * @return string HTML markup
+     */
+    public function create_attemptfeedback($attemptfeedback, $cmid) {
+        $output = '';
+        $url = new moodle_url('/mod/adaptivequiz/view.php');
+        $attr = array('action' => $url, 'method' => 'post', 'id' => 'attemptfeedback');
+        $output .= html_writer::start_tag('form', $attr);
+        $output .= html_writer::tag('p', s($attemptfeedback), array('class' => 'submitbtns adaptivequizfeedback'));
+        $attr = array('type' => 'submit', 'name' => 'attemptfinished', 'value' => get_string('continue'));
+        $output .= html_writer::empty_tag('input', $attr);
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $cmid));
+        $output .= html_writer::end_tag('form');
+
+        return $output;
+    }
 }
