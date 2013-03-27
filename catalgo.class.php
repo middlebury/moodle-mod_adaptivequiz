@@ -315,8 +315,13 @@ class catalgo {
         $this->sumofincorrectanswers = $this->compute_wrong_answers($this->quba);
 
         // Added condition to avoid a divide by zero error
-        if ((0 == $this->sumofincorrectanswers || 0 == $this->sumofcorrectanswers ) || 0 == $this->questattempted) {
-            $this->print_debug('perform_calculation_steps() - (sum of correct answers OR the sum of incorrect answers equals zero) OR number of questions attempted equals zero');
+        if ((0 == $this->sumofincorrectanswers || 0 == $this->sumofcorrectanswers )) {
+            $this->print_debug('perform_calculation_steps() - sum of correct answers OR the sum of incorrect answers equals zero, return next difficulty number');
+            return $this->nextdifficulty;
+        }
+
+        if (0 == $this->questattempted) {
+            $this->print_debug('perform_calculation_steps() - number of questions attempted equals zero');
             return 0;
         }
 

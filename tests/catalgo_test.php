@@ -494,9 +494,9 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
     }
 
     /**
-     * This function tests the return data from perform_calculation_steps(), where compute_right_answers() returns 0
+     * This function tests the return data from perform_calculation_steps(), where compute_right_answers() returns 0, but the next difficulty number is returned
      */
-    public function test_perform_calc_steps_compute_right_ans_return_zero_fail() {
+    public function test_perform_calc_steps_right_ans_ret_zero_but_return_non_zero() {
         $this->resetAfterTest(true);
 
         $mockcatalgo = $this->getMock(
@@ -530,13 +530,13 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
 
         $result = $mockcatalgo->perform_calculation_steps();
 
-        $this->assertEquals(0, $result);
+        $this->assertNotEquals(0, $result);
     }
 
     /**
-     * This function tests the return data from perform_calculation_steps(), where compute_wrong_answers() returns 0
+     * This function tests the return data from perform_calculation_steps(), where compute_wrong_answers() returns 0, but the next difficulty number is returned
      */
-    public function test_perform_calc_steps_compute_wrong_ans_return_zero_fail() {
+    public function test_perform_calc_steps_wrong_ans_return_zero_but_return_non_zero() {
         $this->resetAfterTest(true);
 
         $mockcatalgo = $this->getMock(
@@ -570,7 +570,7 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
 
         $result = $mockcatalgo->perform_calculation_steps();
 
-        $this->assertEquals(0, $result);
+        $this->assertNotEquals(0, $result);
     }
 
     /**
