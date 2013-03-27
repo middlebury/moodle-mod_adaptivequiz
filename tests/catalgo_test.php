@@ -156,7 +156,7 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
 
         $result = $mockcatalgo->question_was_marked_correct();
 
-        $this->assertNull($result);
+        $this->assertFalse($result);
     }
 
     /**
