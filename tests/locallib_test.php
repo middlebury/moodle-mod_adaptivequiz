@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 
 /**
  * @group mod_adaptivequiz
@@ -37,14 +37,13 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
 
     /**
      * This function calls the data generator classes required by these tests
-     * @return void
      */
     protected function setup_test_data_generator() {
         // Create course
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
         $this->setAdminUser();
-        
+
         // Create course category and course
         $category = $this->getDataGenerator()->create_category();
         $course = $this->getDataGenerator()->create_course(array('name' => 'Some course', 'category' => $category->id));
@@ -59,17 +58,55 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
 
     /**
      * This functions loads data via the tests/fixtures/mod_adaptivequiz.xml file
-     * @return void
      */
     protected function setup_test_data_xml() {
         $this->loadDataSet($this->createXMLDataSet(__DIR__.'/fixtures/mod_adaptivequiz.xml'));
     }
 
     /**
-     * Test the making of the default course question category
-     * @group adaptivequiz_locallib_test
+     * Provide input data to the parameters of the test_count_user_previous_attempts_fail() method.
+     * @return $data an array with arrays of data
      */
-    function test_make_default_categories() {
+    public function fail_attempt_data() {
+        $data = array(
+            array(99, 99),
+            array(99, 3),
+            array(13, 99),
+        );
+
+        return $data;
+    }
+
+    /**
+     * Provide input data to the parameters of the test_allowed_attempt_fail() method.
+     * @return $data an array with arrays of data
+     */
+    public function attempts_allowed_data_fail() {
+        $data = array(
+            array(99, 100),
+            array(99, 99),
+        );
+
+        return $data;
+    }
+
+    /**
+     * Provide input data to the parameters of the test_allowed_attempt() method.
+     * @return $data an array with arrays of data
+     */
+    public function attempts_allowed_data() {
+        $data = array(
+            array(99, 98),
+            array(0, 99),
+        );
+
+        return $data;
+    }
+
+    /**
+     * Test the making of the default course question category
+     */
+    public function test_make_default_categories() {
         $this->resetAfterTest(true);
         $this->setup_test_data_generator();
 
@@ -82,29 +119,145 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
 
     /**
      * Test retrieving an array of question categories
-     * @group adaptivequiz_locallib_test
      */
-    function test_get_question_categories() {
+    public function test_get_question_categories() {
         $this->resetAfterTest(true);
         $this->setup_test_data_generator();
 
         $data = adaptivequiz_make_default_categories($this->activitycontext);
 
         $data = adaptivequiz_get_question_categories($this->activitycontext);
-        
+
         $this->assertEquals(1, count($data));
     }
 
     /**
      * Test retrieving question categories used by the activity instance
-     * @group adaptivequiz_locallib_test
      */
-    function test_get_selected_question_cateogires() {
+    public function test_get_selected_question_cateogires() {
         $this->resetAfterTest(true);
         $this->setup_test_data_xml();
 
         $data = adaptivequiz_get_selected_question_cateogires(12);
 
         $this->assertEquals(6, count($data));
+    }
+
+    /**
+     * This function tests failing conditions for counting user's previous attempts
+     * that have been marked as completed
+     * @dataProvider fail_attempt_data
+     * @param int $instanceid activity instance id
+     * @param int $userid user id
+     */
+    public function test_count_user_previous_attempts_fail($instanceid, $userid) {
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $result = adaptivequiz_count_user_previous_attempts($instanceid, $userid);
+
+        $this->assertEquals(0, $result);
+    }
+
+    /**
+     * This function tests a non-failing conditions for counting user's previous attemtps
+     * that have been marked as completed
+     */
+    public function test_count_user_previous_attempts() {
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $result = adaptivequiz_count_user_previous_attempts(13, 3);
+
+        $this->assertEquals(1, $result);
+    }
+
+    /**
+     * This function tests failing conditions for determining whether a user is allowed
+     * further attemtps at the activity
+     * @dataProvider attempts_allowed_data_fail
+     * @param int $maxattempts the maximum number of attempts allowed
+     * @param int $attempts the number of attempts taken thus far
+     */
+    public function test_allowed_attempt_fail($maxattempts, $attempts) {
+        $data = adaptivequiz_allowed_attempt($maxattempts, $attempts);
+        $this->assertFalse($data);
+    }
+
+    /**
+     * This function tests failing conditions for determining whether a user is allowed
+     * further attemtps at the activity
+     * @dataProvider attempts_allowed_data
+     * @param int $maxattempts the maximum number of attempts allowed
+     * @param int $attempts the number of attempts taken thus far
+     */
+    public function test_allowed_attempt($maxattempts, $attempts) {
+        $data = adaptivequiz_allowed_attempt($maxattempts, $attempts);
+        $this->assertTrue($data);
+    }
+
+    /**
+     * This function tests adaptivequiz_uniqueid_part_of_attempt()
+     */
+    public function test_adaptivequiz_uniqueid_part_of_attempt() {
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        // Assert that there exists a record where the uniqueid, activity instance and userid all match up
+        $result = adaptivequiz_uniqueid_part_of_attempt(3, 1, 2);
+        $this->assertTrue($result);
+
+        $result = adaptivequiz_uniqueid_part_of_attempt(1, 1, 1);
+        $this->assertFalse($result);
+    }
+
+    /**
+     * This function tests the updating of the attempt data
+     */
+    public function test_adaptivequiz_update_attempt_data() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $result = adaptivequiz_update_attempt_data(3, 13, 3, 50);
+        $record = $DB->get_record('adaptivequiz_attempt', array('id' => 2));
+
+        $this->assertTrue($result);
+        $this->assertEquals(51, $record->difficultysum);
+        $this->assertEquals(1, $record->questionsattempted);
+    }
+
+    /**
+     * This function tests completing an attempt
+     */
+    public function test_adaptivequiz_complete_attempt() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $result = adaptivequiz_complete_attempt(3, 13, 3, 'php unit test');
+        $record = $DB->get_record('adaptivequiz_attempt', array('id' => 2));
+
+        $this->assertTrue($result);
+        $this->assertEquals('php unit test', $record->attemptstopcriteria);
+        $this->assertEquals(ADAPTIVEQUIZ_ATTEMPT_COMPLETED, $record->attemptstate);
+    }
+
+    /**
+     * This function tests checking if the minimum number of questions have been attempted
+     */
+    public function test_adaptivequiz_min_attempts_reached() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $result = adaptivequiz_min_attempts_reached(3, 13, 3);
+        $this->assertFalse($result);
+
+        $result = adaptivequiz_min_attempts_reached(4, 13, 4);
+        $this->assertTrue($result);
     }
 }

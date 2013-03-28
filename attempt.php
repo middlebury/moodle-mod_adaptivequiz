@@ -1,0 +1,168 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Adaptive quiz attempt script
+ *
+ * @package    mod_adaptivequiz
+ * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+require_once(dirname(__FILE__).'/../../config.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/adaptiveattempt.class.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/fetchquestion.class.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/catalgo.class.php');
+require_once($CFG->dirroot.'/tag/lib.php');
+
+$id = required_param('cmid', PARAM_INT); // Course module id
+$uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attempt
+$difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question
+
+if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
+    print_error('invalidcoursemodule');
+}
+if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+    print_error("coursemisconf");
+}
+
+global $USER, $DB;
+
+require_login($course, true, $cm);
+$context = context_module::instance($cm->id);
+
+try {
+    $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*', MUST_EXIST);
+} catch (dml_exception $e) {
+    $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
+    $debuginfo = '';
+
+    if (!empty($e->debuginfo)) {
+        $debuginfo = $e->debuginfo;
+    }
+
+    print_error('invalidmodule', 'error', $url, $e->getMessage(), $debuginfo);
+}
+
+$PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
+$PAGE->set_title(format_string($adaptivequiz->name));
+$PAGE->set_heading(format_string($course->fullname));
+$PAGE->set_context($context);
+
+// TODO: Check if the user has the attempt capability
+
+// Create an instance of the adaptiveattempt class
+$adaptiveattempt = new adaptiveattempt($adaptivequiz, $USER->id);
+$algo = new stdClass();
+$nextdiff = null;
+
+// If uniqueid is not empty the process respones
+if (!empty($uniqueid)) {
+    // Check if the uniqueid belongs to the same attempt record the user is currently using
+    $attemptrec = $adaptiveattempt->get_attempt();
+
+    if (!adaptivequiz_uniqueid_part_of_attempt($uniqueid, $cm->instance, $USER->id)) {
+        print_error('uniquenotpartofattempt', 'adaptivequiz');
+    }
+
+    try {
+        // Process student's responses
+        // Set a time stamp for the actions below
+        $time = time();
+        // Load the user's current usage from the DB
+        $quba = question_engine::load_questions_usage_by_activity((int) $uniqueid);
+        // Update the actions done to the question
+        $quba->process_all_actions($time);
+        // Finish the grade attempt at the question
+        $quba->finish_all_questions($time);
+        // Save the data about the usage to the DB
+        question_engine::save_questions_usage_by_activity($quba);
+
+        // Increment difficulty level for attempt
+        $everythingokay = false;
+
+        if (!empty($difflevel)) {
+            $everythingokay = adaptivequiz_update_attempt_data($uniqueid, $cm->instance, $USER->id, $difflevel);
+        }
+
+        // Something went wrong with updating the attempt.  Print an error.
+        if (!$everythingokay) {
+            $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
+            print_error('unableupdatediffsum', 'adaptivequiz', $url);
+        }
+
+        // Check if the minimum number of attempts have been reached
+        $minattemptreached = adaptivequiz_min_attempts_reached($uniqueid, $cm->instance, $USER->id);
+        // Create an instance of the CAT algo class
+        $algo = new catalgo($quba, (int) $attemptrec->id, $minattemptreached, (int) $difflevel);
+        // Calculate the next difficulty level
+        $nextdiff = $algo->perform_calculation_steps();
+
+    } catch (question_out_of_sequence_exception $e) {
+        $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
+        print_error('submissionoutofsequencefriendlymessage', 'question', $url);
+
+    } catch (Exception $e) {
+        $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
+        $debuginfo = '';
+
+        if (!empty($e->debuginfo)) {
+            $debuginfo = $e->debuginfo;
+        }
+
+        print_error('errorprocessingresponses', 'question', $url, $e->getMessage(), $debuginfo);
+    }
+}
+
+$adaptivequiz->context = $context;
+$adaptivequiz->cm = $cm;
+
+// If value is null then set the difficulty level to the starting level for the attempt
+if (!is_null($nextdiff)) {
+    $adaptiveattempt->set_level((int) $nextdiff);
+} else {
+    $adaptiveattempt->set_level((int) $adaptivequiz->startinglevel);
+}
+
+$attemptstatus = $adaptiveattempt->start_attempt();
+
+// Check if attempt status is set to ready
+if (empty($attemptstatus)) {
+    // Retrieve the most recent status message for the attempt
+    $message = $adaptiveattempt->get_status();
+    // Update the attempt with the status message
+    adaptivequiz_complete_attempt($uniqueid, $cm->instance, $USER->id, $message);
+    // Redirect the user to the attemptfeedback page
+    $param = array('cmid' => $cm->id, 'id' => $cm->instance, 'uattid' => $uniqueid);
+    $url = new moodle_url('/mod/adaptivequiz/attemptfinished.php', $param);
+    redirect($url);
+}
+
+// Retrieve the question slot id
+$slot = $adaptiveattempt->get_question_slot_number();
+// Retrieve the question_usage_by_activity object
+$quba = $adaptiveattempt->get_quba();
+// Retrieve the currently set difficulty level
+$level = $adaptiveattempt->get_level();
+
+$output = $PAGE->get_renderer('mod_adaptivequiz');
+
+$headtags = $output->init_metadata($quba, $slot);
+$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', null, false, $output->adaptivequiz_get_js_module());
+
+// Render the question to the page
+echo $output->print_question($id, $quba, $slot, $level);

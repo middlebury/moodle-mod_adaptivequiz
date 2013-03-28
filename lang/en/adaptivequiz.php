@@ -65,3 +65,5 @@ $string['errorattemptstate'] = 'There was an error in determining the state of t
 $string['maxquestattempted'] = 'Maximum number of questions attempted';
 $string['notyourattempt'] = 'This is not your attempt at the activity';
 $string['noattemptsallowed'] = 'No more attempts allowed at this activity';
+$string['completeattempterror'] = 'Error trying to complete attempt record';
+$string['updateattempterror'] = 'Error trying to update attempt record';

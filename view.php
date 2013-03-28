@@ -22,19 +22,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// (Replace newmodule with the name of your module and remove this line)
-
 require_once(dirname(__FILE__).'/../../config.php');
-require_once($CFG->dirroot.'/mod/adaptivequiz/lib.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 
-$id = optional_param('id', 0, PARAM_INT); // course_module ID, or
-$n  = optional_param('n', 0, PARAM_INT);  // newmodule instance ID - it should be named as the first character of the module
+$id = optional_param('id', 0, PARAM_INT);
+
+global $USER;
 
 if ($id) {
     $cm         = get_coursemodule_from_id('adaptivequiz', $id, 0, false, MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*', MUST_EXIST);
-} elseif ($n) {
+} else if ($n) {
     $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $n), '*', MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $adaptivequiz->course), '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('adaptivequiz', $adaptivequiz->id, $course->id, false, MUST_EXIST);
@@ -47,17 +46,11 @@ $context = context_module::instance($cm->id);
 
 add_to_log($course->id, 'adaptivequiz', 'view', "view.php?id={$cm->id}", $adaptivequiz->name, $cm->id);
 
-/// Print the page header
-
+// Print the page header
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
-
-// other things you may want to set - remove if not needed
-//$PAGE->set_cacheable(false);
-//$PAGE->set_focuscontrol('some-html-id');
-//$PAGE->add_body_class('newmodule-'.$somevar);
 
 // Output starts here
 echo $OUTPUT->header();
@@ -66,8 +59,23 @@ if ($adaptivequiz->intro) { // Conditions to show the intro can change to look f
     echo $OUTPUT->box(format_module_intro('adaptivequiz', $adaptivequiz, $cm->id), 'generalbox mod_introbox', 'newmoduleintro');
 }
 
-// Replace the following lines with you own code
-echo $OUTPUT->heading('Yay! It works!');
+$renderer = $PAGE->get_renderer('mod_adaptivequiz');
 
+// check if the instance exists
+if (has_capability('mod/adaptivequiz:attempt', $context)) {
+
+    // Check if the user has any previous attempts at this activity
+    $count = adaptivequiz_count_user_previous_attempts($adaptivequiz->id, $USER->id);
+
+    if (adaptivequiz_allowed_attempt($adaptivequiz->attempts, $count)) {
+        echo $renderer->display_start_attempt_form($cm->id);
+    } else {
+        echo $OUTPUT->notification(get_string('noattemptsallowed', 'adaptivequiz'));
+    }
+}
+
+if (has_capability('mod/adaptivequiz:viewreport', $context)) {
+    echo $renderer->display_view_report_form($cm->id);
+}
 // Finish the page
 echo $OUTPUT->footer();

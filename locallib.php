@@ -23,17 +23,37 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+// Default tagging used
 define('ADAPTIVEQUIZ_QUESTION_TAG', 'adpq_');
+
+// Attempt was completed
+define('ADAPTIVEQUIZ_ATTEMPT_COMPLETED', 'complete');
+// Attempt is still in progress
+define('ADAPTIVEQUIZ_ATTEMPT_INPROGRESS', 'inprogress');
+
+// Attempt stopping criteria
+// The maximum number of question, defined by the adaptive parameters was achieved
+define('ADAPTIVEQUIZ_STOPCRI_MAXQUEST', 'maxqest');
+// The standard error value, defined by the adaptive parameters, was achieved
+define('ADAPTIVEQUIZ_STOPCRI_STANDERR', 'stderr');
+// Unable to retrieve a question, because the user either answered all of the questions in the level or no questions were found
+define('ADAPTIVEQUIZ_STOPCRI_NOQUESTFOUND', 'noqest');
+// The user achieved the maximum difficulty level defined by the adaptive parameters, unable to retrieve another question
+define('ADAPTIVEQUIZ_STOPCRI_MAXLEVEL', 'maxlevel');
+// The user achieved the minimum difficulty level defined by the adaptive parameters, unable to retrieve another question
+define('ADAPTIVEQUIZ_STOPCRI_MINLEVEL', 'minlevel');
 
 require_once($CFG->dirroot.'/mod/adaptivequiz/lib.php');
 require_once($CFG->dirroot.'/question/editlib.php');
 require_once($CFG->dirroot.'/lib/questionlib.php');
+require_once($CFG->dirroot.'/question/engine/lib.php');
 
 /**
  * This function returns an array of question bank categories accessible to the
  * current user in the given context
- * @param object $context: A context object
- * @return array - An array whose keys are the question category ids and values
+ * @param object $context A context object
+ * @return array An array whose keys are the question category ids and values
  * are the name of the question category
  */
 function adaptivequiz_get_question_categories($context) {
@@ -62,8 +82,8 @@ function adaptivequiz_get_question_categories($context) {
 
 /**
  * This function is healper method to create default 
- * @param object $context: A context object
- * @return mixed - The default category in the course context or false
+ * @param object $context A context object
+ * @return mixed The default category in the course context or false
  */
 function adaptivequiz_make_default_categories($context) {
     if (empty($context)) {
@@ -79,8 +99,8 @@ function adaptivequiz_make_default_categories($context) {
 /**
  * This function returns an array of question categories that were
  * selected for use for the activity instance
- * @param int $instance: Instance id
- * @return array - an array of question category ids
+ * @param int $instance Instance id
+ * @return array an array of question category ids
  */
 function adaptivequiz_get_selected_question_cateogires($instance) {
     global $DB;
@@ -102,4 +122,149 @@ function adaptivequiz_get_selected_question_cateogires($instance) {
     }
 
     return $selquestcat;
+}
+
+/**
+ * This function returns a count of the user's previous attempts that have been marked
+ * as completed
+ * @param int $instanceid activity instance id
+ * @param int $userid user id
+ * @return int a count of the user's previous attempts
+ */
+function adaptivequiz_count_user_previous_attempts($instanceid = 0, $userid = 0) {
+    global $DB;
+
+    if (empty($instanceid) || empty($userid)) {
+        return 0;
+    }
+
+    $param = array('instance' => $instanceid, 'userid' => $userid, 'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED);
+    $count = $DB->count_records('adaptivequiz_attempt', $param);
+
+    return $count;
+}
+
+/**
+ * This function determins if the user has used up all of their attempts
+ * @param int $maxattempts The maximum allowed attempts, 0 denotes unlimited attempts
+ * @param int $attempts The number of attempts taken thus far
+ * @return bool true if the attempt is allowed, otherwise false
+ */
+function adaptivequiz_allowed_attempt($maxattempts = 0, $attempts = 0) {
+    if (0 == $maxattempts || $maxattempts > $attempts) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * This functions validates that the unique id belongs to a user attempt of the activity instance
+ * @param int $uniqueid uniqueid value of the adaptivequiz_attempt record
+ * @param int $instance instance value of the adaptivequiz_attempt record
+ * @param int $userid unerid value of the adaptivequiz_attempt record
+ * @return bool true if the unique is part of an attempt of the activity instance, otherwise false
+ */
+function adaptivequiz_uniqueid_part_of_attempt($uniqueid, $instance, $userid) {
+    global $DB;
+
+    $param = array('uniqueid' => $uniqueid, 'instance' => $instance, 'userid' => $userid);
+    return $DB->record_exists('adaptivequiz_attempt', $param);
+}
+
+/**
+ * This function increments the difficultysum value and the number of questions attempted for the adaptivequiz_attempt record
+ * @throws dml_exception A DML specific exception
+ * @param int $uniqueid uniqueid value of the adaptivequiz_attempt record
+ * @param int $instance instance value of the adaptivequiz_attempt record
+ * @param int $userid unerid value of the adaptivequiz_attempt record
+ * @param int $level the difficulty level attempted
+ * @return bool true of update successful, otherwise false
+ */
+function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level) {
+    global $DB;
+
+    if (!is_int($level) || 0 >= $level) {
+        return false;
+    }
+
+    $param = array('uniqueid' => $uniqueid, 'instance' => $instance, 'userid' => $userid);
+    try {
+        $attempt = $DB->get_record('adaptivequiz_attempt', $param, 'id,difficultysum,questionsattempted,timemodified', MUST_EXIST);
+    } catch (dml_exception $e) {
+        $debuginfo = '';
+
+        if (!empty($e->debuginfo)) {
+            $debuginfo = $e->debuginfo;
+        }
+
+        print_error('updateattempterror', 'adaptivequiz', '', $e->getMessage(), $debuginfo);
+    }
+
+    $attempt->difficultysum = (int) $attempt->difficultysum + (int) $level;
+    $attempt->questionsattempted = (int) $attempt->questionsattempted + 1;
+    $attempt->timemodified = time();
+
+    $DB->update_record('adaptivequiz_attempt', $attempt);
+
+    return true;
+}
+
+/**
+ * This function sets the complete status for an attempt
+ * @throws dml_exception A DML specific exception
+ * @param int $uniqueid uniqueid value of the adaptivequiz_attempt record
+ * @param int $instance instance value of the adaptivequiz_attempt record
+ * @param int $userid unerid value of the adaptivequiz_attempt record
+ * @param string $statusmessage the status message to log for the attempt
+ * @return bool true of update successful, otherwise false
+ */
+function adaptivequiz_complete_attempt($uniqueid, $instance, $userid, $statusmessage) {
+    global $DB;
+
+    $param = array('uniqueid' => $uniqueid, 'instance' => $instance, 'userid' => $userid);
+
+    try {
+        $attempt = $DB->get_record('adaptivequiz_attempt', $param, '*', MUST_EXIST);
+    } catch (dml_exception $e) {
+        $debuginfo = '';
+
+        if (!empty($e->debuginfo)) {
+            $debuginfo = $e->debuginfo;
+        }
+
+        print_error('completeattempterror', 'adaptivequiz', '', $e->getMessage(), $debuginfo);
+    }
+
+    $attempt->attemptstate = ADAPTIVEQUIZ_ATTEMPT_COMPLETED;
+    $attempt->attemptstopcriteria = $statusmessage;
+    $attempt->timemodified = time();
+    $DB->update_record('adaptivequiz_attempt', $attempt);
+
+    return true;
+}
+
+/**
+ * This function checks whether the minimum number of attmepts have been achieved for an attempt
+ * @param int $uniqueid uniqueid value of the adaptivequiz_attempt record
+ * @param int $instance instance value of the adaptivequiz_attempt record
+ * @param int $userid unerid value of the adaptivequiz_attempt record
+ * @return bool true of record exists, otherwise false
+ */
+function adaptivequiz_min_attempts_reached($uniqueid, $instance, $userid) {
+    global $DB;
+
+    $sql = "SELECT adpq.id
+             FROM {adaptivequiz} adpq
+             JOIN {adaptivequiz_attempt} adpqa ON adpq.id = adpqa.instance
+            WHERE adpqa.uniqueid = :uniqueid
+                  AND adpqa.instance = :instance
+                  AND adpqa.userid = :userid
+                  AND adpq.minimumquestions <= adpqa.questionsattempted
+         ORDER BY adpq.id ASC";
+
+    $param = array('uniqueid' => $uniqueid, 'instance' => $instance, 'userid' => $userid);
+    $exists = $DB->record_exists_sql($sql, $param);
+
+    return $exists;
 }

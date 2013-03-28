@@ -227,8 +227,8 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
         $result = $adaptiveattempt->return_random_question(array());
         $this->assertEquals(0, $result);
 
-        $result = $adaptiveattempt->return_random_question(array(1, 2, 3, 4));
-        $this->assertNotEquals(0, $result);
+        $result = (string) $adaptiveattempt->return_random_question(array(1 => 'quest 1', 2 => 'quest 2', 3 => 'quest 3', 4 => 'quest 4'));
+        $this->assertRegExp('/[1-4]/', $result);
     }
 
     /**
