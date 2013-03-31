@@ -51,7 +51,7 @@
         <FIELD NAME="attemptstate" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false" COMMENT="The state of the attempt" PREVIOUS="uniqueid" NEXT="attemptstopcriteria"/>
         <FIELD NAME="attemptstopcriteria" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The reason why the attempt was stopped" PREVIOUS="attemptstate" NEXT="questionsattempted"/>
         <FIELD NAME="questionsattempted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The number of question attempted" PREVIOUS="attemptstopcriteria" NEXT="difficultysum"/>
-        <FIELD NAME="difficultysum" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The sum of difficulty levels attempted" PREVIOUS="questionsattempted" NEXT="standarderror"/>
+        <FIELD NAME="difficultysum" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.0" SEQUENCE="false" DECIMALS="7" COMMENT="The sum of difficulty levels attempted measured in logits" PREVIOUS="questionsattempted" NEXT="standarderror"/>
         <FIELD NAME="standarderror" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.0" SEQUENCE="false" DECIMALS="5" COMMENT="The standard error that was achieved during the attempt" PREVIOUS="difficultysum" NEXT="timecreated"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time created timestamp" PREVIOUS="standarderror" NEXT="timemodified"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time modified timestamp" PREVIOUS="timecreated"/>
