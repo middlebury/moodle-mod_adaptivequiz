@@ -33,6 +33,14 @@ require_once($CFG->dirroot.'/mod/adaptivequiz/lib.php');
  */
 class mod_adaptivequiz_lib_testcase extends advanced_testcase {
     /**
+     * This functions loads data via the tests/fixtures/mod_adaptivequiz.xml file
+     * @return void
+     */
+    protected function setup_test_data_xml() {
+        $this->loadDataSet($this->createXMLDataSet(__DIR__.'/fixtures/mod_adaptivequiz.xml'));
+    }
+
+    /**
      * Provide input data to the parameters of the test_questioncat_association_insert() method.
      */
     public function questioncat_association_records() {
@@ -51,7 +59,7 @@ class mod_adaptivequiz_lib_testcase extends advanced_testcase {
         $data[] = array(3, $adaptivequiz);
 
         return $data;
-   }
+    }
 
     /**
      * Test insertion of question category association records
@@ -94,7 +102,6 @@ class mod_adaptivequiz_lib_testcase extends advanced_testcase {
 
         adaptivequiz_add_questcat_association($instance, $adaptivequiz);
 
-        // Test 
         if (1 == $instance) {
             $adaptivequizupdate = new stdClass();
             $adaptivequizupdate->questionpool = array(111, 222, 333, 444, 555, 122, 133, 144, 155, 166);
@@ -118,5 +125,23 @@ class mod_adaptivequiz_lib_testcase extends advanced_testcase {
             adaptivequiz_update_questcat_association($instance, $adaptivequizupdate);
             $this->assertEquals(7, $DB->count_records('adaptivequiz_question', array('instance' => $instance)));
         }
+    }
+
+    /**
+     * This function tests the removal of an activity instance and all related data
+     */
+    public function test_adaptivequiz_delete_instance() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $instance = 330;
+        adaptivequiz_delete_instance($instance);
+
+        $this->assertEquals(0, $DB->count_records('adaptivequiz', array('id' => $instance)));
+        $this->assertEquals(0, $DB->count_records('adaptivequiz_question', array('instance' => $instance)));
+        $this->assertEquals(0, $DB->count_records('adaptivequiz_attempt', array('instance' => $instance)));
+        $this->assertEquals(0, $DB->count_records('question_usages', array('id' => $instance)));
     }
 }

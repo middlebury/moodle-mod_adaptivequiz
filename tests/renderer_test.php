@@ -124,4 +124,29 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
 
         $this->assertContains('</form>', $output);
     }
+
+    /**
+     * This function tests the output from create_attemptfeedback
+     */
+    public function test_create_attemptfeedback() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $output = $renderer->create_attemptfeedback('Test attempt feedback', 99);
+
+        // Test form attributes
+        $this->assertContains('<form', $output);
+        $this->assertContains('/mod/adaptivequiz/view.php', $output);
+        $this->assertContains('id="attemptfeedback"', $output);
+
+        // Test submit button and class
+        $this->assertContains('type="submit"', $output);
+        $this->assertContains('class="submitbtns adaptivequizfeedback"', $output);
+
+        // Test output contains required elements
+        $this->assertContains('name="id"', $output);
+
+        $this->assertContains('</form>', $output);
+    }
 }

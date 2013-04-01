@@ -31,9 +31,8 @@ defined('MOODLE_INTERNAL') || die();
 define('ADAPTIVEQUIZMAXATTEMPT', 10);
 define('ADAPTIVEQUIZNAME', 'adaptivequiz');
 
-////////////////////////////////////////////////////////////////////////////////
-// Moodle core API                                                            //
-////////////////////////////////////////////////////////////////////////////////
+require_once($CFG->dirroot.'/question/engine/lib.php');
+
 
 /**
  * Returns the information on whether the module supports a feature
@@ -180,8 +179,15 @@ function adaptivequiz_delete_instance($id) {
         $DB->delete_records('adaptivequiz_question', array('instance' => $id));
     }
 
-    // Remove attempts data
-    if ($DB->get_record('adaptivequiz_attempt', array('instance' => $id))) {
+    // Remove question_usage_by_activity records
+    $attempts = $DB->get_records('adaptivequiz_attempt', array('instance' => $id));
+
+    if (!empty($attempts)) {
+        foreach ($attempts as $attempt) {
+            question_engine::delete_questions_usage_by_activity($attempt->uniqueid);
+        }
+
+        // Remove attempts data
         $DB->delete_records('adaptivequiz_attempt', array('instance' => $id));
     }
 
@@ -276,13 +282,8 @@ function adaptivequiz_get_extra_capabilities() {
     return array();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Navigation API                                                             //
-////////////////////////////////////////////////////////////////////////////////
-
 /**
  * Extends the global navigation tree by adding adaptivequiz nodes if there is a relevant content
- *
  * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
  *
  * @param navigation_node $navref An object representing the navigation tree node of the adaptivequiz module instance
