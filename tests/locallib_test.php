@@ -179,10 +179,10 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
     }
 
     /**
-     * This function tests a non-failing conditions for counting user's previous attemtps
+     * This function tests a non-failing conditions for counting user's previous attempts
      * that have been marked as completed
      */
-    public function test_count_user_previous_attempts() {
+    public function test_count_user_previous_attempts_inprogress() {
         $this->resetAfterTest(true);
         $this->setup_test_data_xml();
 
@@ -198,7 +198,7 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
      * @param int $maxattempts the maximum number of attempts allowed
      * @param int $attempts the number of attempts taken thus far
      */
-    public function test_allowed_attempt_fail($maxattempts, $attempts) {
+    public function test_allowed_attempt_no_more_attempts_allowed($maxattempts, $attempts) {
         $data = adaptivequiz_allowed_attempt($maxattempts, $attempts);
         $this->assertFalse($data);
     }
@@ -239,12 +239,28 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
         $this->setup_test_data_xml();
 
-        $result = adaptivequiz_update_attempt_data(3, 13, 3, 50);
+        $result = adaptivequiz_update_attempt_data(3, 13, 3, 50, 0.002);
         $record = $DB->get_record('adaptivequiz_attempt', array('id' => 2));
 
         $this->assertTrue($result);
         $this->assertEquals(51, $record->difficultysum);
         $this->assertEquals(1, $record->questionsattempted);
+        $this->assertEquals(0.002, $record->standarderror);
+    }
+
+    /**
+     * This function tests the updating of the attempt data
+     */
+    public function test_adaptivequiz_update_attempt_data_using_infinite_value() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $result = adaptivequiz_update_attempt_data(3, 13, 3, -INF, 0.02);
+        $record = $DB->get_record('adaptivequiz_attempt', array('id' => 2));
+
+        $this->assertFalse($result);
     }
 
     /**
@@ -256,12 +272,13 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
         $this->setup_test_data_xml();
 
-        $result = adaptivequiz_complete_attempt(3, 13, 3, 'php unit test');
+        $result = adaptivequiz_complete_attempt(3, 13, 3, 1, 'php unit test');
         $record = $DB->get_record('adaptivequiz_attempt', array('id' => 2));
 
         $this->assertTrue($result);
         $this->assertEquals('php unit test', $record->attemptstopcriteria);
         $this->assertEquals(ADAPTIVEQUIZ_ATTEMPT_COMPLETED, $record->attemptstate);
+        $this->assertEquals(1, $record->standarderror);
     }
 
     /**

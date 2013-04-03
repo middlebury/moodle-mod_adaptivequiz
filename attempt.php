@@ -63,15 +63,25 @@ $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-// TODO: Check if the user has the attempt capability
+// Check if the user has the attempt capability
+require_capability('mod/adaptivequiz:attempt', $context);
+
+// Check if the user has any previous attempts at this activity
+$count = adaptivequiz_count_user_previous_attempts($adaptivequiz->id, $USER->id);
+
+if (!adaptivequiz_allowed_attempt($adaptivequiz->attempts, $count)) {
+    print_error('noattemptsallowed', 'adaptivequiz');
+}
 
 // Create an instance of the adaptiveattempt class
 $adaptiveattempt = new adaptiveattempt($adaptivequiz, $USER->id);
 $algo = new stdClass();
 $nextdiff = null;
+$standarderror = 0.0;
+$message = '';
 
 // If uniqueid is not empty the process respones
-if (!empty($uniqueid)) {
+if (!empty($uniqueid) && confirm_sesskey()) {
     // Check if the uniqueid belongs to the same attempt record the user is currently using
     $attemptrec = $adaptiveattempt->get_attempt();
 
@@ -79,8 +89,8 @@ if (!empty($uniqueid)) {
         print_error('uniquenotpartofattempt', 'adaptivequiz');
     }
 
+    // Process student's responses
     try {
-        // Process student's responses
         // Set a time stamp for the actions below
         $time = time();
         // Load the user's current usage from the DB
@@ -92,26 +102,48 @@ if (!empty($uniqueid)) {
         // Save the data about the usage to the DB
         question_engine::save_questions_usage_by_activity($quba);
 
-        // Increment difficulty level for attempt
-        $everythingokay = false;
-
         if (!empty($difflevel)) {
-            $everythingokay = adaptivequiz_update_attempt_data($uniqueid, $cm->instance, $USER->id, $difflevel);
+            // Check if the minimum number of attempts have been reached
+            $minattemptreached = adaptivequiz_min_attempts_reached($uniqueid, $cm->instance, $USER->id);
+            // Create an instance of the CAT algo class
+            $algo = new catalgo($quba, (int) $attemptrec->id, $minattemptreached, (int) $difflevel);
+            // Calculate the next difficulty level
+            $nextdiff = $algo->perform_calculation_steps();
+
+            // Increment difficulty level for attempt
+            $everythingokay = false;
+            $difflogit = $algo->get_levellogit();
+            $standarderror = $algo->get_standarderror();
+            $everythingokay = adaptivequiz_update_attempt_data($uniqueid, $cm->instance, $USER->id, $difflogit, $standarderror);
+
+            // Something went wrong with updating the attempt.  Print an error.
+            if (!$everythingokay) {
+                $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
+                print_error('unableupdatediffsum', 'adaptivequiz', $url);
+            }
+
+            // Check whether the status property is empty
+            $message = $algo->get_status();
+
+            if (!empty($message)) {
+
+                $standarderror = $algo->get_standarderror();
+                // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the attempt finished page
+                adaptivequiz_complete_attempt($uniqueid, $cm->instance, $USER->id, $standarderror, $message);
+
+                $param = array('cmid' => $cm->id, 'id' => $cm->instance, 'uattid' => $uniqueid);
+                $url = new moodle_url('/mod/adaptivequiz/attemptfinished.php', $param);
+                redirect($url);
+            }
+
+            // Lastly decrement the sum of questions for the attempted difficulty level
+            $fetchquestion = new fetchquestion($quba, $difflevel, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+            $tagquestcount = $fetchquestion->get_tagquestsum();
+            $tagquestcount = $fetchquestion->decrement_question_sum_from_difficulty($tagquestcount, $difflevel);
+            $fetchquestion->set_tagquestsum($tagquestcount);
+            // Force the class to deconstruct the object and save the updated mapping to the session global
+            unset($fetchquestion);
         }
-
-        // Something went wrong with updating the attempt.  Print an error.
-        if (!$everythingokay) {
-            $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
-            print_error('unableupdatediffsum', 'adaptivequiz', $url);
-        }
-
-        // Check if the minimum number of attempts have been reached
-        $minattemptreached = adaptivequiz_min_attempts_reached($uniqueid, $cm->instance, $USER->id);
-        // Create an instance of the CAT algo class
-        $algo = new catalgo($quba, (int) $attemptrec->id, $minattemptreached, (int) $difflevel);
-        // Calculate the next difficulty level
-        $nextdiff = $algo->perform_calculation_steps();
-
     } catch (question_out_of_sequence_exception $e) {
         $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
         print_error('submissionoutofsequencefriendlymessage', 'question', $url);
@@ -144,8 +176,13 @@ $attemptstatus = $adaptiveattempt->start_attempt();
 if (empty($attemptstatus)) {
     // Retrieve the most recent status message for the attempt
     $message = $adaptiveattempt->get_status();
-    // Update the attempt with the status message
-    adaptivequiz_complete_attempt($uniqueid, $cm->instance, $USER->id, $message);
+
+    // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the attempt finished page
+    if ($algo instanceof catalgo) {
+        $standarderror = $algo->get_standarderror();
+    }
+
+    adaptivequiz_complete_attempt($uniqueid, $cm->instance, $USER->id, $standarderror, $message);
     // Redirect the user to the attemptfeedback page
     $param = array('cmid' => $cm->id, 'id' => $cm->instance, 'uattid' => $uniqueid);
     $url = new moodle_url('/mod/adaptivequiz/attemptfinished.php', $param);
@@ -156,8 +193,19 @@ if (empty($attemptstatus)) {
 $slot = $adaptiveattempt->get_question_slot_number();
 // Retrieve the question_usage_by_activity object
 $quba = $adaptiveattempt->get_quba();
-// Retrieve the currently set difficulty level
-$level = $adaptiveattempt->get_level();
+// If $nextdiff is null then this is either a new attempt or a continuation of an previous attempt.  Calculate the current difficulty level the attempt should be at
+if (is_null($nextdiff)) {
+    // Calculate the current difficulty level
+    $adaptivequiz->lowestlevel = (int) $adaptivequiz->lowestlevel;
+    $adaptivequiz->highestlevel = (int) $adaptivequiz->highestlevel;
+    $adaptivequiz->startinglevel = (int) $adaptivequiz->startinglevel;
+    // Create an instance of the catalgo class, however constructor arguments are not important
+    $algo = new catalgo($quba, 1, false, 1);
+    $level = $algo->get_current_diff_level($quba, $adaptivequiz->startinglevel, $adaptivequiz);
+} else {
+    // Retrieve the currently set difficulty level
+    $level = $adaptiveattempt->get_level();
+}
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
