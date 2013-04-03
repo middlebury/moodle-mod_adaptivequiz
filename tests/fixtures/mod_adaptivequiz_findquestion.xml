@@ -55,6 +55,12 @@
             <value>16</value>
             <value>Data test for fetch_question</value>
         </row>
+        <row>
+            <value>5</value>
+            <value>retrieve_tags_with_question_count</value>
+            <value>16</value>
+            <value>test_retrieve_tags_with_question_count</value>
+        </row>
     </table>
     <table name="question">
         <column>id</column>
@@ -120,6 +126,46 @@
             <value>4</value>
             <value>0</value>
             <value>true or false 6</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>7</value>
+            <value>5</value>
+            <value>0</value>
+            <value>TF test 1</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>8</value>
+            <value>5</value>
+            <value>0</value>
+            <value>TF test 2</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>9</value>
+            <value>5</value>
+            <value>0</value>
+            <value>TF test 3</value>
+            <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>10</value>
+            <value>5</value>
+            <value>0</value>
+            <value>TF test 4</value>
             <value>question text</value>
             <value>general feedback</value>
             <value>1.0</value>
@@ -284,6 +330,27 @@
             <value>8</value>
             <value>question</value>
             <value>6</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>7</value>
+            <value>1</value>
+            <value>question</value>
+            <value>8</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>8</value>
+            <value>8</value>
+            <value>question</value>
+            <value>9</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>9</value>
+            <value>8</value>
+            <value>question</value>
+            <value>10</value>
             <value>0</value>
         </row>
     </table>

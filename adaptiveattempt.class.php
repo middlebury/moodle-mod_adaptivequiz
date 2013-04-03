@@ -248,7 +248,7 @@ class adaptiveattempt {
         // Find the last question viewed/answered by the user
         $this->slot = $this->find_last_quest_used_by_attempt($this->quba);
         // Create a an instance of the fetchquestion class
-        $fetchquestion = new fetchquestion($this->adaptivequiz, 1);
+        $fetchquestion = new fetchquestion($this->adaptivequiz, 1, $this->adaptivequiz->lowestlevel, $this->adaptivequiz->highestlevel);
 
         // Check if this is the beginning of an attempt (and pass the starting level) or the continuation of an attempt
         if (empty($this->slot) && 0 == $adpqattempt->questionsattempted) {
@@ -256,27 +256,20 @@ class adaptiveattempt {
             $fetchquestion->set_level((int) $this->adaptivequiz->startinglevel);
             // Sets the level class property
             $this->level = $this->adaptivequiz->startinglevel;
-            // Set default searching strategy
-            $fetchquestion->set_searchup(true);
+            // Set the rebuild flag for fetchquestion class
+            $fetchquestion->rebuild = true;
 
-            $this->print_debug("start_attempt() - Brand new attempt.  Set starting level: {$this->adaptivequiz->startinglevel}.  Set default search to 'up'");
+            $this->print_debug("start_attempt() - Brand new attempt.  Set starting level: {$this->adaptivequiz->startinglevel}.");
 
         } else if (!empty($this->slot) && $this->was_answer_submitted_to_question($this->quba, $this->slot)) {
             // If the attempt already has a question attached to it, check if an answer was submitted to the question.  If so fetch a new question
-
-            // If the user answered the last question correctly, set the deafult searching strategy
-            if (0 == $this->get_question_mark($this->quba, $this->slot)) {
-                $fetchquestion->set_searchup(false);
-            } else {
-                $fetchquestion->set_searchup(true);
-            }
 
             // Reset the slot number back to zero, since we are going to fetch a new question
             $this->slot = 0;
             // Set the level of difficulty to fetch
             $fetchquestion->set_level((int) $this->level);
 
-            $this->print_debug("start_attempt() - Continuing attempt.  Set level: {$this->level}.  Set default search to ".print_r($fetchquestion->get_searchup(), true));
+            $this->print_debug("start_attempt() - Continuing attempt.  Set level: {$this->level}.");
 
         } else if (empty($this->slot) && 0 < $adpqattempt->questionsattempted) {
             // If this condition is met, then something went wrong because the slot id is empty BUT the questions attempted is greater than zero.  Stop attempt
@@ -347,6 +340,8 @@ class adaptiveattempt {
         // Update the attempt unique id
         $this->set_attempt_uniqueid();
 
+        // Set class level property to the difficulty level of the question returned from fetchquestion class
+        $this->level = $fetchquestion->get_level();
         $this->print_debug('get_question_ready() - Question: '.print_r($question, true).' loaded and attempt started.  Question_usage_by_activity saved.');
         return true;
     }

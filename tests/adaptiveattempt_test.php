@@ -583,8 +583,12 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
      * This function tests what happens when a question slot number is not found, but the number of submitted answers is greater than zero
      */
     public function test_start_attempt_quest_slot_empty_quest_submit_greater_than_one() {
+        $dummy = new stdClass();
+        $dummy->lowestlevel = 1;
+        $dummy->highestlevel = 100;
+
         $functions = array('get_attempt', 'max_questions_answered', 'initialize_quba', 'find_last_quest_used_by_attempt', 'level_in_bounds');
-        $mockattemptthree = $this->getMock('adaptiveattempt', $functions, array(), '', false);
+        $mockattemptthree = $this->getMock('adaptiveattempt', $functions, array($dummy, 1), '', true);
 
         $dummyattempt = new stdClass();
         $dummyattempt->questionsattempted = 1;

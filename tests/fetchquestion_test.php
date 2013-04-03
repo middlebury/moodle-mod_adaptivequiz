@@ -134,7 +134,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->setup_test_data_xml();
         $this->setup_generator_data();
 
-        $attempt = $this->getMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance));
+        $attempt = $this->getMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance, 1, 1, 100));
 
         $attempt->expects($this->exactly(2))
                 ->method('retrieve_question_categories')
@@ -160,7 +160,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $mockclass = $this->getMock(
                 'fetchquestion',
                 array('retrieve_question_categories'),
-                array($this->activityinstance)
+                array($this->activityinstance, 1, 1, 100)
         );
 
         $mockclass->expects($this->exactly(2))
@@ -186,7 +186,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->setup_test_data_xml();
         $this->setup_generator_data();
 
-        $mockclass = $this->getMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance));
+        $mockclass = $this->getMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance, 1, 1, 100));
 
         $mockclass->expects($this->once())
                 ->method('retrieve_question_categories')
@@ -194,23 +194,6 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
 
         $data = $mockclass->find_questions_with_tags(array(1), array(1));
         $this->assertEquals(0, count($data));
-    }
-
-    /**
-     * This functions tests the accessor methods for the $searchup class variable
-     * @return void
-     */
-    public function test_get_set_searchup() {
-        $this->resetAfterTest(true);
-        $dummyclass = new stdClass();
-
-        $fetchquestion = new fetchquestion($dummyclass);
-
-        $this->assertFalse($fetchquestion->get_searchup());
-        $fetchquestion->set_searchup(true);
-        $this->assertTrue($fetchquestion->get_searchup());
-        $fetchquestion->set_searchup(false);
-        $this->assertFalse($fetchquestion->get_searchup());
     }
 
     /**
@@ -222,7 +205,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
         $dummyclass = new stdClass();
 
-        $fetchquestion = new fetchquestion($dummyclass, 99);
+        $fetchquestion = new fetchquestion($dummyclass, 99, 1, 100);
         $this->assertEquals(99, $fetchquestion->get_level());
 
         $fetchquestion->set_level(22);
@@ -242,16 +225,16 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
         $dummyclass = new stdClass();
 
-        $fetchquestion = new fetchquestion($dummyclass, -11, array('phpunittag_'));
+        $fetchquestion = new fetchquestion($dummyclass, -11, 1, 100, array('phpunittag_'));
         $this->assertEquals(0, count($fetchquestion->retrieve_tag()));
 
-        $fetchquestion = new fetchquestion($dummyclass, 'asdf', array('phpunittag_'));
+        $fetchquestion = new fetchquestion($dummyclass, 'asdf', 1, 100, array('phpunittag_'));
         $this->assertEquals(0, count($fetchquestion->retrieve_tag()));
 
-        $fetchquestion2 = new fetchquestion($dummyclass, 0, array('phpunittag_'));
+        $fetchquestion2 = new fetchquestion($dummyclass, 0, 1, 100, array('phpunittag_'));
         $this->assertEquals(0, count($fetchquestion2->retrieve_tag()));
 
-        $fetchquestion3 = new fetchquestion($dummyclass, 999, array('phpunittag_'));
+        $fetchquestion3 = new fetchquestion($dummyclass, 999, 1, 100, array('phpunittag_'));
         $this->assertEquals(0, count($fetchquestion3->retrieve_tag()));
     }
 
@@ -266,103 +249,394 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
 
         $dummyclass = new stdClass();
 
-        $fetchquestion = new fetchquestion($dummyclass, 5, array('phpunittag_'));
+        $fetchquestion = new fetchquestion($dummyclass, 5, 1, 100, array('phpunittag_'));
         $data = $fetchquestion->retrieve_tag(5);
         $this->assertEquals(2, count($data));
         $this->assertEquals(array(1 => 1, 2 => 2), $data);
 
-        $fetchquestion2 = new fetchquestion($dummyclass, 888, array('phpunittag_'));
+        $fetchquestion2 = new fetchquestion($dummyclass, 888, 1, 100, array('phpunittag_'));
         $data = $fetchquestion->retrieve_tag(888);
         $this->assertEquals(1, count($data));
         $this->assertEquals(array(3 => 3), $data);
     }
 
     /**
-     * This functions tests the retires at finding a question associated to a difficulty level
-     * @return void
+     * This function test output from fetch_question() where initalize_tags_with_quest_count() returns an empty array
      */
-    public function test_fetch_question_fail() {
+    public function test_fetch_question_initalize_tags_with_quest_count_return_empty_array() {
+        $this->resetAfterTest(true);
         $dummyclass = new stdClass();
 
-        // Test calling fetch_question(), returning an empty set of tag ids and reattempting 5 times
-        $mockclass = $this->getMock('fetchquestion', array('retrieve_tag', 'find_questions_with_tags'), array($this->activityinstance, 5));
+        $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
+        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
 
-        $mockclass->expects($this->exactly(5))
-                ->method('retrieve_tag')
+        $mockclass->expects($this->once())
+                ->method('initalize_tags_with_quest_count')
                 ->will($this->returnValue(array()));
+
+        $mockclass->expects($this->never())
+                ->method('retrieve_tag');
 
         $mockclass->expects($this->never())
                 ->method('find_questions_with_tags');
 
-        $this->assertEquals(0, count($mockclass->fetch_questions()));
-
-        // Test calling fetch_question(), return a tag id, but return empty question ids and reattempting 5 times
-        $mockclasstwo = $this->getMock('fetchquestion', array('retrieve_tag', 'find_questions_with_tags'), array($this->activityinstance, 5));
-
-        $mockclasstwo->expects($this->exactly(5))
-                ->method('retrieve_tag')
-                ->will($this->returnValue(array(1 => 1)));
-
-        $mockclasstwo->expects($this->exactly(5))
-                ->method('find_questions_with_tags')
-                ->will($this->returnValue(array()));
-
-        $this->assertEquals(0, count($mockclasstwo->fetch_questions()));
+        $result = $mockclass->fetch_questions();
+        $expected = array();
+        $this->assertEquals($expected, $result);
     }
 
     /**
-     * This function tests the retries at finding a question associated to a difficulty level
-     * @return void
+     * This function test output from fetch_question() where the initial requested level has available questions
      */
-    public function test_fetch_question() {
-        $mockclass = $this->getMock('fetchquestion', array('retrieve_tag', 'find_questions_with_tags'), array($this->activityinstance, 5));
+    public function test_fetch_question_requested_level_has_questions() {
+        $this->resetAfterTest(true);
+        $dummyclass = new stdClass();
+
+        $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
+        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+
+        $tagquestsum = array(5 => 2);
+        $mockclass->expects($this->once())
+                ->method('initalize_tags_with_quest_count')
+                ->with(array(), array('adpq_'), '1', '100')
+                ->will($this->returnValue($tagquestsum));
 
         $mockclass->expects($this->once())
                 ->method('retrieve_tag')
-                ->will($this->returnValue(array(1 => 1)));
+                ->with(5)
+                ->will($this->returnValue(array(11)));
 
         $mockclass->expects($this->once())
                 ->method('find_questions_with_tags')
-                ->will($this->returnValue(array(2, 4, 6, 8, 10)));
+                ->with(array(11), array())
+                ->will($this->returnValue(array(22)));
 
-        $data = array(2, 4, 6, 8, 10);
-        $this->assertEquals($data, $mockclass->fetch_questions());
+        $result = $mockclass->fetch_questions();
+        $expected = array(22);
+        $this->assertEquals($expected, $result);
     }
 
     /**
-     * This functions tests re-attempts at finding a question addociated to a difficulty level, forcing function to
-     * re-attempt 5 times and return a level 10 question id and  using testing data
-     * @return void
+     * This function test output from fetch_question() where one level higher than requested level has avaialbe questions
      */
-    public function test_fetch_question_with_data() {
+    public function test_fetch_question_one_level_higher_has_questions() {
+        $this->resetAfterTest(true);
+        $dummyclass = new stdClass();
+
+        $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
+        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+
+        $tagquestsum = array(5 => 0, 6 => 1);
+        $mockclass->expects($this->once())
+                ->method('initalize_tags_with_quest_count')
+                ->with(array(), array('adpq_'), '1', '100')
+                ->will($this->returnValue($tagquestsum));
+
+        $mockclass->expects($this->once())
+                ->method('retrieve_tag')
+                ->with(6)
+                ->will($this->returnValue(array(11)));
+
+        $mockclass->expects($this->once())
+                ->method('find_questions_with_tags')
+                ->with(array(11), array())
+                ->will($this->returnValue(array(22)));
+
+        $result = $mockclass->fetch_questions();
+        $expected = array(22);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This function test output from fetch_question() where five levels higher than requested level has avaialbe questions
+     */
+    public function test_fetch_question_five_levels_higher_has_questions() {
+        $this->resetAfterTest(true);
+        $dummyclass = new stdClass();
+
+        $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
+        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+
+        $tagquestsum = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 2);
+        $mockclass->expects($this->once())
+                ->method('initalize_tags_with_quest_count')
+                ->with(array(), array('adpq_'), '1', '100')
+                ->will($this->returnValue($tagquestsum));
+
+        $mockclass->expects($this->once())
+                ->method('retrieve_tag')
+                ->with(10)
+                ->will($this->returnValue(array(11)));
+
+        $mockclass->expects($this->once())
+                ->method('find_questions_with_tags')
+                ->with(array(11), array())
+                ->will($this->returnValue(array(22)));
+
+        $result = $mockclass->fetch_questions();
+        $expected = array(22);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This function test output from fetch_question() where four levels lower than requested level has avaialbe questions
+     */
+    public function test_fetch_question_four_levels_lower_has_questions() {
+        $this->resetAfterTest(true);
+        $dummyclass = new stdClass();
+
+        $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
+        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+
+        $tagquestsum = array(1 => 1, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0);
+        $mockclass->expects($this->once())
+                ->method('initalize_tags_with_quest_count')
+                ->with(array(), array('adpq_'), '1', '100')
+                ->will($this->returnValue($tagquestsum));
+
+        $mockclass->expects($this->once())
+                ->method('retrieve_tag')
+                ->with(1)
+                ->will($this->returnValue(array(11)));
+
+        $mockclass->expects($this->once())
+                ->method('find_questions_with_tags')
+                ->with(array(11), array())
+                ->will($this->returnValue(array(22)));
+
+        $result = $mockclass->fetch_questions();
+        $expected = array(22);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This function test output from fetch_question() where seraching for a question goes outside the min and max boundries and stops the searching
+     */
+    public function test_fetch_question_search_outside_min_max_bounds() {
+        $this->resetAfterTest(true);
+        $dummyclass = new stdClass();
+
+        $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
+        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 50, 49, 51));
+
+        $tagquestsum = array(48 => 1, 52 => 1);
+        $mockclass->expects($this->once())
+                ->method('initalize_tags_with_quest_count')
+                ->with(array(), array('adpq_'), 49, 51)
+                ->will($this->returnValue($tagquestsum));
+
+        $mockclass->expects($this->never())
+                ->method('retrieve_tag');
+
+        $mockclass->expects($this->never())
+                ->method('find_questions_with_tags');
+
+        $result = $mockclass->fetch_questions();
+        $expected = array();
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This function tests the output from retrieve_all_tag_ids()
+     */
+    public function test_retrieve_all_tag_ids_one_to_one_hundred_default_tag_prefix() {
         $this->resetAfterTest(true);
         $this->setup_test_data_xml();
-        $this->setup_generator_data_two();
 
         $dummyclass = new stdClass();
-        $excquestids = array(2, 3, 4);
+        $fetchquestion = new fetchquestion($dummyclass, 5, 1, 100);
 
-        // Test searching up from level 5, excluding all question ids except for questions in level 9
-        $fetchquestion = new fetchquestion($this->activityinstance, 5);
-        $fetchquestion->set_searchup(true);
-        $questionids = $fetchquestion->fetch_questions($excquestids);
+        $result = $fetchquestion->retrieve_all_tag_ids(1, 100, 'adpq_');
+        $expected = array(5 => '1', 6 => '4', 7 => '5', 8 => '6', 9 => '7', 10 => '8');
+        $this->assertEquals($expected, $result);
+    }
 
-        $dataobj = new stdClass();
-        $dataobj->id = 5;
-        $dataobj->name = 'true or false 5';
-        $data = array(5 => $dataobj);
 
-        $this->assertEquals(1, count($questionids));
-        $this->assertEquals($data, $questionids);
+    /**
+     * This function tests the output from retrieve_all_tag_ids()
+     * @expectedException dml_read_exception
+     */
+    public function test_retrieve_all_tag_ids_throw_dml_read_exception() {
+        $this->resetAfterTest(true);
 
-        // Test searching up from level 5, excluding all questions from levels 5 - 9
-        $excquestids = array(2, 3, 4, 5);
-        $questionids = $fetchquestion->fetch_questions($excquestids);
-        $this->assertEquals(0, count($questionids));
+        $dummyclass = new stdClass();
+        $fetchquestion = new fetchquestion($dummyclass, 5, 1, 100);
 
-        // Test searching down from level 5
-        $questionids = $fetchquestion->fetch_questions($excquestids);
-        $fetchquestion->set_searchup(false);
-        $this->assertEquals(0, count($questionids));
+        $result = $fetchquestion->retrieve_all_tag_ids(1, 5, '');
+    }
+
+    /**
+     * This function tests the output from retrieve_tags_with_question_count()
+     */
+    public function test_retrieve_tags_with_question_count_using_default_tag_prefix() {
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $dummyclass = new stdClass();
+        $tagids = array(1, 4, 5, 6, 7, 8);
+        $categoryids = '5';
+        $fetchquestion = new fetchquestion($dummyclass, 5, 1, 100);
+        $result = $fetchquestion->retrieve_tags_with_question_count($tagids, $categoryids, 'adpq_');
+
+        $expected = array();
+        $expected[5] = '1';
+        $expected[10] = '2';
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This is a data provider for
+     * @return $data - an array with arrays of data
+     */
+    public function constructor_throw_coding_exception_provider() {
+        $data = array(
+            array(0, 1, 100),
+            array(1, 100, 100),
+            array(1, 100, 99)
+        );
+
+        return $data;
+    }
+
+    /**
+     * This function tests throwing an exception by passing incorrect parameters
+     * @dataProvider constructor_throw_coding_exception_provider
+     * @expectedException coding_exception
+     * @param int $level the difficulty level
+     * @param int $min the minimum level of the attempt
+     * @param int $max the maximum level of the attempt
+     */
+    public function test_constructor_throw_coding_exception($level, $min, $max) {
+        $this->resetAfterTest(true);
+        $dummyclass = new stdClass();
+        $fetchquestion = new fetchquestion($dummyclass, $level, $min, $max);
+    }
+
+    /**
+     * This function tests the output from initalize_tags_with_quest_count()
+     */
+    public function test_initalize_tags_with_quest_count() {
+        $this->resetAfterTest(true);
+
+        $dummyclass = new stdClass();
+        $mockclass = $this->getMock(
+                'fetchquestion',
+                array('retrieve_question_categories', 'retrieve_all_tag_ids', 'retrieve_tags_with_question_count'),
+                array($dummyclass, 1, 1, 100)
+        );
+
+        $mockclass->expects($this->once())
+            ->method('retrieve_question_categories')
+            ->will($this->returnValue('1,2,3'));
+
+        $mockclass->expects($this->exactly(2))
+            ->method('retrieve_all_tag_ids')
+            ->withAnyParameters()
+            ->will($this->returnValue(array(4 => 4, 5 => 5, 6 => 6)));
+
+        $mockclass->expects($this->exactly(2))
+            ->method('retrieve_tags_with_question_count')
+            ->withAnyParameters()
+            ->will($this->returnValue(array(1 => 8, 2 => 3, 5 => 10)));
+
+        $tags = array('test1_', 'test2_');
+        $result = array();
+        $result = $mockclass->initalize_tags_with_quest_count($result, $tags, 1, 100);
+
+        $expected = array(1 => 16, 2 => 6, 5 => 20);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This function tests the output from initalize_tags_with_quest_count() passing an already built difficulty question sum structure
+     */
+    public function test_initalize_tags_with_quest_count_pre_built_quest_sum_struct_rebuild_false() {
+        $this->resetAfterTest(true);
+
+        $dummyclass = new stdClass();
+        $mockclass = $this->getMock(
+                'fetchquestion',
+                array('retrieve_question_categories', 'retrieve_all_tag_ids', 'retrieve_tags_with_question_count'),
+                array($dummyclass, 1, 1, 100)
+        );
+
+        $mockclass->expects($this->never())
+            ->method('retrieve_question_categories');
+
+        $mockclass->expects($this->never())
+            ->method('retrieve_all_tag_ids');
+
+        $mockclass->expects($this->never())
+            ->method('retrieve_tags_with_question_count');
+
+        $tags = array('test1_', 'test2_');
+        $result = array(1, 2, 3, 4);
+        $result = $mockclass->initalize_tags_with_quest_count($result, $tags, 1, 100, false);
+    }
+
+    /**
+     * This function tests the output from initalize_tags_with_quest_count(), passing an already built difficulty question sum structure, forcing a rebuild
+     */
+    public function test_initalize_tags_with_quest_count_pre_built_quest_sum_struct_rebuild_true() {
+        $this->resetAfterTest(true);
+
+        $dummyclass = new stdClass();
+        $mockclass = $this->getMock(
+                'fetchquestion',
+                array('retrieve_question_categories', 'retrieve_all_tag_ids', 'retrieve_tags_with_question_count'),
+                array($dummyclass, 1, 1, 100)
+        );
+
+        $mockclass->expects($this->once())
+            ->method('retrieve_question_categories')
+            ->will($this->returnValue('1,2,3'));
+
+        $mockclass->expects($this->exactly(2))
+            ->method('retrieve_all_tag_ids')
+            ->withAnyParameters()
+            ->will($this->returnValue(array(4 => 4, 5 => 5, 6 => 6)));
+
+        $mockclass->expects($this->exactly(2))
+            ->method('retrieve_tags_with_question_count')
+            ->withAnyParameters()
+            ->will($this->returnValue(array(1 => 8, 2 => 3, 5 => 10)));
+
+        $tags = array('test1_', 'test2_');
+        $result = array(1, 2, 3, 4);
+        $result = $mockclass->initalize_tags_with_quest_count($result, $tags, 1, 100, true);
+
+        $expected = array(1 => 16, 2 => 6, 5 => 20);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This function tests the output from decrement_question_sum_from_difficulty()
+     */
+    public function test_decrement_question_sum_from_difficulty() {
+        $this->resetAfterTest(true);
+
+        $dummyclass = new stdClass();
+        $result = array(1 => 12);
+        $expected = array(1 => 11);
+
+        $fetchquestion = new fetchquestion($dummyclass, 1, 1, 2);
+        $result = $fetchquestion->decrement_question_sum_from_difficulty($result, 1);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This function tests the output from decrement_question_sum_from_difficulty(), using a key that doesn't exist
+     */
+    public function test_decrement_question_sum_from_difficulty_user_missing_key() {
+        $this->resetAfterTest(true);
+
+        $dummyclass = new stdClass();
+        $result = array(1 => 12);
+        $expected = array(1 => 12);
+
+        $fetchquestion = new fetchquestion($dummyclass, 1, 1, 2);
+        $result = $fetchquestion->decrement_question_sum_from_difficulty($result, 2);
+        $this->assertEquals($expected, $result);
     }
 }
