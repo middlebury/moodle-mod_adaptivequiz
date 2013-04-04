@@ -31,6 +31,8 @@ define('ADAPTIVEQUIZ_QUESTION_TAG', 'adpq_');
 define('ADAPTIVEQUIZ_ATTEMPT_COMPLETED', 'complete');
 // Attempt is still in progress
 define('ADAPTIVEQUIZ_ATTEMPT_INPROGRESS', 'inprogress');
+// Number of attempts to display on the reporting page
+define('ADAPTIVEQUIZ_REC_PER_PAGE', 30);
 
 // Attempt stopping criteria
 // The maximum number of question, defined by the adaptive parameters was achieved
@@ -178,7 +180,7 @@ function adaptivequiz_uniqueid_part_of_attempt($uniqueid, $instance, $userid) {
  * @param int $uniqueid uniqueid value of the adaptivequiz_attempt record
  * @param int $instance instance value of the adaptivequiz_attempt record
  * @param int $userid unerid value of the adaptivequiz_attempt record
- * @param int $level the difficulty level attempted
+ * @param float $level the logit of the difficulty level
  * @return bool true of update successful, otherwise false
  */
 function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level) {
@@ -190,7 +192,8 @@ function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level)
 
     $param = array('uniqueid' => $uniqueid, 'instance' => $instance, 'userid' => $userid);
     try {
-        $attempt = $DB->get_record('adaptivequiz_attempt', $param, 'id,difficultysum,questionsattempted,timemodified', MUST_EXIST);
+        $fields = 'id,difficultysum,questionsattempted,timemodified';
+        $attempt = $DB->get_record('adaptivequiz_attempt', $param, $fields, MUST_EXIST);
     } catch (dml_exception $e) {
         $debuginfo = '';
 
@@ -201,7 +204,7 @@ function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level)
         print_error('updateattempterror', 'adaptivequiz', '', $e->getMessage(), $debuginfo);
     }
 
-    $attempt->difficultysum = (int) $attempt->difficultysum + (int) $level;
+    $attempt->difficultysum = (float) $attempt->difficultysum + (float) $level;
     $attempt->questionsattempted = (int) $attempt->questionsattempted + 1;
     $attempt->timemodified = time();
 
@@ -267,4 +270,38 @@ function adaptivequiz_min_attempts_reached($uniqueid, $instance, $userid) {
     $exists = $DB->record_exists_sql($sql, $param);
 
     return $exists;
+}
+
+/**
+ * This function constructs an ORDER BY caluse for the view attempts report page
+ * @param string $sort the column to sort by
+ * @param string $sortdir the direction to sort in
+ * @return string an ordery by (ex. ORDER BY firstname ASC)
+ */
+function adaptivequiz_construct_view_report_orderby($sort, $sortdir) {
+    $orderby = '';
+
+    switch (strtolower($sort)) {
+        case 'firstname':
+        case 'lastname':
+        case 'attempts':
+        case 'stderr':
+            $orderby = 'ORDER BY '.$sort;
+            break;
+        default:
+            $orderby = 'ORDER BY firstname';
+            break;
+    }
+
+    if (!empty($orderby)) {
+        switch (strtoupper($sortdir)) {
+            case 'DESC':
+                $orderby .= ' '.$sortdir;
+                break;
+            default:
+                $orderby .= ' ASC';
+        }
+    }
+
+    return $orderby;
 }
