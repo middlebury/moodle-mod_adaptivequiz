@@ -149,4 +149,41 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
 
         $this->assertContains('</form>', $output);
     }
+
+    /**
+     * This functions tests the output rom create_report_table()
+     */
+    public function test_create_report_table() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $records = array();
+        $records[1] = new stdClass();
+        $records[1]->id = 1;
+        $records[1]->firstname = 'test firstname';
+        $records[1]->lastname = 'test lastname';
+        $records[1]->standarderror = 0.001;
+        $records[1]->attempts = 5;
+
+        $cm = new stdClass();
+        $cm->id = 1;
+
+        $sort = 'firstname';
+        $sortdir = 'ASC';
+
+        $output = $renderer->create_report_table($records, $cm, $sort, $sortdir);
+        $this->assertContains('<table', $output);
+        $this->assertContains('/mod/adaptivequiz/viewreport.php', $output);
+        /* Check table row */
+        $this->assertContains('test firstname', $output);
+        $this->assertContains('test lastname', $output);
+        $this->assertContains('0.001', $output);
+        $this->assertContains('5', $output);
+        /* Check table column headers */
+        $this->assertContains('sort=firstname', $output);
+        $this->assertContains('sort=lastname', $output);
+        $this->assertContains('sort=attempts', $output);
+        $this->assertContains('sort=stderr', $output);
+    }
 }

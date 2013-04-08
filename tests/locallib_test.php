@@ -104,6 +104,25 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
     }
 
     /**
+     * Provide input data to the parameters of the test_adaptivequiz_construct_view_report_orderby() method.
+     * @return $data - an array with arrays of data
+     */
+    public function view_reports_data() {
+        $data = array(
+                array('firstname', 'ASC'),
+                array('firstname', 'DESC'),
+                array('lastname', 'ASC'),
+                array('lastname', 'DESC'),
+                array('attempts', 'ASC'),
+                array('attempts', 'DESC'),
+                array('stderr', 'ASC'),
+                array('stderr', 'DESC'),
+        );
+
+        return $data;
+    }
+
+    /**
      * Test the making of the default course question category
      */
     public function test_make_default_categories() {
@@ -259,5 +278,28 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
 
         $result = adaptivequiz_min_attempts_reached(4, 13, 4);
         $this->assertTrue($result);
+    }
+
+    /**
+     * This function tests the output from adaptivequiz_construct_view_report_orderby
+     * @dataProvider view_reports_data
+     * @param string $sort the column to sort on
+     * @param string $sortdir the direction to sort in
+     */
+    public function test_adaptivequiz_construct_view_report_orderby($sort, $sortdir) {
+        $this->resetAfterTest(true);
+
+        $data = adaptivequiz_construct_view_report_orderby($sort, $sortdir);
+        $this->assertContains('ORDER BY', $data);
+    }
+
+    /**
+     * This function tests the output from adaptivequiz_construct_view_report_orderby
+     */
+    public function test_adaptivequiz_construct_view_report_orderby_with_illegit_data() {
+        $this->resetAfterTest(true);
+
+        $data = adaptivequiz_construct_view_report_orderby('1234', 'ASC');
+        $this->assertContains('ORDER BY firstname', $data);
     }
 }
