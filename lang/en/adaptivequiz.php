@@ -78,3 +78,4 @@ $string['recentactquestionsattempted'] = 'Questions attempted: {$a}';
 $string['recentattemptstate'] = 'State of attempt:';
 $string['recentinprogress'] = 'In progress';
 $string['recentcomplete'] = 'Completed';
+$string['functiondisabledbysecuremode'] = 'That functionality is currently disabled';

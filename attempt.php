@@ -58,9 +58,9 @@ try {
     print_error('invalidmodule', 'error', $url, $e->getMessage(), $debuginfo);
 }
 
+// Setup page global for standard viewing
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
-$PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
 // Check if the user has the attempt capability
@@ -211,6 +211,14 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 $headtags = $output->init_metadata($quba, $slot);
 $PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', null, false, $output->adaptivequiz_get_js_module());
+
+// Init secure window if enabled
+if (!empty($adaptivequiz->browsersecurity)) {
+    $PAGE->blocks->show_only_fake_blocks();
+    $output->init_browser_security();
+} else {
+    $PAGE->set_heading(format_string($course->fullname));
+}
 
 // Render the question to the page
 echo $output->print_question($id, $quba, $slot, $level);

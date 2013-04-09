@@ -29,6 +29,20 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     protected $sorturl = '';
     /** @var int $groupid static variable used to reference the groupid that is currently being used to filter by */
     public static $groupid = 0;
+    /** @var array options that should be used for opening the secure popup. */
+    protected static $popupoptions = array(
+        'left' => 0,
+        'top' => 0,
+        'fullscreen' => true,
+        'scrollbars' => false,
+        'resizeable' => false,
+        'directories' => false,
+        'toolbar' => false,
+        'titlebar' => false,
+        'location' => false,
+        'status' => false,
+        'menubar' => false
+    );
 
     /**
      * This function displays a form with a button to start the assessment attempt
@@ -89,7 +103,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             'name' => 'mod_adaptivequiz',
             'fullpath' => '/mod/adaptivequiz/module.js',
             'requires' => array('base', 'dom', 'event-delegate', 'event-key', 'core_question_engine', 'moodle-core-formchangechecker'),
-            'strings' => array(array('cancel', 'moodle'), array('changesmadereallygoaway', 'moodle')),
+            'strings' => array(array('cancel', 'moodle'), array('changesmadereallygoaway', 'moodle'), array('functiondisabledbysecuremode', 'adaptivequiz'))
         );
     }
 
@@ -174,12 +188,13 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * This function the attempt feedback
      * @param string $attemptfeedback attempt feedback
      * @param int $cmid course module id
+     * @param bool $popup true if the attempt is using a popup window
      * @return string HTML markup
      */
-    public function print_attemptfeedback($attemptfeedback, $cmid) {
+    public function print_attemptfeedback($attemptfeedback, $cmid, $popup = false) {
         $output = '';
         $output .= $this->header();
-        $output .= $this->create_attemptfeedback($attemptfeedback, $cmid);
+        $output .= $this->create_attemptfeedback($attemptfeedback, $cmid, $popup);
         $output .= $this->footer();
         return $output;
     }
@@ -188,19 +203,56 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * This function the attempt feedback
      * @param string $attemptfeedback attempt feedback
      * @param int $cmid course module id
+     * @param bool $popup true if the attempt is using a popup window
      * @return string HTML markup
      */
-    public function create_attemptfeedback($attemptfeedback, $cmid) {
+    public function create_attemptfeedback($attemptfeedback, $cmid, $popup = false) {
         $output = '';
         $url = new moodle_url('/mod/adaptivequiz/view.php');
         $attr = array('action' => $url, 'method' => 'post', 'id' => 'attemptfeedback');
         $output .= html_writer::start_tag('form', $attr);
         $output .= html_writer::tag('p', s($attemptfeedback), array('class' => 'submitbtns adaptivequizfeedback'));
-        $attr = array('type' => 'submit', 'name' => 'attemptfinished', 'value' => get_string('continue'));
-        $output .= html_writer::empty_tag('input', $attr);
+
+        if (empty($popup)) {
+            $attr = array('type' => 'submit', 'name' => 'attemptfinished', 'value' => get_string('continue'));
+            $output .= html_writer::empty_tag('input', $attr);
+        } else {
+            // In a 'secure' popup window.
+            $this->page->requires->js_init_call('M.mod_adaptivequiz.secure_window.init_close_button', array($url), $this->adaptivequiz_get_js_module());
+            $output .= html_writer::empty_tag('input', array('type' => 'button', 'value' => get_string('continue'), 'id' => 'secureclosebutton'));
+        }
+
         $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $cmid));
         $output .= html_writer::end_tag('form');
 
+        return $output;
+    }
+
+    /**
+     * Output a page with an optional message, and JavaScript code to close the
+     * current window and redirect the parent window to a new URL.
+     * @param moodle_url $url the URL to redirect the parent window to.
+     * @param string $message message to display before closing the window. (optional)
+     * @return string HTML to output.
+     */
+    public function close_attempt_popup($url, $message = '') {
+        $output = '';
+        $output .= $this->header();
+        $output .= $this->box_start();
+
+        if ($message) {
+            $output .= html_writer::tag('p', $message);
+            $output .= html_writer::tag('p', get_string('windowclosing', 'quiz'));
+            $delay = 5;
+        } else {
+            $output .= html_writer::tag('p', get_string('pleaseclose', 'quiz'));
+            $delay = 0;
+        }
+        $this->page->requires->js_init_call('M.mod_quiz.secure_window.close',
+                array($url, $delay), false, adaptivequiz_get_js_module());
+
+        $output .= $this->box_end();
+        $output .= $this->footer();
         return $output;
     }
 
@@ -389,5 +441,50 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         }
 
         return $output;
+    }
+
+    /**
+     * Initialized secure browsing mode
+     */
+    public function init_browser_security() {
+        $this->page->set_popup_notification_allowed(false); // Prevent message notifications.
+        $this->page->set_cacheable(false);
+        $this->page->set_pagelayout('popup');
+
+        $this->page->add_body_class('quiz-secure-window');
+        $this->page->requires->js_init_call('M.mod_adaptivequiz.secure_window.init',
+                null, false, $this->adaptivequiz_get_js_module());
+    }
+
+    /**
+     * This functions prints the start attempt button to start a secured browser attempt
+     * @param int $cmid course module id
+     * @return string HTML markup for a button
+     */
+    public function display_start_attempt_form_scured($cmid) {
+        $param = array('cmid' => $cmid);
+        $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+
+        $buttonlabel = get_string('startattemptbtn', 'adaptivequiz');
+        $button = new single_button($url, $buttonlabel);
+        $button->class .= ' adaptivequizstartbuttondiv';
+
+        $this->page->requires->js_module($this->adaptivequiz_get_js_module());
+        $this->page->requires->js('/mod/adaptivequiz/module.js');
+
+        $popupaction = new popup_action('click', $url, 'adaptivequizpopup', self::$popupoptions);
+        $button->class .= ' adaptivequizsecuremoderequired';
+        $button->add_action(new component_action('click',
+                'M.mod_adaptivequiz.secure_window.start_attempt_action', array(
+                    'url' => $url->out(false),
+                    'windowname' => 'adaptivequizpopup',
+                    'options' => $popupaction->get_js_options(),
+                    'fullscreen' => true,
+                    'startattemptwarning' => '',
+                )));
+
+        $warning = html_writer::tag('noscript', $this->heading(get_string('noscript', 'quiz')));
+
+        return $this->render($button).$warning;
     }
 }

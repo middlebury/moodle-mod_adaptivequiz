@@ -68,7 +68,11 @@ if (has_capability('mod/adaptivequiz:attempt', $context)) {
     $count = adaptivequiz_count_user_previous_attempts($adaptivequiz->id, $USER->id);
 
     if (adaptivequiz_allowed_attempt($adaptivequiz->attempts, $count)) {
-        echo $renderer->display_start_attempt_form($cm->id);
+        if (empty($adaptivequiz->browsersecurity)) {
+            echo $renderer->display_start_attempt_form($cm->id);
+        } else {
+            echo $renderer->display_start_attempt_form_scured($cm->id);
+        }
     } else {
         echo $OUTPUT->notification(get_string('noattemptsallowed', 'adaptivequiz'));
     }

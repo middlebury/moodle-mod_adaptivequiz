@@ -54,9 +54,18 @@ if (!$validattempt) {
 
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
-$PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
-echo $output->print_attemptfeedback($adaptivequiz->attemptfeedback, $cm->id);
+// Init secure window if enabled
+$popup = false;
+if (!empty($adaptivequiz->browsersecurity)) {
+    $PAGE->blocks->show_only_fake_blocks();
+    $output->init_browser_security();
+    $popup = true;
+} else {
+    $PAGE->set_heading(format_string($course->fullname));
+}
+
+echo $output->print_attemptfeedback($adaptivequiz->attemptfeedback, $cm->id, $popup);
