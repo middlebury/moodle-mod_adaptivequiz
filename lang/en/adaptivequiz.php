@@ -74,3 +74,7 @@ $string['errornumattpzero'] = 'Error with number of questions attempted equals z
 $string['errorsumrightwrong'] = 'Sum of correct and incorrect answers does not equal the total number of questions attempted';
 $string['calcerrorwithinlimits'] = 'Calculated standard error of {$a->calerror} is within the limits imposed by the activity {$a->definederror}';
 $string['missingtagprefix'] = 'Missing tag prefix';
+$string['recentactquestionsattempted'] = 'Questions attempted: {$a}';
+$string['recentattemptstate'] = 'State of attempt:';
+$string['recentinprogress'] = 'In progress';
+$string['recentcomplete'] = 'Completed';

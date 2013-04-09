@@ -251,14 +251,194 @@ function adaptivequiz_print_recent_activity($course, $viewfullnames, $timestart)
  * @return void adds items into $activities and increases $index
  */
 function adaptivequiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
+    global $COURSE, $DB, $USER;
+
+    if ($COURSE->id == $courseid) {
+        $course = $COURSE;
+    } else {
+        $course = $DB->get_record('course', array('id' => $courseid));
+    }
+
+    $modinfo = get_fast_modinfo($course);
+
+    $cm = $modinfo->cms[$cmid];
+    $adaptivequiz = $DB->get_record('adaptivequiz', array('id' => $cm->instance));
+
+    if ($userid) {
+        $userselect = "AND u.id = :userid";
+        $params['userid'] = $userid;
+    } else {
+        $userselect = '';
+    }
+
+    if ($groupid) {
+        $groupselect = 'AND gm.groupid = :groupid';
+        $groupjoin   = 'JOIN {groups_members} gm ON  gm.userid=u.id';
+        $params['groupid'] = $groupid;
+    } else {
+        $groupselect = '';
+        $groupjoin   = '';
+    }
+
+    $params['timestart'] = $timestart;
+    $params['instance'] = $adaptivequiz->id;
+
+    $sql = "SELECT aa.*, u.firstname, u.lastname, u.email, u.picture, u.imagealt
+              FROM {adaptivequiz_attempt} aa
+                   JOIN {user} u ON u.id = aa.userid
+                   $groupjoin
+             WHERE aa.timemodified > :timestart
+                   AND aa.instance = :instance
+                   $userselect
+                   $groupselect
+          ORDER BY aa.timemodified ASC";
+    $rs = $DB->get_recordset_sql($sql, $params);
+
+    // Check if recordset contains records
+    if (!$rs->valid()) {
+        return;
+    }
+
+    $context         = context_module::instance($cm->id);
+    $accessallgroups = has_capability('moodle/site:accessallgroups', $context);
+    $viewfullnames   = has_capability('moodle/site:viewfullnames', $context);
+    $viewreport      = has_capability('mod/adaptivequiz:viewreport', $context);
+    $groupmode       = groups_get_activity_groupmode($cm, $course);
+
+    if (is_null($modinfo->groups)) {
+        // Load all my groups and cache it in modinfo.
+        $modinfo->groups = groups_get_user_groups($course->id);
+    }
+
+    $usersgroups = null;
+    $aname = format_string($cm->name, true);
+
+    foreach ($rs as $attempt) {
+        if ($attempt->userid != $USER->id) {
+            if (!$viewreport) {
+                // View report permission required to view activity other user attempts
+                continue;
+            }
+
+            if ($groupmode == SEPARATEGROUPS and !$accessallgroups) {
+                if (is_null($usersgroups)) {
+                    $usersgroups = groups_get_all_groups($course->id, $attempt->userid, $cm->groupingid);
+                    if (is_array($usersgroups)) {
+                        $usersgroups = array_keys($usersgroups);
+                    } else {
+                        $usersgroups = array();
+                    }
+                }
+                if (!array_intersect($usersgroups, $modinfo->groups[$cm->id])) {
+                    continue;
+                }
+            }
+        }
+
+        $tmpactivity = new stdClass();
+        $tmpactivity->content = new stdClass();
+        $tmpactivity->user = new stdClass();
+
+        $tmpactivity->type       = 'adaptivequiz';
+        $tmpactivity->cmid       = $cm->id;
+        $tmpactivity->name       = $aname;
+        $tmpactivity->sectionnum = $cm->sectionnum;
+        $tmpactivity->timestamp  = $attempt->timemodified;
+
+        $tmpactivity->content->attemptid = $attempt->id;
+        $tmpactivity->content->attemptstate = get_string('recent'.$attempt->attemptstate, 'adaptivequiz');
+        $tmpactivity->content->questionsattempted = $attempt->questionsattempted;
+
+        $tmpactivity->user->id        = $attempt->userid;
+        $tmpactivity->user->firstname = $attempt->firstname;
+        $tmpactivity->user->lastname  = $attempt->lastname;
+        $tmpactivity->user->picture   = $attempt->picture;
+        $tmpactivity->user->imagealt  = $attempt->imagealt;
+        $tmpactivity->user->email     = $attempt->email;
+
+        $activities[$index++] = $tmpactivity;
+    }
+
+    return;
 }
 
 /**
  * Prints single activity item prepared by {@see adaptivequiz_get_recent_mod_activity()}
- *
- * @return void
+ * @param stdClass $activity an object whose properties come from {@see adaptivequiz_get_recent_mod_activity()}
+ * @param int $courseid the id of the course we produce the report for
+ * @param bool $detail set to true to show more detail for the recent activity
+ * @param array $modnames an array of module names
+ * @param bool $viewfullnames true if the user has the capability to view full names
+ * @param bool $return set to true to return output, else false to echo the output
+ * @return string|void HTML markup
  */
-function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
+function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames, $return = false) {
+    global $CFG, $OUTPUT;
+
+    $output = '';
+    $cols = '';
+    $contect = '';
+
+    // Define table
+    $attr = array('border'=> '0', 'cellpadding' => '3', 'cellspacing' => '0', 'class' => 'adaptivequiz-recent');
+    $output .= html_writer::start_tag('table', $attr);
+
+    // Define table columns
+    $attr = array('class' => 'userpicture', 'valign' => 'top');
+    $content = $OUTPUT->user_picture($activity->user, array('courseid' => $courseid));
+    $cols .= html_writer::tag('td', $content, $attr);
+
+    $content = '';
+
+    if ($detail) {
+        $modname = $modnames[$activity->type];
+        // Start div
+        $attr = array('class' => 'title');
+        $content .= html_writer::start_tag('div', $attr);
+        // Create img markup
+        $attr = array('src' => $OUTPUT->pix_url('icon', $activity->type), 'class' => 'icon', 'alt' => $modname);
+        $content .= html_writer::empty_tag('img', $attr);
+        // Create anchor markup
+        $attr = array('href' => "{$CFG->wwwroot}/mod/adaptivequiz/view.php?id={$activity->cmid}", 'class' => 'icon', 'alt' => $modname);
+        $content .= html_writer::tag('a', $activity->name, $attr);
+        // End div
+        $content .= html_writer::end_tag('div');
+    }
+
+    // Create div with the state of the attempt
+    $attr = array('class' => 'attemptstate');
+    $string = get_string('recentattemptstate', 'adaptivequiz');
+    $content .= html_writer::tag('div', $string.'&nbsp;'.$activity->content->attemptstate, $attr);
+    // Create div with the number of questions attempted
+    $attr = array('class' => 'questionsattempted');
+    $string = get_string('recentactquestionsattempted', 'adaptivequiz', $activity->content->questionsattempted);
+    $content .= html_writer::tag('div', $string, $attr);
+
+    // Start div
+    $attr = array('class' => 'user');
+    $content .= html_writer::start_tag('div', $attr);
+    // Create anchor for link to user's profile
+    $attr = array('href' => $CFG->wwwroot.'/user/view.php?id='.$activity->user->id.'&amp;course='.$courseid);
+    $fullname = fullname($activity->user, $viewfullnames);
+    $content .= html_writer::tag('a', $fullname, $attr);
+
+    // Add timestamp
+    $content .= '&nbsp'.userdate($activity->timestamp);
+    // End div
+    $content .= html_writer::end_tag('div');
+    // Add all of the data for the columns to the table row
+    $cols .= html_writer::tag('td', $content);
+    $output .= html_writer::tag('tr', $cols);
+    // End table
+    $output .= html_writer::end_tag('table');
+
+    if (!empty($return)) {
+        // The return statemtn is not required, but it here so that this function can be PHPUnit testsed
+        return $output;
+    } else {
+        // Echo output to the page
+        echo $output;
+    }
 }
 
 /**

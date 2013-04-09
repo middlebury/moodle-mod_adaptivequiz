@@ -144,4 +144,70 @@ class mod_adaptivequiz_lib_testcase extends advanced_testcase {
         $this->assertEquals(0, $DB->count_records('adaptivequiz_attempt', array('instance' => $instance)));
         $this->assertEquals(0, $DB->count_records('question_usages', array('id' => $instance)));
     }
+
+    /**
+     * This function tests the output from adaptivequiz_print_recent_mod_activity()
+     */
+    public function test_adaptivequiz_print_recent_mod_activity_details_true() {
+        $this->resetAfterTest(true);
+
+        $dummy = new stdClass();
+        $dummy->user = new stdClass();
+        $dummy->user->id = 2;
+        $dummy->user->fullname = 'user-phpunit';
+        $dummy->user->picture = '';
+        $dummy->user->firstname = 'user-';
+        $dummy->user->lastname = 'phpunit';
+        $dummy->user->imagealt = '';
+        $dummy->user->email = 'a@a.com';
+        $dummy->content = new stdClass();
+        $dummy->content->attemptstate = 'inprogress';
+        $dummy->content->questionsattempted = '12';
+        $dummy->timestamp = 1234;
+        $dummy->type = 'mod_adaptivequiz';
+        $dummy->name = 'my-phpunit-test';
+        $dummy->cmid = 99;
+
+        $output = adaptivequiz_print_recent_mod_activity($dummy, 1, true, array('mod_adaptivequiz' => 'adaptivequiz'), true, true);
+
+        $this->assertContains('<table', $output);
+        $this->assertContains('<tr>', $output);
+        $this->assertContains('<td', $output);
+        $this->assertContains('mod/adaptivequiz/view.php?id=99', $output);
+        $this->assertContains('/user/view.php?id=2', $output);
+        $this->assertContains('user- phpunit', $output);
+        $this->assertContains('my-phpunit-test', $output);
+    }
+
+    /**
+     * This function tests the output from adaptivequiz_print_recent_mod_activity()
+     */
+    public function test_adaptivequiz_print_recent_mod_activity_details_false() {
+        $this->resetAfterTest(true);
+
+        $dummy = new stdClass();
+        $dummy->user = new stdClass();
+        $dummy->user->id = 2;
+        $dummy->user->fullname = 'user-phpunit';
+        $dummy->user->picture = '';
+        $dummy->user->firstname = 'user-';
+        $dummy->user->lastname = 'phpunit';
+        $dummy->user->imagealt = '';
+        $dummy->user->email = 'a@a.com';
+        $dummy->content = new stdClass();
+        $dummy->content->attemptstate = 'inprogress';
+        $dummy->content->questionsattempted = '12';
+        $dummy->timestamp = 1234;
+        $dummy->type = 'mod_adaptivequiz';
+        $dummy->name = 'my-phpunit-test';
+        $dummy->cmid = 99;
+
+        $output = adaptivequiz_print_recent_mod_activity($dummy, 1, false, array('mod_adaptivequiz' => 'adaptivequiz'), true, true);
+
+        $this->assertContains('<table', $output);
+        $this->assertContains('<tr>', $output);
+        $this->assertContains('<td', $output);
+        $this->assertContains('/user/view.php?id=2', $output);
+        $this->assertContains('user- phpunit', $output);
+    }
 }
