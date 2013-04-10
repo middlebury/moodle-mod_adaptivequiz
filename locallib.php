@@ -310,3 +310,16 @@ function adaptivequiz_construct_view_report_orderby($sort, $sortdir) {
 
     return $orderby;
 }
+
+/**
+ * This checks if the session property, needed to beging an attempt with a password, has been initialized
+ * @param int $instance the activity instance id
+ * @return bool true
+ */
+function adaptivequiz_user_entered_password($instance) {
+    global $SESSION;
+
+    $conditions = isset($SESSION->passwordcheckedadpq) && is_array($SESSION->passwordcheckedadpq) &&
+            array_key_exists($instance, $SESSION->passwordcheckedadpq) && true === $SESSION->passwordcheckedadpq[$instance];
+    return $conditions;
+}

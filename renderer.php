@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once($CFG->dirroot.'/mod/adaptivequiz/requiredpassword.class.php');
+
 class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /** @var string $sortdir the sorting direction being used */
     protected $sortdir = '';
@@ -46,8 +48,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
     /**
      * This function displays a form with a button to start the assessment attempt
-     * @param string $cmid: course module id
-     * @return string - HTML markup displaying the description and form with a submit button
+     * @param string $cmid course module id
+     * @return string HTML markup displaying the description and form with a submit button
      */
     public function display_start_attempt_form($cmid) {
         $html = '';
@@ -63,6 +65,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         $buttonlabel = get_string('startattemptbtn', 'adaptivequiz');
         $params = array('type' => 'submit', 'value' => $buttonlabel, 'class' => 'submitbtns adaptivequizbtn');
+        $html .= html_writer::empty_tag('input', $params);
+        $params = array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey());
         $html .= html_writer::empty_tag('input', $params);
         $html .= html_writer::end_tag('form');
 
@@ -260,7 +264,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * This function returns page header information to be printed to the page
      * @return string HTML markup for header inforation
      */
-    public function print_reporting_page_header() {
+    public function print_header() {
         return $this->header();
     }
 
@@ -268,7 +272,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * This function returns page footer information to be printed to the page
      * @return string HTML markup for footer inforation
      */
-    public function print_reporting_page_footer() {
+    public function print_footer() {
         return $this->footer();
     }
 
@@ -486,5 +490,15 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $warning = html_writer::tag('noscript', $this->heading(get_string('noscript', 'quiz')));
 
         return $this->render($button).$warning;
+    }
+
+    /**
+     * This function displays a form for users to enter a password before entering the attempt
+     * @param int $cmid course module id
+     * @return mod_adaptivequiz_requiredpassword instance of a formslib object
+     */
+    public function display_password_form($cmid) {
+        $url = new moodle_url('/mod/adaptivequiz/attempt.php');
+        return new mod_adaptivequiz_requiredpassword($url->out_omit_querystring(), array('hidden' => array('cmid' => $cmid, 'uniqueid' => 0)));
     }
 }

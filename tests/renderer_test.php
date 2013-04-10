@@ -34,7 +34,6 @@ require_once($CFG->dirroot.'/mod/adaptivequiz/renderer.php');
 class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
     /**
      * This function tests the output for the start attempt form
-     * @return void
      */
     public function test_display_start_attempt_form() {
         $dummypage = new moodle_page();
@@ -47,6 +46,8 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('<input', $output);
         $this->assertContains('type="submit"', $output);
         $this->assertContains('class="submitbtns adaptivequizbtn"', $output);
+        $this->assertContains('type="hidden"', $output);
+        $this->assertContains('name="sesskey"', $output);
         $this->assertContains('</form>', $output);
     }
 

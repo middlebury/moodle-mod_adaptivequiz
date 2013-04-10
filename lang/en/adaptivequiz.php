@@ -79,3 +79,6 @@ $string['recentattemptstate'] = 'State of attempt:';
 $string['recentinprogress'] = 'In progress';
 $string['recentcomplete'] = 'Completed';
 $string['functiondisabledbysecuremode'] = 'That functionality is currently disabled';
+$string['enterrequiredpassword'] = 'Enter required password';
+$string['requirepasswordmessage'] = 'To attempt this quiz you need to know the quiz password';
+$string['wrongpassword'] = 'Password is incorrect';

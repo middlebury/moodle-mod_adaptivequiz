@@ -40,10 +40,11 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
     print_error("coursemisconf");
 }
 
-global $USER, $DB;
+global $USER, $DB, $SESSION;
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
+$passwordattempt = false;
 
 try {
     $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*', MUST_EXIST);
@@ -59,6 +60,7 @@ try {
 }
 
 // Setup page global for standard viewing
+$viewurl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_context($context);
@@ -71,6 +73,30 @@ $count = adaptivequiz_count_user_previous_attempts($adaptivequiz->id, $USER->id)
 
 if (!adaptivequiz_allowed_attempt($adaptivequiz->attempts, $count)) {
     print_error('noattemptsallowed', 'adaptivequiz');
+}
+
+// Create an instance of the module renderer class
+$output = $PAGE->get_renderer('mod_adaptivequiz');
+// Setup password required form
+$mform = $output->display_password_form($cm->id);
+// Check if a password is required
+if (!empty($adaptivequiz->password)) {
+    // Check if the user has alredy entered in their password
+    $condition = adaptivequiz_user_entered_password($adaptivequiz->id);
+
+    if (empty($condition) && $mform->is_cancelled()) {
+        // Return user to landing page
+        redirect($viewurl);
+    } else if (empty($condition) && $data = $mform->get_data()) {
+        $SESSION->passwordcheckedadpq = array();
+
+        if (0 == strcmp($data->quizpassword, $adaptivequiz->password)) {
+            $SESSION->passwordcheckedadpq[$adaptivequiz->id] = true;
+        } else {
+            $SESSION->passwordcheckedadpq[$adaptivequiz->id] = false;
+            $passwordattempt = true;
+        }
+    }
 }
 
 // Create an instance of the adaptiveattempt class
@@ -207,10 +233,8 @@ if (is_null($nextdiff)) {
     $level = $adaptiveattempt->get_level();
 }
 
-$output = $PAGE->get_renderer('mod_adaptivequiz');
-
 $headtags = $output->init_metadata($quba, $slot);
-$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', null, false, $output->adaptivequiz_get_js_module());
+$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', array($viewurl->out()), false, $output->adaptivequiz_get_js_module());
 
 // Init secure window if enabled
 if (!empty($adaptivequiz->browsersecurity)) {
@@ -220,5 +244,19 @@ if (!empty($adaptivequiz->browsersecurity)) {
     $PAGE->set_heading(format_string($course->fullname));
 }
 
-// Render the question to the page
-echo $output->print_question($id, $quba, $slot, $level);
+// Check if the user entered a password
+$condition = adaptivequiz_user_entered_password($adaptivequiz->id);
+
+if (!empty($adaptivequiz->password) && empty($condition)) {
+    echo $output->print_header();
+
+    if ($passwordattempt) {
+        $mform->set_data(array('message' => get_string('wrongpassword', 'adaptivequiz')));
+    }
+
+    $mform->display();
+    echo $output->print_footer();
+} else {
+    // Render the question to the page
+    echo $output->print_question($id, $quba, $slot, $level);
+}

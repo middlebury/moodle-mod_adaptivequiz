@@ -88,7 +88,7 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 $output::$groupid = $groupid;
 
 /* print header information */
-$header = $output->print_reporting_page_header();
+$header = $output->print_header();
 /* Output attempts table */
 $reporttable = $output->print_report_table($records, $cm, $sort, $sortdir);
 /* Output paging bar */
@@ -96,7 +96,7 @@ $pagingbar = $output->print_paging_bar(count($recordscount), $page, ADAPTIVEQUIZ
 /* Output the groups selector */
 $groupsel = $output->print_groups_selector($cm, $course, $context, $USER->id);
 /* Output footer information */
-$footer = $output->print_reporting_page_footer();
+$footer = $output->print_footer();
 
 echo $header;
 echo $groupsel;
