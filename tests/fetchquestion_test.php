@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/fetchquestion.class.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/tests/dummyfetchquestion.class.php');
 
 /**
  * @group mod_adaptivequiz
@@ -138,7 +139,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
 
         $attempt->expects($this->exactly(2))
                 ->method('retrieve_question_categories')
-                ->will($this->returnValue('1,2,3'));
+                ->will($this->returnValue(array(1 => 1, 2 => 2, 3 => 3)));
 
         $data = $attempt->find_questions_with_tags(array(99));
         $this->assertEquals(0, count($data));
@@ -165,7 +166,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
 
         $mockclass->expects($this->exactly(2))
             ->method('retrieve_question_categories')
-            ->will($this->returnValue(''));
+            ->will($this->returnValue(array()));
 
         // Call class method with illegit tagid
         $data = $mockclass->find_questions_with_tags(array(99));
@@ -190,7 +191,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
 
         $mockclass->expects($this->once())
                 ->method('retrieve_question_categories')
-                ->will($this->returnValue('1,2,3'));
+                ->will($this->returnValue(array(1 => 1, 2 => 2, 3 => 3)));
 
         $data = $mockclass->find_questions_with_tags(array(1), array(1));
         $this->assertEquals(0, count($data));
@@ -528,7 +529,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
 
         $mockclass->expects($this->once())
             ->method('retrieve_question_categories')
-            ->will($this->returnValue('1,2,3'));
+            ->will($this->returnValue(array(1 => 1, 2 => 2, 3 => 3)));
 
         $mockclass->expects($this->exactly(2))
             ->method('retrieve_all_tag_ids')
@@ -590,7 +591,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
 
         $mockclass->expects($this->once())
             ->method('retrieve_question_categories')
-            ->will($this->returnValue('1,2,3'));
+            ->will($this->returnValue(array(1 => 1, 2 => 2, 3 => 3)));
 
         $mockclass->expects($this->exactly(2))
             ->method('retrieve_all_tag_ids')
@@ -638,5 +639,68 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $fetchquestion = new fetchquestion($dummyclass, 1, 1, 2);
         $result = $fetchquestion->decrement_question_sum_from_difficulty($result, 2);
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * This function tests the output of find_questions_with_tags() when multiple question categories contain multiple questions using XML data
+     */
+    public function test_find_questions_with_tags_with_multiple_quest_in_quest_category() {
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+        $this->setup_generator_data();
+
+        $mockclass = $this->getMock('fetchquestion', array('retrieve_question_categories'), array(new stdClass(), 1, 1, 100));
+
+        $mockclass->expects($this->once())
+                ->method('retrieve_question_categories')
+                ->will($this->returnValue(array(6 => 6, 7 => 7, 8 => 8)));
+
+        $data = $mockclass->find_questions_with_tags(array(22, 23, 24));
+        $this->assertEquals(3, count($data));
+
+        $dummyone = new stdClass();
+        $dummyone->id = '11';
+        $dummyone->name = 'multiple_quest_in_quest_category 1';
+        $dummytwo = new stdClass();
+        $dummytwo->id = '12';
+        $dummytwo->name = 'multiple_quest_in_quest_category 2';
+        $dummythree = new stdClass();
+        $dummythree->id = '13';
+        $dummythree->name = 'multiple_quest_in_quest_category 3';
+        $expected = array(11 => $dummyone, 12 => $dummytwo, 13 => $dummythree);
+        $this->assertEquals($expected, $data);
+    }
+
+    /**
+     * This function tests the output of retrieve_tags_with_question_count() when multiple question categories contain multiple questions using XML data
+     */
+    public function test_retrieve_tags_with_question_count_with_multiple_quest_in_quest_category() {
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+        $this->setup_generator_data();
+
+        $fetchquestion = new fetchquestion(new stdClass(), 1, 1, 100);
+
+        $data = $fetchquestion->retrieve_tags_with_question_count(array(22, 23, 24), array(7, 6, 8), 'test1_');
+        $this->assertEquals(3, count($data));
+        $expected = array(22 => '1', 23 => '1', 24 => '1');
+        $this->assertEquals($expected, $data);
+    }
+
+    /**
+     * This function tests the return value of retrieve_question_categories()
+     */
+    public function test_retrieve_question_categories() {
+        $this->resetAfterTest(true);
+        $this->setup_test_data_xml();
+
+        $dummy = new stdClass();
+        $dummy->id = 1;
+
+        $fetchquestion = new mod_adaptivequiz_mock_fetchquestion($dummy, 1, 1, 100);
+        $data = $fetchquestion->return_retrieve_question_categories();
+        $this->assertEquals(2, count($data));
+        $expected = array(1 => '11', 2 => '22');
+        $this->assertEquals($expected, $data);
     }
 }
