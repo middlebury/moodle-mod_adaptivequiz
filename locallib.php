@@ -33,6 +33,8 @@ define('ADAPTIVEQUIZ_ATTEMPT_COMPLETED', 'complete');
 define('ADAPTIVEQUIZ_ATTEMPT_INPROGRESS', 'inprogress');
 // Number of attempts to display on the reporting page
 define('ADAPTIVEQUIZ_REC_PER_PAGE', 30);
+// Number of questions to display for review on the page at one time
+define('ADAPTIVEQUIZ_REV_QUEST_PER_PAGE', 10);
 
 // Attempt stopping criteria
 // The maximum number of question, defined by the adaptive parameters was achieved
@@ -290,7 +292,7 @@ function adaptivequiz_construct_view_report_orderby($sort, $sortdir) {
         case 'firstname':
         case 'lastname':
         case 'attempts':
-        case 'stderr':
+        case 'stderror':
             $orderby = 'ORDER BY '.$sort;
             break;
         default:

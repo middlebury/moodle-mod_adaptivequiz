@@ -92,3 +92,6 @@ $string['backtomainreport'] = 'Back to main reports';
 $string['reviewattempt'] = 'Review attempt';
 $string['indvuserreport'] = 'Individual user attempts report for {$a}';
 $string['activityreports'] = 'Attempts report';
+$string['backtoviewattemptreport'] = 'Back to view attempt report';
+$string['backtoviewreport'] = 'Back to main reports';
+$string['reviewattemptreport'] = 'Reviewing attempt by {$a->fullname} submitted on {$a->finished}';

@@ -115,8 +115,8 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
                 array('lastname', 'DESC'),
                 array('attempts', 'ASC'),
                 array('attempts', 'DESC'),
-                array('stderr', 'ASC'),
-                array('stderr', 'DESC'),
+                array('stderror', 'ASC'),
+                array('stderror', 'DESC'),
         );
 
         return $data;
@@ -317,6 +317,8 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $data = adaptivequiz_construct_view_report_orderby('1234', 'ASC');
+        $this->assertContains('ORDER BY firstname', $data);
+        $data = adaptivequiz_construct_view_report_orderby('stderr', 'ASC');
         $this->assertContains('ORDER BY firstname', $data);
     }
 }

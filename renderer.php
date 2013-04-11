@@ -29,8 +29,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     protected $sortdir = '';
     /** @var moodle_url $sorturl the current base url used for keeping the table sorted */
     protected $sorturl = '';
-    /** @var int $groupid static variable used to reference the groupid that is currently being used to filter by */
-    public static $groupid = 0;
+    /** @var int $groupid variable used to reference the groupid that is currently being used to filter by */
+    public $groupid = 0;
     /** @var array options that should be used for opening the secure popup. */
     protected static $popupoptions = array(
         'left' => 0,
@@ -162,12 +162,21 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * This function initializing the metadata that needs to be included in the page header
      * before the page is rendered.
-     * @param question_usage_by_activity $quba: a question usage by activity object
-     * @param int $slot: slot number of the question to be displayed
-     * @return void
+     * @param question_usage_by_activity $quba a question usage by activity object
+     * @param int|array $slots slot number of the question to be displayed or an array of slot numbers
+     * @return string HTML header information for displaying the question
      */
-    public function init_metadata($quba, $slot) {
-        $meta = $quba->render_question_head_html($slot);
+    public function init_metadata($quba, $slots) {
+        $meta = '';
+
+        if (is_array($slots)) {
+            foreach ($slots as $slot) {
+                $meta .= $quba->render_question_head_html($slot);
+            }
+        } else {
+            $meta .= $quba->render_question_head_html($slots);
+        }
+
         $meta .= question_engine::initialise_js();
         return $meta;
     }
@@ -390,7 +399,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param string $sortdir the direction of the sort
      * @return array an array of column headers (firstname / lastname, number of attempts, standard error)
      */
-    protected function format_report_table_headers($cm, $sort, $sortdir) {
+    public function format_report_table_headers($cm, $sort, $sortdir) {
         global $OUTPUT;
 
         $newsortdir = '';
@@ -418,7 +427,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $this->sortdir = $sortdir;
 
         /* Create header links */
-        $param = array('cmid' => $cm->id, 'sort' => 'firstname', 'sortdir' => 'ASC', 'groupid' => self::$groupid);
+        $param = array('cmid' => $cm->id, 'sort' => 'firstname', 'sortdir' => 'ASC', 'group' => $this->groupid);
         $firstnameurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
         $param['sort'] = 'lastname';
         $lastnameurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
@@ -472,7 +481,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         foreach ($records as $record) {
             $attemptlink = new moodle_url('/mod/adaptivequiz/viewattemptreport.php', array('userid' => $record->id, 'cmid' => $cm->id));
             $link = html_writer::link($attemptlink, $record->attempts);
-            $row = array($record->firstname.', '.$record->lastname, $link, $record->standarderror);
+            $row = array($record->firstname.', '.$record->lastname, $link, $record->stderror);
             $table->data[] = $row;
             $table->rowclasses[] = 'studentattempt';
         }
@@ -490,7 +499,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         $baseurl = $this->sorturl;
         /* Set the currently set group filter and sort dir */
-        $baseurl->params(array('group' => self::$groupid, 'sortdir' => $this->sortdir));
+        $baseurl->params(array('group' => $this->groupid, 'sortdir' => $this->sortdir));
 
         $output = '';
         $output .= $OUTPUT->paging_bar($totalrecords, $page, $perpage, $baseurl);
@@ -574,25 +583,112 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * This functio prints a button to take the user back to the main reports page
-     * @param string $cmid: course module id
+     * This function prints a paging link for review attemtps page
+     * @param question_usage_by_activity $quba initialized to the attempt's unique id
+     * @param int $page the the page that is currently selected
+     * @param int $cmid the course module id of the activity
+     * @param int $userid the user id
+     * @return string HTML markup for paging links or nothing if there is only one page
+     */
+    public function print_questions_for_review_pager($quba, $page, $cmid, $userid) {
+        $questslots = $quba->get_slots();
+        $output = '';
+        $url = '';
+        $attr = array('class' => 'viewattemptreportpages');
+        $pages = ceil(count($questslots) / ADAPTIVEQUIZ_REV_QUEST_PER_PAGE);
+
+        // Don't print anything if there is only one page
+        if (1 == $pages) {
+            return '';
+        }
+
+        // Print base url for page links
+        $url = new moodle_url('/mod/adaptivequiz/reviewattempt.php', array('cmid' => $cmid, 'uniqueid' => $quba->get_id(), 'userid' => $userid));
+
+        // Print all of the page links
+        $output .= html_writer::start_tag('center');
+        for ($i = 0; $i <= $pages; $i++) {
+            // If we are currently on this page, then don't make it an anchor tag
+            if ($i == $page) {
+                $output .= '&nbsp'.html_writer::tag('span', $i+1, $attr).'&nbsp';
+                continue;
+            }
+
+            $url->params(array('page' => $i));
+            $output .= '&nbsp'.html_writer::link($url, $i+1, $attr).'&nbsp';
+        }
+        $output .= html_writer::end_tag('center');
+
+        return $output;
+    }
+
+    /**
+     * This function returns HTML markup of questions and student's responses
+     * @param question_usage_by_activity $quba initialized to the attempt's unique id
+     * @param int $offset an offset used to determine which question to start processing from
+     * @param stdClass $user user object for the user whos attempt is being reviewed
+     * @param int $timestamp time attmept was last modified
+     * @return string HTML markup
+     */
+    public function print_questions_for_review($quba, $offset = 0, $user, $timestamp) {
+        $questslots = $quba->get_slots();
+        $attr = array('class' => 'questiontags');
+        $offset *= ADAPTIVEQUIZ_REV_QUEST_PER_PAGE;
+
+        // Setup heading formation
+        $a = new stdClass();
+        $a->fullname = fullname($user);
+        $a->finished = userdate($timestamp);
+        $output = $this->heading(get_string('reviewattemptreport', 'adaptivequiz', $a));
+
+        // Take a portion of the array of question slots for display
+        $pageqslots = array_slice($questslots, $offset, ADAPTIVEQUIZ_REV_QUEST_PER_PAGE);
+
+        // Setup display options
+        $options = new question_display_options();
+        $options->readonly = true;
+        $options->flags = question_display_options::HIDDEN;
+        $options->marks = question_display_options::MAX_ONLY;
+        $options->rightanswer = question_display_options::VISIBLE;
+        $options->correctness = question_display_options::VISIBLE;
+        $options->numpartscorrect = question_display_options::VISIBLE;
+
+        // Setup quesiton header metadata
+        $output .= $this->init_metadata($quba, $pageqslots);
+
+        foreach ($pageqslots as $slot) {
+            $output .= $quba->render_question($slot, $options);
+            // Retrieve question attempt object
+            $questattempt = $quba->get_question_attempt($slot);
+            // Get question definition object
+            $questdef = $questattempt->get_question();
+            // Retrieve the tags associated with this question
+            $qtags = tag_get_tags_array('question', $questdef->id);
+            $label = html_writer::tag('label', get_string('tags'));
+            $output .= html_writer::tag('div', $label.': '.format_string(implode(' ', $qtags)), $attr);
+            $output .= html_writer::empty_tag('hr');
+        }
+
+        return $output;
+    }
+
+    /**
+     * This function prints a form and a button that is centered on the page, then the user clicks on the button the user is taken to the url
+     * @param moodle_url $url a url
+     * @param string $buttontext button caption
      * @return string - HTML markup displaying the description and form with a submit button
      */
-    public function print_back_to_main_report_page($cmid) {
+    public function print_form_and_button($url, $buttontext) {
         $html = '';
 
-        $param = array('cmid' => $cmid);
-        $target = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
-        $attributes = array('method' => 'POST', 'action' => $target);
+        $attributes = array('method' => 'POST', 'action' => $url);
 
         $html .= html_writer::start_tag('form', $attributes);
-
         $html .= html_writer::empty_tag('br');
         $html .= html_writer::empty_tag('br');
         $html .= html_writer::start_tag('center');
 
-        $buttonlabel = get_string('backtomainreport', 'adaptivequiz');
-        $params = array('type' => 'submit', 'value' => $buttonlabel, 'class' => 'submitbtns adaptivequizbtn');
+        $params = array('type' => 'submit', 'value' => $buttontext, 'class' => 'submitbtns adaptivequizbtn');
         $html .= html_writer::empty_tag('input', $params);
         $html .= html_writer::end_tag('center');
         $html .= html_writer::end_tag('form');

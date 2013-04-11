@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Adaptive quiz view attempt report script
+ * Adaptive quiz view attempted questions
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
@@ -23,9 +23,13 @@
  */
 
 require_once(dirname(__FILE__).'/../../config.php');
+require_once($CFG->dirroot.'/tag/lib.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 
 $id = required_param('cmid', PARAM_INT);
+$uniqueid = required_param('uniqueid', PARAM_INT);
 $userid = required_param('userid', PARAM_INT);
+$page = optional_param('page', 0, PARAM_INT);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -39,36 +43,41 @@ $context = context_module::instance($cm->id);
 
 require_capability('mod/adaptivequiz:viewreport', $context);
 
-$adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*');
-$PAGE->set_url('/mod/adaptivequiz/viewattemptreport.php', array('cmid' => $cm->id));
+$param = array('uniqueid' => $uniqueid, 'userid' => $userid, 'activityid' => $cm->instance);
+$sql = 'SELECT a.name, aa.timemodified
+          FROM {adaptivequiz} a
+          JOIN {adaptivequiz_attempt} aa ON a.id = aa.instance
+         WHERE aa.uniqueid = :uniqueid
+               AND aa.userid = :userid
+               AND a.id = :activityid
+      ORDER BY a.name ASC';
+$adaptivequiz  = $DB->get_record_sql($sql, $param);
+
+$PAGE->set_url('/mod/adaptivequiz/reviewattempt.php', array('cmid' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
-
-$records = $DB->get_records('adaptivequiz_attempt', array('instance' => $adaptivequiz->id, 'userid' => $userid), 'timemodified DESC');
-
-// Check if recordset contains records
-if (empty($records)) {
-    $url = new moodle_url('/mod/adaptivequiz/viewreport', array('cmid' => $cm->id));
-    print_error('noattemptrecords', 'adaptivequiz', $url);
-}
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 /* print header information */
 $header = $output->print_header();
-/* Output attempts table */
-$user = $DB->get_record('user', array('id' => $userid));
-$reporttable = $output->print_attempt_report_table($records, $cm, $user);
-/* OUtput return to main reports page button */
-$url = new moodle_url('/mod/adaptivequiz/viewreport.php', array('cmid' => $cm->id));
-$txt = get_string('backtoviewreport', 'adaptivequiz');
-$button = $output->print_form_and_button($url, $txt);
-
 /* Output footer information */
 $footer = $output->print_footer();
+/* Load question usage by activity object */
+$quba = question_engine::load_questions_usage_by_activity($uniqueid);
+/* render pager links */
+$pager = $output->print_questions_for_review_pager($quba, $page, $cm->id, $userid);
+/* Render a button on the page */
+$url = new moodle_url('/mod/adaptivequiz/viewattemptreport.php', array('cmid' => $cm->id, 'userid' => $userid));
+$txt = get_string('backtoviewattemptreport', 'adaptivequiz');
+$button = $output->print_form_and_button($url, $txt);
 
 echo $header;
-echo $reporttable;
+echo $pager;
+$user = $DB->get_record('user', array('id' => $userid));
+echo $output->print_questions_for_review($quba, $page, $user, $adaptivequiz->timemodified);
 echo $button;
+echo '<br />';
+echo $pager;
 echo $footer;

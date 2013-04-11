@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/renderer.php');
+require_once($CFG->dirroot.'/tag/lib.php');
 
 /**
  * @group mod_adaptivequiz
@@ -164,7 +165,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $records[1]->id = 1;
         $records[1]->firstname = 'test firstname';
         $records[1]->lastname = 'test lastname';
-        $records[1]->standarderror = 0.001;
+        $records[1]->stderror = 0.001;
         $records[1]->attempts = 5;
 
         $cm = new stdClass();
@@ -185,7 +186,155 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('sort=firstname', $output);
         $this->assertContains('sort=lastname', $output);
         $this->assertContains('sort=attempts', $output);
-        $this->assertContains('sort=stderr', $output);
+        $this->assertContains('sort=stderror', $output);
+    }
+
+    /**
+     * This function tests how init_metadata() handles arrays
+     */
+    public function test_init_metadata_with_array() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $mockquba = $this->getMock('question_usage_by_activity', array('render_question_head_html'), array(), '', false);
+
+        $mockquba->expects($this->exactly(5))
+                ->method('render_question_head_html')
+                ->will($this->returnValue(''));
+
+        // Only testing that the mock object's method is called 5 times
+        $renderer->init_metadata($mockquba, array(1, 2, 3, 4, 5));
+    }
+
+    /**
+     * This function tests how init_metadata() handlss an integer
+     */
+    public function test_init_metadata_with_integer() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $mockquba = $this->getMock('question_usage_by_activity', array('render_question_head_html'), array(), '', false);
+
+        $mockquba->expects($this->once())
+                ->method('render_question_head_html')
+                ->will($this->returnValue(''));
+
+        // Only testing that the mock object's method is called once
+        $renderer->init_metadata($mockquba, 1);
+    }
+
+    /**
+     * This function tests the output from print_questions_for_review_pager()
+     */
+    public function test_print_questions_for_review_pager_with_one_page_of_output() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots'), array(), '', false);
+
+        $mockquba->expects($this->once())
+                ->method('get_slots')
+                ->will($this->returnValue(array(1, 2, 3)));
+
+        $output = $renderer->print_questions_for_review_pager($mockquba, 0, 1, 1);
+        $this->assertEquals('', $output);
+    }
+
+    /**
+     * This function tests the output from print_questions_for_review_pager()
+     */
+    public function test_print_questions_for_review_pager_with_three_pages_of_output() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots'), array(), '', false);
+
+        $mockpages = array_keys(array_fill(0, 25, 1));
+        $mockquba->expects($this->once())
+                ->method('get_slots')
+                ->will($this->returnValue($mockpages));
+
+        // Unable to mock quba->get_id()
+
+        $output = $renderer->print_questions_for_review_pager($mockquba, 0, 1, 1);
+
+        $this->assertContains('/mod/adaptivequiz/reviewattempt.php', $output);
+        $this->assertContains('cmid=1', $output);
+        $this->assertContains('userid=1', $output);
+        $this->assertContains('<span class="viewattemptreportpages">1</span>', $output);
+        $this->assertContains('page=1', $output);
+        $this->assertContains('page=2', $output);
+    }
+
+    /**
+     * This function tests the output from print_questions_for_review_pager().  Mostly this function is testing the functions are alled the correct number of times.
+     */
+    public function test_print_questions_for_review() {
+        global $DB;
+        $user = $DB->get_record('user', array('id' => 2));
+
+        $renderer = $this->getMock('mod_adaptivequiz_renderer', array('init_metadata', 'heading'), array(), '', false);
+
+        $renderer->expects($this->once())
+                ->method('init_metadata')
+                ->will($this->returnValue(''));
+
+        $renderer->expects($this->once())
+                ->method('heading')
+                ->will($this->returnValue('phpunit test heading'));
+
+        $mockquestattempt = $this->getMock('question_attempt', array('get_question'), array(), '', false);
+
+        $dummy = new stdClass();
+        $dummy->id = 1;
+        $mockquestattempt->expects($this->exactly(3))
+                ->method('get_question')
+                ->will($this->returnValue($dummy));
+
+        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots', 'render_question', 'get_question_attempt'), array(), '', false);
+
+        $mockquba->expects($this->once())
+                ->method('get_slots')
+                ->will($this->returnValue(array(1, 2, 3)));
+
+        $mockquba->expects($this->exactly(3))
+                ->method('render_question')
+                ->will($this->returnValue('mock render question output'));
+
+        $mockquba->expects($this->exactly(3))
+                ->method('get_question_attempt')
+                ->will($this->returnValue($mockquestattempt));
+
+        $output = $renderer->print_questions_for_review($mockquba, 0, $user, 12345);
+
+        $this->assertContains('mock render question output', $output);
+        $this->assertContains('phpunit test heading', $output);
+    }
+
+    /**
+     * This function tests the output from print_form_and_button()
+     */
+    public function test_print_form_and_button() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+        $url = new moodle_url('/test/phpunittest/test.php', array('cmid' => 99));
+        $text = 'phpunit test button';
+
+        $output = $renderer->print_form_and_button($url, $text);
+        $this->assertContains('<form', $output);
+        $this->assertContains('<input', $output);
+        $this->assertContains('type="submit"', $output);
+        $this->assertContains('/test/phpunittest/test.php', $output);
+        $this->assertContains('cmid=99', $output);
+        $this->assertContains('phpunit test button', $output);
+        $this->assertContains('<center>', $output);
+        $this->assertContains('</center>', $output);
+        $this->assertContains('</form>', $output);
     }
 
     /**
@@ -222,5 +371,26 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('0.001', $output);
         $this->assertContains('12', $output);
         $this->assertContains('</table>', $output);
+    }
+
+    /**
+     * This function tests the output from format_report_table_headers()
+     */
+    public function test_format_report_table_headers() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+        $dummycm = new stdClass();
+        $dummycm->id = 99;
+
+        $output = $renderer->format_report_table_headers($dummycm, 'stderror', 'ASC');
+        $this->assertEquals(3, count($output));
+        $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[0]);
+        $this->assertContains('sort=firstname&amp;sortdir=ASC', $output[0]);
+        $this->assertContains('sort=lastname&amp;sortdir=ASC', $output[0]);
+        $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[1]);
+        $this->assertContains('sort=attempts&amp;sortdir=ASC', $output[1]);
+        $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[2]);
+        $this->assertContains('sort=stderror&amp;sortdir=DESC', $output[2]);
     }
 }
