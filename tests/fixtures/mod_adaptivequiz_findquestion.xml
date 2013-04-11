@@ -61,6 +61,24 @@
             <value>16</value>
             <value>test_retrieve_tags_with_question_count</value>
         </row>
+        <row>
+            <value>6</value>
+            <value>find_questions_with_tags_with_multiple_quest_in_quest_category 1</value>
+            <value>16</value>
+            <value>find_questions_with_tags_with_multiple_quest_in_quest_category</value>
+        </row>
+        <row>
+            <value>7</value>
+            <value>find_questions_with_tags_with_multiple_quest_in_quest_category 2</value>
+            <value>16</value>
+            <value>find_questions_with_tags_with_multiple_quest_in_quest_category</value>
+        </row>
+        <row>
+            <value>8</value>
+            <value>find_questions_with_tags_with_multiple_quest_in_quest_category 3</value>
+            <value>16</value>
+            <value>find_questions_with_tags_with_multiple_quest_in_quest_category</value>
+        </row>
     </table>
     <table name="question">
         <column>id</column>
@@ -167,6 +185,36 @@
             <value>0</value>
             <value>TF test 4</value>
             <value>question text</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>11</value>
+            <value>6</value>
+            <value>0</value>
+            <value>multiple_quest_in_quest_category 1</value>
+            <value>multiple_quest_in_quest_category 1</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>12</value>
+            <value>7</value>
+            <value>0</value>
+            <value>multiple_quest_in_quest_category 2</value>
+            <value>multiple_quest_in_quest_category 2</value>
+            <value>general feedback</value>
+            <value>1.0</value>
+            <value>truefalse</value>
+        </row>
+        <row>
+            <value>13</value>
+            <value>8</value>
+            <value>0</value>
+            <value>multiple_quest_in_quest_category 3</value>
+            <value>multiple_quest_in_quest_category 3</value>
             <value>general feedback</value>
             <value>1.0</value>
             <value>truefalse</value>
@@ -283,6 +331,30 @@
             <value>default</value>
             <value>0</value>
         </row>
+        <row>
+            <value>22</value>
+            <value>2</value>
+            <value>test1_22</value>
+            <value>test1_22</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>23</value>
+            <value>2</value>
+            <value>test1_23</value>
+            <value>test1_23</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>24</value>
+            <value>2</value>
+            <value>test1_24</value>
+            <value>test1_24</value>
+            <value>default</value>
+            <value>0</value>
+        </row>
     </table>
     <table name="tag_instance">
         <column>id</column>
@@ -352,6 +424,42 @@
             <value>question</value>
             <value>10</value>
             <value>0</value>
+        </row>
+        <row>
+            <value>22</value>
+            <value>22</value>
+            <value>question</value>
+            <value>11</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>23</value>
+            <value>23</value>
+            <value>question</value>
+            <value>12</value>
+            <value>0</value>
+        </row>
+        <row>
+            <value>24</value>
+            <value>24</value>
+            <value>question</value>
+            <value>13</value>
+            <value>0</value>
+        </row>
+    </table>
+    <table name="adaptivequiz_question">
+        <column>id</column>
+        <column>instance</column>
+        <column>questioncategory</column>
+        <row>
+            <value>1</value>
+            <value>1</value>
+            <value>11</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>1</value>
+            <value>22</value>
         </row>
     </table>
 </dataset>

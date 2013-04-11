@@ -239,7 +239,6 @@ class fetchquestion {
             $this->print_debug('fetch_questions() - tagquestsum is empty');
             return array();
         }
-
         // Check if the requested level has available questions
         if (array_key_exists($this->level, $this->tagquestsum) && 0 < $this->tagquestsum[$this->level]) {
             $tagids = $this->retrieve_tag($this->level);
@@ -341,7 +340,7 @@ class fetchquestion {
      * This function determines how many questions are associated with a tag, for questions contained in the category used by the activity
      * @throws coding_exception|dml_read_exception if the $tagprefix argument is empty
      * @param array $tagids an array whose key is the difficulty level and value is the tag id representing the difficulty level
-     * @param string $categories a comma separated string of category ids used by the activity
+     * @param array $categories an array whose key and value is the question category id
      * @param string $tagprefix the tag prefix used by the activity
      * @return array key is the difficulty level and the value the sum of questions associated with the difficulty level
      */
@@ -349,8 +348,10 @@ class fetchquestion {
         global $DB;
 
         $params = array();
+        $tempparam = array();
         $sql = '';
         $includetags = '';
+        $includeqcats = '';
         $length = strlen($tagprefix) + 1;
         $substr = '';
 
@@ -358,9 +359,11 @@ class fetchquestion {
             $substr = $DB->sql_substr('t.name', $length);
 
             // Create IN() clause for tag ids
-            list($includetags, $params) = $DB->get_in_or_equal($tagids, SQL_PARAMS_NAMED, 'tagids');
-
-            $params += array('itemtype' => 'question', 'category' => $categories);
+            list($includetags, $tempparam) = $DB->get_in_or_equal($tagids, SQL_PARAMS_NAMED, 'tagids');
+            $params += $tempparam;
+            // Create IN() clause for question category ids
+            list($includeqcats, $tempparam) = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED, 'qcatids');
+            $params += array('itemtype' => 'question') + $tempparam;
 
             $sql = "SELECT $substr AS difflevel, count(*) AS numofquest
                       FROM {tag} t
@@ -368,7 +371,7 @@ class fetchquestion {
                       JOIN {question} q ON q.id = ti.itemid
                      WHERE ti.itemtype = :itemtype
                            AND ti.tagid $includetags
-                           AND q.category IN (:category)
+                           AND q.category $includeqcats
                   GROUP BY t.name
                   ORDER BY t.id ASC";
             $records = $DB->get_records_sql_menu($sql, $params);
@@ -420,17 +423,19 @@ class fetchquestion {
     /**
      * This function retrieves questions within the assigned question categories and
      * questions associated with tagids
-     * @param array $tagids: an array of tag is
-     * @param array $exclude: an array of question ids to exclude from the search
-     * @return array - an array of question ids
+     * @param array $tagids an array of tag is
+     * @param array $exclude an array of question ids to exclude from the search
+     * @return array an array whose keys are qustion ids and values are the question names
      */
     public function find_questions_with_tags($tagids = array(), $exclude = array()) {
         global $DB;
 
         $clause = '';
         $params = array();
+        $tempparam = array();
         $exclquestids = '';
         $includetags = '';
+        $includeqcats = '';
 
         // Retrieve question categories used by this activity
         $questcat = $this->retrieve_question_categories();
@@ -441,17 +446,20 @@ class fetchquestion {
         }
 
         // Create IN() clause for tag ids
-        list($includetags, $params) = $DB->get_in_or_equal($tagids, SQL_PARAMS_NAMED, 'tagids');
+        list($includetags, $tempparam) = $DB->get_in_or_equal($tagids, SQL_PARAMS_NAMED, 'tagids');
+        $params += $tempparam;
+        // Create IN() clause for question ids
+        list($includeqcats, $tempparam) = $DB->get_in_or_equal($questcat, SQL_PARAMS_NAMED, 'qcatids');
+        $params += $tempparam;
 
         // Create IN() clause for question ids to exclude
         if (!empty($exclude)) {
-            $tempparam = array();
             list($exclquestids, $tempparam) = $DB->get_in_or_equal($exclude, SQL_PARAMS_NAMED, 'excqids', false);
             $params += $tempparam;
             $clause = "AND q.id $exclquestids";
         }
 
-        $params += array('itemtype' => 'question', 'category' => $questcat);
+        $params += array('itemtype' => 'question');
 
         // Query the question table for questions associated with a tag instance and within a question category
         $query = "SELECT q.id, q.name
@@ -459,7 +467,7 @@ class fetchquestion {
               INNER JOIN {tag_instance} ti ON q.id = ti.itemid
                    WHERE ti.itemtype = :itemtype
                          AND ti.tagid $includetags
-                         AND q.category IN (:category)
+                         AND q.category $includeqcats
                          $clause
                 ORDER BY q.id ASC";
 
@@ -472,35 +480,27 @@ class fetchquestion {
 
     /**
      * This function retrieves all of the question categories used the activity.
-     * @return string - a comma separated list of question category ids used by this activitsy
+     * @return array an array of quesiton category ids
      */
     protected function retrieve_question_categories() {
         global $DB;
 
         // Check cached result
         if (!empty($this->questcatids)) {
-            $this->print_debug('retrieve_question_categories() - question category ids (from cache): '.$this->questcatids);
+            $this->print_debug('retrieve_question_categories() - question category ids (from cache): '.print_r($this->questcatids, true));
             return $this->questcatids;
         }
 
         $output = '';
         $param = array('instance' => $this->adaptivequiz->id);
-        $records = $DB->get_records('adaptivequiz_question', $param, 'questioncategory ASC', 'id,questioncategory');
-
-        if (!empty($records)) {
-            foreach ($records as $record) {
-                $output .= $record->questioncategory.',';
-            }
-
-            $output = rtrim($output, ',');
-        }
+        $records = $DB->get_records_menu('adaptivequiz_question', $param, 'questioncategory ASC', 'id,questioncategory');
 
         // Cache the results
-        $this->questcatids = $output;
+        $this->questcatids = $records;
 
-        $this->print_debug('retrieve_question_categories() - question category ids: '.$this->questcatids);
+        $this->print_debug('retrieve_question_categories() - question category ids: '.print_r($records, true));
 
-        return $output;
+        return $records;
     }
 
     /**
