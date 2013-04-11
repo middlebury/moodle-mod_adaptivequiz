@@ -359,6 +359,8 @@ function adaptivequiz_get_recent_mod_activity(&$activities, &$index, $timestart,
         $activities[$index++] = $tmpactivity;
     }
 
+    $rs->close();
+
     return;
 }
 
