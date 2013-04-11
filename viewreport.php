@@ -45,7 +45,7 @@ $context = context_module::instance($cm->id);
 require_capability('mod/adaptivequiz:viewreport', $context);
 
 $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*');
-$PAGE->set_url('/mod/adaptivequiz/view_report.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/adaptivequiz/viewreport.php', array('cmid' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);

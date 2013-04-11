@@ -152,7 +152,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
     }
 
     /**
-     * This functions tests the output rom create_report_table()
+     * This functions tests the output from create_report_table()
      */
     public function test_create_report_table() {
         $dummypage = new moodle_page();
@@ -186,5 +186,41 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('sort=lastname', $output);
         $this->assertContains('sort=attempts', $output);
         $this->assertContains('sort=stderr', $output);
+    }
+
+    /**
+     * This functions tests the output from print_attempt_report_table()
+     */
+    public function test_print_attempt_report_table() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $records = array();
+        $records[1] = new stdClass();
+        $records[1]->id = 1;
+        $records[1]->instance = 1;
+        $records[1]->userid = 1;
+        $records[1]->uniqueid = 123;
+        $records[1]->attemptstate = 'completed';
+        $records[1]->attemptstopcriteria = 'stopped for some reason';
+        $records[1]->questionsattempted = 12;
+        $records[1]->standarderror = 0.001;
+        $records[1]->timemodified = 12345678;
+
+        $cm = new stdClass();
+        $cm->id = 1;
+
+        $output = $renderer->print_attempt_report_table($records, $cm, new stdClass);
+        $this->assertContains('<table', $output);
+        $this->assertContains('/mod/adaptivequiz/reviewattempt.php', $output);
+        $this->assertContains('uniqueid=123', $output);
+        $this->assertContains('userid=1', $output);
+        $this->assertContains('cmid=1', $output);
+        /* Check table row */
+        $this->assertContains('stopped for some reason', $output);
+        $this->assertContains('0.001', $output);
+        $this->assertContains('12', $output);
+        $this->assertContains('</table>', $output);
     }
 }
