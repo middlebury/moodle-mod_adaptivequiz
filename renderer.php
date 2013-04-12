@@ -378,6 +378,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         foreach ($records as $record) {
             $reviewurl = new moodle_url('/mod/adaptivequiz/reviewattempt.php', array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
             $link = html_writer::link($reviewurl, get_string('reviewattempt', 'adaptivequiz'));
+            $deleteurl = new moodle_url('/mod/adaptivequiz/delattempt.php', array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
+            $deletelink = html_writer::link($deleteurl, get_string('deleteattemp', 'adaptivequiz'));
 
             if (0 == strcmp('inprogress', $record->attemptstate)) {
                 $attemptstate = get_string('recentinprogress', 'adaptivequiz');
@@ -386,7 +388,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
 
             $row = array($attemptstate, format_string($record->attemptstopcriteria), $record->questionsattempted, $record->standarderror,
-                    userdate($record->timemodified), $link);
+                    userdate($record->timemodified), $link.'&nbsp;&nbsp'.$deletelink);
             $table->data[] = $row;
             $table->rowclasses[] = 'studentattempt';
         }

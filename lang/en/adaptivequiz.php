@@ -96,3 +96,7 @@ $string['stopingconditionshdr'] = 'Stopping conditions';
 $string['backtoviewattemptreport'] = 'Back to view attempt report';
 $string['backtoviewreport'] = 'Back to main reports';
 $string['reviewattemptreport'] = 'Reviewing attempt by {$a->fullname} submitted on {$a->finished}';
+$string['deleteattemp'] = 'Delete attempt';
+$string['confirmdeleteattempt'] = 'Confirming the deletion of attempt from {$a->name} submitted on {$a->timecompleted}';
+$string['attemptdeleted'] = 'Attempt deleted for {$a->name} submitted on {$a->timecompleted}';
+$string['errordeletingattempt'] = 'Attempt record was not found';

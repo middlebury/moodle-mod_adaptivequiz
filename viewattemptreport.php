@@ -49,8 +49,8 @@ $records = $DB->get_records('adaptivequiz_attempt', array('instance' => $adaptiv
 
 // Check if recordset contains records
 if (empty($records)) {
-    $url = new moodle_url('/mod/adaptivequiz/viewreport', array('cmid' => $cm->id));
-    print_error('noattemptrecords', 'adaptivequiz', $url);
+    $url = new moodle_url('/mod/adaptivequiz/viewreport.php', array('cmid' => $cm->id));
+    notice(get_string('noattemptrecords', 'adaptivequiz'), $url);
 }
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
