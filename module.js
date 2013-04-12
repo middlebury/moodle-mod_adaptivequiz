@@ -23,16 +23,17 @@
 
 M.mod_adaptivequiz = M.mod_adaptivequiz || {};
 
-M.mod_adaptivequiz.init_attempt_form = function(Y, url) {
+M.mod_adaptivequiz.init_attempt_form = function(Y, url, secure) {
     // Check if the page is on the password required page
     if (null == document.getElementById('id_quizpassword')) {
         M.core_question_engine.init_form(Y, '#responseform');
         M.core_formchangechecker.init({formid: 'responseform'});
     } else {
-        Y.on('click', function(e) {
-            M.mod_adaptivequiz.secure_window.close(url, 0)
-        }, '#id_cancel');
-
+        if ('1' == secure) {
+            Y.on('click', function(e) {
+                M.mod_adaptivequiz.secure_window.close(url, 0)
+            }, '#id_cancel');
+        }
     }
 };
 

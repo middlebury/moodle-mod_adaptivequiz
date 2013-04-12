@@ -234,7 +234,7 @@ if (is_null($nextdiff)) {
 }
 
 $headtags = $output->init_metadata($quba, $slot);
-$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', array($viewurl->out()), false, $output->adaptivequiz_get_js_module());
+$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', array($viewurl->out(), $adaptivequiz->browsersecurity), false, $output->adaptivequiz_get_js_module());
 
 // Init secure window if enabled
 if (!empty($adaptivequiz->browsersecurity)) {
