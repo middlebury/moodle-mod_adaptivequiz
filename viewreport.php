@@ -49,6 +49,7 @@ $PAGE->set_url('/mod/adaptivequiz/viewreport.php', array('cmid' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
+$output = $PAGE->get_renderer('mod_adaptivequiz');
 
 /* Initialized parameter array for sql query */
 $param = array('instance' => $cm->instance, 'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED);
@@ -56,9 +57,19 @@ $param = array('instance' => $cm->instance, 'attemptstate' => ADAPTIVEQUIZ_ATTEM
 /* Constructo order by clause */
 $orderby = adaptivequiz_construct_view_report_orderby($sort, $sortdir);
 
+/* Output the groups selector */
+$groupsel = $output->print_groups_selector($cm, $course, $context, $USER->id);
+
 $groupjoin = '';
 $groupwhere = '';
 
+/* Determine the currently active group id */
+if (empty($groupid)) {
+    $allowedgroups = groups_get_activity_allowed_groups($cm, $USER->id);
+    $groupid = groups_get_activity_group($cm, true, $allowedgroups);
+}
+
+/* Create the group sql join and where clause */
 if (0 != $groupid) {
     $groupjoin = ' INNER JOIN {groups_members} gm ON u.id = gm.userid ';
     $groupwhere = ' AND gm.groupid = :groupid ';
@@ -66,7 +77,7 @@ if (0 != $groupid) {
 }
 
 /* Retreive a list of attempts made by each use, displaying the sum of attempts and showing the lowest standard error calculated of the user's attempts */
-$sql = "SELECT u.id, u.firstname, u.lastname, MIN(aa.standarderror) AS standarderror, COUNT(*) AS attempts
+$sql = "SELECT u.id, u.firstname, u.lastname, MIN(aa.standarderror) AS stderror, COUNT(*) AS attempts
           FROM {adaptivequiz_attempt} aa
           JOIN {user} u
             ON u.id = aa.userid
@@ -78,14 +89,11 @@ $sql = "SELECT u.id, u.firstname, u.lastname, MIN(aa.standarderror) AS standarde
         $orderby";
 $startfrom = $page * ADAPTIVEQUIZ_REC_PER_PAGE;
 $records = $DB->get_records_sql($sql, $param, $startfrom, ADAPTIVEQUIZ_REC_PER_PAGE);
-
 /* Count the total number of records returned */
 $recordscount = $DB->get_records_sql($sql, $param);
 
-$output = $PAGE->get_renderer('mod_adaptivequiz');
-
 /* Set selected groupid */
-$output::$groupid = $groupid;
+$output->groupid = $groupid;
 
 /* print header information */
 $header = $output->print_header();
@@ -93,8 +101,6 @@ $header = $output->print_header();
 $reporttable = $output->print_report_table($records, $cm, $sort, $sortdir);
 /* Output paging bar */
 $pagingbar = $output->print_paging_bar(count($recordscount), $page, ADAPTIVEQUIZ_REC_PER_PAGE);
-/* Output the groups selector */
-$groupsel = $output->print_groups_selector($cm, $course, $context, $USER->id);
 /* Output footer information */
 $footer = $output->print_footer();
 
