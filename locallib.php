@@ -184,9 +184,10 @@ function adaptivequiz_uniqueid_part_of_attempt($uniqueid, $instance, $userid) {
  * @param int $userid unerid value of the adaptivequiz_attempt record
  * @param float $level the logit of the difficulty level
  * @param float $standarderror the standard error of the user's attempt
+ * @param float $measure the measure of ability for the attempt
  * @return bool true of update successful, otherwise false
  */
-function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level, $standarderror) {
+function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level, $standarderror, $measure) {
     global $DB;
 
     // Check if the is an infinity
@@ -196,7 +197,7 @@ function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level,
 
     $param = array('uniqueid' => $uniqueid, 'instance' => $instance, 'userid' => $userid);
     try {
-        $fields = 'id,difficultysum,questionsattempted,timemodified,standarderror';
+        $fields = 'id,difficultysum,questionsattempted,timemodified,standarderror,measure';
         $attempt = $DB->get_record('adaptivequiz_attempt', $param, $fields, MUST_EXIST);
     } catch (dml_exception $e) {
         $debuginfo = '';
@@ -211,6 +212,7 @@ function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level,
     $attempt->difficultysum = (float) $attempt->difficultysum + (float) $level;
     $attempt->questionsattempted = (int) $attempt->questionsattempted + 1;
     $attempt->standarderror = (float) $standarderror;
+    $attempt->measure = (float) $measure;
     $attempt->timemodified = time();
 
     $DB->update_record('adaptivequiz_attempt', $attempt);

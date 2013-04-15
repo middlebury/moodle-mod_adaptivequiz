@@ -64,7 +64,7 @@ class catalgo {
     /** @var float $measure the ability measure */
     protected $measure = 0.0;
 
-    /** @var float $standarderror the standard error of the meature */
+    /** @var float $standarderror the standard error of the measure */
     protected $standarderror = 0.0;
 
     /** @var string $status status message storing the reason why the attempt needs to be stopped */
@@ -146,6 +146,14 @@ class catalgo {
     }
 
     /**
+     * This function returns the $measure property
+     * @return float retuns the $measure property
+     */
+    public function get_measure() {
+        return $this->measure;
+    }
+
+    /**
      * This functions retrieves the attempt record, the highest and lowest difficulty level set for the attempt
      * @throws dml_missing_record_exception
      * @param int $attemptid the attempt id record
@@ -155,37 +163,13 @@ class catalgo {
         global $DB;
 
         $param = array('id' => $attemptid);
-        $sql = "SELECT aa.id, aa.questionsattempted, aa.difficultysum, aa.standarderror, a.highestlevel, a.lowestlevel
+        $sql = "SELECT aa.id, aa.questionsattempted, aa.difficultysum, aa.standarderror, a.highestlevel, a.lowestlevel, aa.measure
                   FROM {adaptivequiz_attempt} aa
                   JOIN {adaptivequiz} a ON a.id = aa.instance
                  WHERE aa.id = :id
               ORDER BY id DESC";
         $record = $DB->get_record_sql($sql, $param, MUST_EXIST);
         return $record;
-    }
-
-    /**
-     * This function updates the adaptivequiz_attempt record with the difficulty sum.  Also updates the the $difficultysum property
-     * @param int $sum the sum of difficulties attempted.  Must be a positive integer
-     * @return bool true of update successful, otherwise false
-     */
-    public function update_difficulty_sum_of_attempt($sum) {
-        global $DB;
-
-        if (!is_int($sum) || 0 >= $sum) {
-            return false;
-        }
-
-        $attempt = new stdClass();
-        $attempt->id = $this->attemptid;
-        $attempt->difficultysum = $sum;
-        $attempt->timemodified = time();
-
-        $DB->update_record('adaptivequiz_attempt', $attempt);
-
-        $this->difficultysum = $sum;
-
-        return true;
     }
 
     /**
@@ -297,7 +281,7 @@ class catalgo {
     }
 
     /**
-     * This function retrieves the allowed standard error for the attempt
+     * This function retrieves the allowed standard error (as a percent) for the attempt
      * @throws dml_missing_record_exception
      * @param int $attemptid adaptivequiz_attempt id
      * @return float the standard error allowed
@@ -378,14 +362,19 @@ class catalgo {
         // Get the standard error estimate
         $this->standarderror = $this->estimate_standard_error($this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
 
-        // Compare calculated error with the standard error set by the activity instance
+        // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert it into a logit
         $quizdefinederror = $this->retrieve_standard_error($this->attemptid);
+        $quizdefinederror = $quizdefinederror / 100;
+        $quizdefinederror = self::convert_percent_to_logit($quizdefinederror);
 
         // If the calculated standard error is within the parameters of the attempt then populate the status message
         if ($this->standard_error_within_parameters($this->standarderror, $quizdefinederror)) {
+            // Convert logits to percent for display
             $val = new stdClass();
-            $val->calerror = $this->standarderror;
-            $val->definederror = $quizdefinederror;
+            $val->calerror = self::convert_logit_to_percent($this->standarderror);
+            $val->calerror = 100 * round($val->calerror, 2);
+            $val->definederror = self::convert_logit_to_percent($quizdefinederror);
+            $val->definederror = 100 * round($val->definederror, 2);
             $this->status = get_string('calcerrorwithinlimits', 'adaptivequiz', $val);
         }
 
@@ -400,6 +389,45 @@ class catalgo {
      */
     public function get_status() {
         return $this->status;
+    }
+
+    /**
+     * This function takes a percent as a float between 0 and less than 0.5 and converts it into a logit value
+     * @throws coding_exception if percent is out of bounds
+     * @param float $percent percent represented as a decimal 15% = 0.15
+     * @return float logit value of percent
+     */
+    public static function convert_percent_to_logit($percent) {
+        if ($percent < 0 || $percent >= 0.5) {
+            throw new coding_exception('convert_percent_to_logit: percent is out of bounds', 'Percent must be 0 >= and < 0.5');
+        }
+        return log( (0.5 + $percent) / (0.5 - $percent) );
+    }
+
+    /**
+     * This function takes a logit as a float greater than or equal to 0 and converts it into a percent
+     * @throws coding_exception if logit is out of bounds
+     * @param float $logit logit value
+     * @return float logit value of percent
+     */
+    public static function convert_logit_to_percent($logit) {
+        if ($logit < 0) {
+            throw new coding_exception('convert_logit_to_percent: logit is out of bounds', 'logit must be greater than or equal to 0');
+        }
+        return ( 1 / ( 1 + exp(0 - $logit) ) ) - 0.5;
+    }
+
+    /**
+     * This function takes the inverse of a logit value, then maps the value onto the scale defined for the attempt
+     * @param float $logit logit value
+     * @param int $max the maximum value of the scale
+     * @param int $min the minimum value of the scale
+     * @return float the logit value mapped onto the scale
+     */
+    public static function map_logit_to_scale($logit, $max, $min) {
+        $fraction = exp($logit) / ( 1 + exp($logit) );
+        $scaledvalue = ( ( $max - $min ) * $fraction ) + $min;
+        return $scaledvalue;
     }
 
     /**
@@ -434,7 +462,7 @@ class catalgo {
 
     /**
      * This function estimates the measure of ability
-     * @param int $diffsum the sum of difficulty levels attempted
+     * @param float $diffsum the sum of difficulty levels expressed as logits
      * @param int $questattempt the number of question attempted
      * @param int $sumcorrect the sum of correct answers
      * @param int $sumincorrect the sum of incorrect answers

@@ -126,6 +126,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('standarderror', 'standarderror', 'adaptivequiz');
         $mform->addRule('standarderror', get_string('formelementempty', 'adaptivequiz'), 'required', null, 'client');
         $mform->addRule('standarderror', get_string('formelementdecimal', 'adaptivequiz'), 'numeric', null, 'client');
+        $mform->setDefault('standarderror', 5.0);
         $mform->setType('standarderror', PARAM_NUMBER);
 
         // add standard elements, common to all modules
@@ -167,6 +168,10 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
 
         if (0 >= $data['highestlevel']) {
             $errors['highestlevel'] = get_string('formelementnegative', 'adaptivequiz');
+        }
+
+        if ((float) 0 > (float) $data['standarderror'] || (float) 50 <= (float) $data['standarderror']) {
+            $errors['standarderror'] = get_string('formstderror', 'adaptivequiz');
         }
 
         // Validate higher and lower values

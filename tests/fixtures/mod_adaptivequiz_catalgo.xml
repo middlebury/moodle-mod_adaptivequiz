@@ -9,6 +9,7 @@
         <column>questionsattempted</column>
         <column>standarderror</column>
         <column>difficultysum</column>
+        <column>measure</column>
         <row>
             <value>1</value>
             <value>220</value>
@@ -18,6 +19,7 @@
             <value>0</value>
             <value>1.2</value>
             <value>99</value>
+            <value>2.222</value>
         </row>
     </table>
     <table name="adaptivequiz">

@@ -165,7 +165,10 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $records[1]->id = 1;
         $records[1]->firstname = 'test firstname';
         $records[1]->lastname = 'test lastname';
-        $records[1]->stderror = 0.001;
+        $records[1]->measure = -0.6;
+        $records[1]->stderror = 0.17;
+        $records[1]->highestlevel = 16;
+        $records[1]->lowestlevel = 1;
         $records[1]->attempts = 5;
 
         $cm = new stdClass();
@@ -180,31 +183,14 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         /* Check table row */
         $this->assertContains('test firstname', $output);
         $this->assertContains('test lastname', $output);
-        $this->assertContains('0.001', $output);
+        $this->assertContains('/user/profile.php?id=1', $output);
+        $this->assertContains('6.3 +- 4%', $output);
         $this->assertContains('5', $output);
         /* Check table column headers */
         $this->assertContains('sort=firstname', $output);
         $this->assertContains('sort=lastname', $output);
         $this->assertContains('sort=attempts', $output);
         $this->assertContains('sort=stderror', $output);
-    }
-
-    /**
-     * This function tests how init_metadata() handles arrays
-     */
-    public function test_init_metadata_with_array() {
-        $dummypage = new moodle_page();
-        $target = 'mod_adaptivequiz';
-        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
-
-        $mockquba = $this->getMock('question_usage_by_activity', array('render_question_head_html'), array(), '', false);
-
-        $mockquba->expects($this->exactly(5))
-                ->method('render_question_head_html')
-                ->will($this->returnValue(''));
-
-        // Only testing that the mock object's method is called 5 times
-        $renderer->init_metadata($mockquba, array(1, 2, 3, 4, 5));
     }
 
     /**
@@ -355,7 +341,12 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $records[1]->attemptstopcriteria = 'stopped for some reason';
         $records[1]->questionsattempted = 12;
         $records[1]->standarderror = 0.001;
+        $records[1]->measure = -0.6;
+        $records[1]->stderror = 0.17;
+        $records[1]->highestlevel = 16;
+        $records[1]->lowestlevel = 1;
         $records[1]->timemodified = 12345678;
+        $records[1]->timecreated = 12345600;
 
         $cm = new stdClass();
         $cm->id = 1;
@@ -368,7 +359,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('cmid=1', $output);
         /* Check table row */
         $this->assertContains('stopped for some reason', $output);
-        $this->assertContains('0.001', $output);
+        $this->assertContains('6.3 +- 4%', $output);
         $this->assertContains('12', $output);
         $this->assertContains('</table>', $output);
     }

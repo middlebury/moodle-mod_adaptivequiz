@@ -140,7 +140,8 @@ if (!empty($uniqueid) && confirm_sesskey()) {
             $everythingokay = false;
             $difflogit = $algo->get_levellogit();
             $standarderror = $algo->get_standarderror();
-            $everythingokay = adaptivequiz_update_attempt_data($uniqueid, $cm->instance, $USER->id, $difflogit, $standarderror);
+            $measure = $algo->get_measure();
+            $everythingokay = adaptivequiz_update_attempt_data($uniqueid, $cm->instance, $USER->id, $difflogit, $standarderror, $measure);
 
             // Something went wrong with updating the attempt.  Print an error.
             if (!$everythingokay) {

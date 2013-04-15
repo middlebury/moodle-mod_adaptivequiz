@@ -39,19 +39,28 @@ $context = context_module::instance($cm->id);
 
 require_capability('mod/adaptivequiz:viewreport', $context);
 
-$adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*');
-$PAGE->set_url('/mod/adaptivequiz/viewattemptreport.php', array('cmid' => $cm->id));
-$PAGE->set_title(format_string($adaptivequiz->name));
-$PAGE->set_heading(format_string($course->fullname));
-$PAGE->set_context($context);
-
-$records = $DB->get_records('adaptivequiz_attempt', array('instance' => $adaptivequiz->id, 'userid' => $userid), 'timemodified DESC');
+$param = array('instance' => $cm->instance, 'userid' => $userid);
+$sql = "SELECT aa.id, aa.userid, aa.uniqueid, aa.attemptstopcriteria, aa.measure, aa.attemptstate, aa.questionsattempted, aa.timemodified, aa.standarderror AS stderror,
+			   a.highestlevel, a.lowestlevel, a.name, aa.timecreated
+          FROM {adaptivequiz_attempt} aa
+          JOIN {adaptivequiz} a ON aa.instance = a.id
+         WHERE aa.instance = :instance
+               AND aa.userid = :userid
+      ORDER BY aa.timemodified DESC";
+$records = $DB->get_records_sql($sql, $param);
 
 // Check if recordset contains records
 if (empty($records)) {
     $url = new moodle_url('/mod/adaptivequiz/viewreport.php', array('cmid' => $cm->id));
     notice(get_string('noattemptrecords', 'adaptivequiz'), $url);
 }
+
+$record = current($records);
+
+$PAGE->set_url('/mod/adaptivequiz/viewattemptreport.php', array('cmid' => $cm->id));
+$PAGE->set_title(format_string($record->name));
+$PAGE->set_heading(format_string($course->fullname));
+$PAGE->set_context($context);
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 

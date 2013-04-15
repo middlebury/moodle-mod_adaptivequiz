@@ -95,6 +95,7 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
         $expected->standarderror = 1.2;
         $expected->lowestlevel = 1;
         $expected->highestlevel = 100;
+        $expected->measure = 2.222;
 
         $this->assertEquals($expected, $result);
     }
@@ -112,29 +113,6 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
         $algo = new catalgo($mockquba, 1, true, 1);
 
         $result = $algo->retrieve_attempt_record(511);
-    }
-
-    /**
-     * This fuction tests updating the sum of difficulty for the attempt
-     */
-    public function test_update_sum_diff_of_attempt() {
-        global $DB;
-
-        $this->resetAfterTest(true);
-        $this->setup_test_data_xml();
-
-        $mockquba = $this->getMock('question_usage_by_activity', array(), array(), '', false);
-
-        $algo = new catalgo($mockquba, 1, true, 1);
-
-        $algo->update_difficulty_sum_of_attempt(101);
-        $result = $algo->get_difficultysum();
-
-        $this->assertEquals(101, $result);
-
-        $param = array('id' => 1);
-        $this->assertEquals(101, $DB->get_field('adaptivequiz_attempt', 'difficultysum', $param));
-
     }
 
     /**
@@ -950,22 +928,22 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
         $mockcatalgo->expects($this->once())
                 ->method('estimate_measure')
                 ->with(50, 2, 1, 1)
-                ->will($this->returnVAlue(1));
+                ->will($this->returnValue(1));
 
         $mockcatalgo->expects($this->once())
                 ->method('estimate_standard_error')
                 ->with(2, 1, 1)
-                ->will($this->returnVAlue(0.02));
+                ->will($this->returnValue(0.02));
 
         $mockcatalgo->expects($this->once())
                 ->method('retrieve_standard_error')
                 ->with(1)
-                ->will($this->returnVAlue(1.0));
+                ->will($this->returnValue(5));
 
         $mockcatalgo->expects($this->once())
                 ->method('standard_error_within_parameters')
-                ->with(0.02, 1.0)
-                ->will($this->returnVAlue(1.0));
+                ->withAnyParameters() // second parameter (is not rounded) and has decimal with many decimal places
+                ->will($this->returnValue(1.0));
 
         $result = $mockcatalgo->perform_calculation_steps();
 
@@ -1206,5 +1184,62 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
 
         $result = $mockcatalgo->return_current_diff_level($mockquba, 1, $dummy);
         $this->assertEquals(1, $result);
+    }
+
+    /**
+     * This function tests the output from convert_percent_to_logit()
+     * @expectedException coding_exception
+     */
+    public function test_convert_percent_to_logit_using_param_less_than_zero() {
+        $this->resetAfterTest(true);
+        $result = catalgo::convert_percent_to_logit(-1);
+    }
+
+    /**
+     * This function tests the output from convert_percent_to_logit()
+     * @expectedException coding_exception
+     */
+    public function test_convert_percent_to_logit_using_param_greater_than_decimal_five() {
+        $this->resetAfterTest(true);
+        $result = catalgo::convert_percent_to_logit(0.51);
+    }
+
+    /**
+     * This function tests the output from convert_percent_to_logit()
+     */
+    public function test_convert_percent_to_logit() {
+        $this->resetAfterTest(true);
+        $result = catalgo::convert_percent_to_logit(0.05);
+        $result = round($result, 1);
+        $this->assertEquals(0.2, $result);
+    }
+
+    /**
+     * This function tests the output from convert_logit_to_percent()
+     * @expectedException coding_exception
+     */
+    public function test_convert_logit_to_percent_using_param_less_than_zero() {
+        $this->resetAfterTest(true);
+        $result = catalgo::convert_logit_to_percent(-1);
+    }
+
+    /**
+     * This function tests the output from convert_logit_to_percent()
+     */
+    public function test_convert_logit_to_percent() {
+        $this->resetAfterTest(true);
+        $result = catalgo::convert_logit_to_percent(0.2);
+        $result = round($result, 2);
+        $this->assertEquals(0.05, $result);
+    }
+
+    /**
+     * This function tests the output from map_logit_to_scale()
+     */
+    public function test_map_logit_to_scale() {
+        $this->resetAfterTest(true);
+        $result = catalgo::map_logit_to_scale(-0.6, 16, 1);
+        $result = round($result, 1);
+        $this->assertEquals(6.3, $result);
     }
 }

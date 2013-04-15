@@ -239,13 +239,14 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
         $this->setup_test_data_xml();
 
-        $result = adaptivequiz_update_attempt_data(3, 13, 3, 50, 0.002);
+        $result = adaptivequiz_update_attempt_data(3, 13, 3, 50, 0.002, 0.99);
         $record = $DB->get_record('adaptivequiz_attempt', array('id' => 2));
 
         $this->assertTrue($result);
         $this->assertEquals(51, $record->difficultysum);
         $this->assertEquals(1, $record->questionsattempted);
         $this->assertEquals(0.002, $record->standarderror);
+        $this->assertEquals(0.99, $record->measure);
     }
 
     /**
@@ -257,7 +258,7 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
         $this->setup_test_data_xml();
 
-        $result = adaptivequiz_update_attempt_data(3, 13, 3, -INF, 0.02);
+        $result = adaptivequiz_update_attempt_data(3, 13, 3, -INF, 0.02, 0.1);
         $record = $DB->get_record('adaptivequiz_attempt', array('id' => 2));
 
         $this->assertFalse($result);
