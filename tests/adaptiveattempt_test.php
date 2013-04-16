@@ -111,7 +111,8 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
         $expected->questionsattempted = '0';
         $expected->attemptstopcriteria = '';
         $expected->standarderror = '1.00000';
-        $expected->difficultysum = '0';
+        $expected->difficultysum = '0.00000';
+        $expected->measure = '0.00000';
         $expected->timemodified = '0';
         $expected->timecreated = '0';
 
