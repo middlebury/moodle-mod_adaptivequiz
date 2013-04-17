@@ -52,7 +52,7 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $adaptiveattempts = new backup_nested_element('adaptiveattempts');
         $nodes = array(
                 'userid', 'uniqueid', 'attemptstate', 'attemptstopcriteria', 'questionsattempted',
-                'difficultysum', 'standarderror', 'timecreated', 'timemodified');
+                'difficultysum', 'standarderror', 'measure', 'timecreated', 'timemodified');
         $adaptiveattempt = new backup_nested_element('adaptiveattempt', array('id'), $nodes);
 
         // This module is using questions, so produce the related question states and sessions
