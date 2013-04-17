@@ -620,7 +620,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         // Print all of the page links
         $output .= html_writer::start_tag('center');
-        for ($i = 0; $i <= $pages; $i++) {
+        for ($i = 0; $i < $pages; $i++) {
             // If we are currently on this page, then don't make it an anchor tag
             if ($i == $page) {
                 $output .= '&nbsp'.html_writer::tag('span', $i+1, $attr).'&nbsp';

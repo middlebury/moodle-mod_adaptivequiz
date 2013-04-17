@@ -254,6 +254,58 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('<span class="viewattemptreportpages">1</span>', $output);
         $this->assertContains('page=1', $output);
         $this->assertContains('page=2', $output);
+        $this->assertNotContains('page=3', $output);
+    }
+
+    /**
+     * This function tests the output from print_questions_for_review_pager()
+     */
+    public function test_print_questions_for_review_pager_with_two_pages_of_output() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots'), array(), '', false);
+
+        $mockpages = array_keys(array_fill(0, 11, 1));
+        $mockquba->expects($this->once())
+                ->method('get_slots')
+                ->will($this->returnValue($mockpages));
+
+        $output = $renderer->print_questions_for_review_pager($mockquba, 0, 1, 1);
+
+        $this->assertContains('/mod/adaptivequiz/reviewattempt.php', $output);
+        $this->assertContains('cmid=1', $output);
+        $this->assertContains('userid=1', $output);
+        $this->assertContains('<span class="viewattemptreportpages">1</span>', $output);
+        $this->assertContains('page=1', $output);
+        $this->assertNotContains('page=2', $output);
+    }
+
+    /**
+     * This function tests the output from print_questions_for_review_pager()
+     */
+    public function test_print_questions_for_review_pager_with_two_pages_of_output_page_two_selected() {
+        $dummypage = new moodle_page();
+        $target = 'mod_adaptivequiz';
+        $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
+
+        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots'), array(), '', false);
+
+        $mockpages = array_keys(array_fill(0, 11, 1));
+        $mockquba->expects($this->once())
+                ->method('get_slots')
+                ->will($this->returnValue($mockpages));
+
+        $output = $renderer->print_questions_for_review_pager($mockquba, 1, 1, 1);
+
+        $this->assertContains('/mod/adaptivequiz/reviewattempt.php', $output);
+        $this->assertContains('cmid=1', $output);
+        $this->assertContains('userid=1', $output);
+        $this->assertContains('<span class="viewattemptreportpages">2</span>', $output);
+        $this->assertContains('page=0', $output);
+        $this->assertNotContains('page=2', $output);
+        $this->assertNotContains('page=1', $output);
     }
 
     /**
