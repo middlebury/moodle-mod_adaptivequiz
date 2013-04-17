@@ -77,13 +77,21 @@ if (0 != $groupid) {
 }
 
 /* Retreive a list of attempts made by each use, displaying the sum of attempts and showing the lowest standard error calculated of the user's attempts */
-$sql = "SELECT u.id, u.firstname, u.lastname, aa.standarderror AS stderror, COUNT(*) AS attempts, a.highestlevel, a.lowestlevel, aa.measure, aa.id AS attemptid
+$sql = "SELECT u.id, u.firstname, u.lastname, aa.standarderror AS stderror, a.highestlevel, a.lowestlevel, aa.id AS attemptid, aa.measure,
+               (SELECT COUNT(*)
+                  FROM {adaptivequiz_attempt} caa
+                 WHERE caa.userid = u.id
+                       AND caa.instance = aa.instance) AS attempts
           FROM {adaptivequiz_attempt} aa
           JOIN {user} u ON u.id = aa.userid
           JOIN {adaptivequiz} a ON a.id = aa.instance
         $groupjoin
          WHERE aa.instance = :instance
-           AND aa.attemptstate = :attemptstate
+               AND aa.attemptstate = :attemptstate
+               AND aa.standarderror = (SELECT MIN(saa.standarderror)
+                                         FROM {adaptivequiz_attempt} saa
+                                        WHERE saa.userid = aa.userid
+                                              AND saa.instance = aa.instance)
         $groupwhere
       GROUP BY aa.userid
         $orderby";
