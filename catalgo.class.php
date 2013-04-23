@@ -357,10 +357,10 @@ class catalgo {
         }
 
         // Get the measure estimate
-        $this->measure = $this->estimate_measure($this->difficultysum, $this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
+        $this->measure = self::estimate_measure($this->difficultysum, $this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
 
         // Get the standard error estimate
-        $this->standarderror = $this->estimate_standard_error($this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
+        $this->standarderror = self::estimate_standard_error($this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
 
         // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert it into a logit
         $quizdefinederror = $this->retrieve_standard_error($this->attemptid);
@@ -451,12 +451,15 @@ class catalgo {
      * @param int $sumincorrect the sum of incorrect answers
      * @return float a decimal rounded to 5 places is returned
      */
-    public function estimate_standard_error($questattempt, $sumcorrect, $sumincorrect) {
-        $standarderror = 0;
-        $product = $sumcorrect * $sumincorrect;
-        $quotient = (float) $questattempt / (float) $product;
-        $standarderror = sqrt($quotient);
-
+    public static function estimate_standard_error($questattempt, $sumcorrect, $sumincorrect) {
+        if ($sumincorrect == 0) {
+            $standarderror = sqrt($questattempt / ( ($sumcorrect - 0.5) * ($sumincorrect + 0.5) ) );
+        } elseif ($sumcorrect == 0) {
+            $standarderror = sqrt($questattempt / ( ($sumcorrect + 0.5) * ($sumincorrect - 0.5) ) );
+        } else {
+            $standarderror = sqrt($questattempt / ( $sumcorrect * $sumincorrect ) );
+        }
+        
         return round($standarderror, 5);
     }
 
@@ -468,12 +471,14 @@ class catalgo {
      * @param int $sumincorrect the sum of incorrect answers
      * @return float an estimate of the measure of ability
      */
-    public function estimate_measure($diffsum, $questattempt, $sumcorrect, $sumincorrect) {
-        $measure = 0.0;
-        $quotient = (float) $sumcorrect / (float) $sumincorrect;
-        $quotienttwo = $diffsum / $questattempt;
-        $measure = $quotienttwo + log($quotient); // calculate natural log
-
+    public static function estimate_measure($diffsum, $questattempt, $sumcorrect, $sumincorrect) {
+        if ($sumincorrect == 0) {
+            $measure = ($diffsum / $questattempt) + log( ($sumcorrect - 0.5) / ($sumincorrect + 0.5) );
+        } elseif ($sumcorrect == 0) {
+            $measure = ($diffsum / $questattempt) + log( ($sumcorrect + 0.5) / ($sumincorrect - 0.5) );
+        } else {
+            $measure = ($diffsum / $questattempt) + log( $sumcorrect / $sumincorrect );
+        }
         return round($measure, 5, PHP_ROUND_HALF_UP);
     }
 
