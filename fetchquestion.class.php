@@ -128,6 +128,32 @@ class fetchquestion {
     public function get_level() {
         return $this->level;
     }
+    
+    /**
+     * Reset the maximum question level to search for to a new value
+     * 
+     * @param int $maximumlevel
+     * @return void
+     */
+    public function set_maximum_level ($maximumlevel) {
+        if ($maximumlevel < $this->minimumlevel) {
+            throw new coding_exception('Maximum level is less than minimum level', 'Invalid maximum level set.');
+        }
+        $this->maximumlevel = $maximumlevel;
+    }
+    
+    /**
+     * Reset the maximum question level to search for to a new value
+     * 
+     * @param int $maximumlevel
+     * @return void
+     */
+    public function set_minimum_level ($minimumlevel) {
+        if ($minimumlevel > $this->maximumlevel) {
+            throw new coding_exception('Minimum level is less than maximum level', 'Invalid minimum level set.');
+        }
+        $this->minimumlevel = $minimumlevel;
+    }
 
     /**
      * This functions adds a message to the debugging array

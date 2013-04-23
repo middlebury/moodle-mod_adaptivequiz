@@ -197,6 +197,12 @@ if (!is_null($nextdiff)) {
     $adaptiveattempt->set_level((int) $adaptivequiz->startinglevel);
 }
 
+// If we have a previous difficulty level, pass that off to the attempt so that it
+// can modify the next-question search process based on this level.
+if (isset($difflevel) && !is_null($difflevel)) {
+    $adaptiveattempt->set_last_difficulty_level($difflevel);
+}
+
 $attemptstatus = $adaptiveattempt->start_attempt();
 
 // Check if attempt status is set to ready
