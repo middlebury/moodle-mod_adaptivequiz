@@ -327,3 +327,18 @@ function adaptivequiz_user_entered_password($instance) {
             array_key_exists($instance, $SESSION->passwordcheckedadpq) && true === $SESSION->passwordcheckedadpq[$instance];
     return $conditions;
 }
+
+/**
+ * Given a list of tags on a question, answer the question's difficulty.
+ * 
+ * @param array $tags the tags on a question.
+ * @return int the difficulty level or null if unknown.
+ */
+function adaptivequiz_get_difficulty_from_tags (array $tags) {
+    foreach ($tags as $tag) {
+        if (preg_match('/^'.ADAPTIVEQUIZ_QUESTION_TAG.'([0-9]+)$/', $tag, $matches)) {
+            return (int) $matches[1];
+        }
+    }
+    return null;
+}
