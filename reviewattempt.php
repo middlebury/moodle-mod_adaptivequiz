@@ -120,6 +120,9 @@ print "\n\t<dt>Reason for stopping attempt: </dt>";
 print "\n\t<dd>".$adaptivequiz->attemptstopcriteria."</dd>";
 print "\n</dl>";
 
+$graph_url = new moodle_url('/mod/adaptivequiz/attemptgraph.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid));
+print "\n<img src=\"".$graph_url."\" style='clear: both;'>";
+
 print "\n<table>";
 print "\n\t<tr>";
 print "\n\t\t<th>#</th>";
