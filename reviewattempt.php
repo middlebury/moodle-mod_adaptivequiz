@@ -91,9 +91,20 @@ echo $header;
 
 $user = $DB->get_record('user', array('id' => $userid));
 print "\n<h2>Attempt Summary</h2>";
-print "\n<dl>";
+
+print "\n<dl style='float: left;'>";
 print "\n\t<dt>User: </dt>";
 print "\n\t<dd>".$user->firstname." ".$user->lastname." (".$user->email.")</dd>";
+print "\n\t<dt>Attempt state: </dt>";
+print "\n\t<dd>".$adaptivequiz->attemptstate."</dd>";
+print "\n\t<dt>Score: </dt>";
+$ability_in_fraction = 1 / ( 1 + exp( (-1 * $adaptivequiz->measure) ) );
+$ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
+$standard_error = catalgo::convert_logit_to_percent($adaptivequiz->standarderror);
+print "\n\t<dd>".round($ability, 2)." &nbsp; &plusmn; ".round($standard_error * 100, 1)."%</dd>";
+print "\n</dl>";
+
+print "\n<dl style='float: left;'>";
 print "\n\t<dt>Start Time: </dt>";
 print "\n\t<dd>".date('c', $adaptivequiz->timecreated)."</dd>";
 print "\n\t<dt>Start Time: </dt>";
@@ -105,16 +116,8 @@ $remainder = $total_time - ($hours * 3600);
 $minutes = floor($remainder/60);
 $seconds = $remainder - ($minutes * 60);
 print "\n\t<dd>".sprintf('%02d', $hours).":".sprintf('%02d', $minutes).":".sprintf('%02d', $seconds)."</dd>";
-print "\n\t<dt>Attempt state: </dt>";
-print "\n\t<dd>".$adaptivequiz->attemptstate."</dd>";
 print "\n\t<dt>Reason for stopping attempt: </dt>";
 print "\n\t<dd>".$adaptivequiz->attemptstopcriteria."</dd>";
-print "\n\t<dt>Score: </dt>";
-$ability_in_fraction = 1 / ( 1 + exp( (-1 * $adaptivequiz->measure) ) );
-$ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
-$standard_error = catalgo::convert_logit_to_percent($adaptivequiz->standarderror);
-print "\n\t<dd>".round($ability, 2)." &nbsp; &plusmn; ".round($standard_error * 100, 1)."%</dd>";
-
 print "\n</dl>";
 
 print "\n<table>";
