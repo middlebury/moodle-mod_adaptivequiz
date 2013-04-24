@@ -620,22 +620,9 @@ class catalgo {
      */
     public function compute_next_difficulty($level, $questattempted, $correct, $attempt) {
         $nextdifficulty =  0;
-
-        // Map the level on a linear percentage scale
-        $ps = ($level - $attempt->lowestlevel) / ($attempt->highestlevel - $attempt->lowestlevel);
-
-        // Check if $ps is one to avoid a division by zero error
-        if (1 == $ps) {
-            return $level;
-        }
-
-        // Map the percentage scale to a logrithmic logit scale
-        $ls = log( $ps / (1 - $ps) );
-
-        // Check if result is inifinite
-        if (is_infinite($ls)) {
-            return $level;
-        }
+        
+        // Map the linear scale to a logrithmic logit scale
+        $ls = self::convert_linear_to_logit($level, $attempt->lowestlevel, $attempt->highestlevel);
 
         // Set the logit value of the previously attempted question's difficulty level
         $this->levellogit = $ls;
@@ -655,5 +642,59 @@ class catalgo {
 
         $this->print_debug('compute_next_difficulty() - Next difficulty level is: '.$difflevel);
         return (int) $difflevel;
+    }
+    
+    /**
+     * Map an linear-scale difficulty/ability level to a logit scale
+     * 
+     * @param $level An integer level
+     * @param $min The lower bound of the scale
+     * @param $max The upper bound of the scale
+     * @return float
+     */
+    public static function convert_linear_to_logit ($level, $min, $max) {
+        // Map the level on a linear percentage scale
+        $percent = ($level - $min) / ($max - $min);
+        
+        // We will use a limit that is 1/2th the granularity of the question levels as our base.
+        // For example, for levels 1-100, we will use a base of 0.5% (5.3 logits), 
+        // for levels 1-1000 we will use a base of 0.05% (7.6 logits)
+        //
+        // Note that the choice of 1/2 the granularity is somewhat arbitrary.
+        // The floor value for the ends of the scale is being chosen so that answers
+        // at the end of the scale do not excessively weight the ability measure
+        // in ways that are not recoverable by subsequent answers.
+        //
+        // For example, lets say that on a scale of 1-10, a user of level 5 makes
+        // a dumb mistake and answers two level 1 questions wrong, but then continues
+        // the test and answers 20 more questions with every question up to level 5 
+        // right and those above wrong. The test should likely score the user somewhere
+        // a bit below 5 with 5 being included in the Standard Error.
+        //
+        // Several test runs with different floors showed that 1/1000 gave far too
+        // much weight to answers at the edge of the scale. 1/10 did ok, but
+        // 1/2 seemed to allow recovery from spurrious answers at the edges while
+        // still allowing consistent answers at the edges to trend the ability measure to
+        // the top/bottom level.
+        $granularity = 1 / ($max - $min);
+        $percent_floor = $granularity / 2;
+
+        // Avoid a division by zero error
+        if ($percent == 1) {
+            $percent = 1 - $percent_floor;
+        }
+
+        // Map the percentage scale to a logrithmic logit scale
+        $logit = log( $percent / (1 - $percent) );
+
+        // Check if result is inifinite
+        if (is_infinite($logit)) {
+            $logit_floor = log( $percent_floor / (1 - $percent_floor) );
+            if ($logit > 0)
+                return -1 * $logit_floor;
+            else
+                return $logit_floor;
+        }
+        return $logit;
     }
 }
