@@ -361,6 +361,8 @@ class catalgo {
 
         // Get the standard error estimate
         $this->standarderror = self::estimate_standard_error($this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
+        
+        $this->print_debug('perform_calculation_steps() - difficultysum: '.$this->difficultysum.', questattempted: '.$this->questattempted.', sumofcorrectanswers: '.$this->sumofcorrectanswers.', sumofincorrectanswers: '.$this->sumofincorrectanswers.' =&gt; measure: '.$this->measure.', standard error: '.$this->standarderror);
 
         // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert it into a logit
         $quizdefinederror = $this->retrieve_standard_error($this->attemptid);
@@ -626,6 +628,7 @@ class catalgo {
 
         // Set the logit value of the previously attempted question's difficulty level
         $this->levellogit = $ls;
+        $this->difficultysum = $this->difficultysum + $this->levellogit;
 
         // Check if the last question was marked correctly
         if ($correct) {
