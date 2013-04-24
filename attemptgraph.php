@@ -54,6 +54,7 @@ $sql = 'SELECT
             a.name, 
             a.highestlevel, 
             a.lowestlevel, 
+            a.startinglevel,
             aa.timecreated,
             aa.timemodified, 
             aa.attemptstate, 
@@ -85,13 +86,31 @@ $question_difficulty_values = array();
 $ability_measure_values = array();
 $error_max_values = array();
 $error_min_values = array();
+$target_level_values = array();
 
 $quba = question_engine::load_questions_usage_by_activity($uniqueid);
 $questions_attempted = 0;
 $difficulty_sum = 0;
 $sum_of_correct_answers = 0;
 $sum_of_incorrect_answers = 0;
-foreach ($quba->get_slots() as $slot) {
+foreach ($quba->get_slots() as $i => $slot) {
+    // The starting target difficulty is set by the test parameters
+    if ($i == 0) {
+        $target_level = $adaptivequiz->startinglevel;
+    }
+    // Compute the target difficulty based on the last question.
+    else {
+        if ($question_correct) {
+            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted, $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
+            if ($target_level == $question_difficulty && $target_level < $adaptivequiz->highestlevel)
+                $target_level++;
+        } else {
+            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits - 2 / $questions_attempted, $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
+            if ($target_level == $question_difficulty && $target_level > $adaptivequiz->lowestlevel)
+                $target_level--;
+        }
+    }
+    
     $question = $quba->get_question($slot);
     $tags = tag_get_tags_array('question', $question->id);
     $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
@@ -118,18 +137,22 @@ foreach ($quba->get_slots() as $slot) {
     
     $error_max_values[] = min($adaptivequiz->highestlevel, $ability + ($standard_error * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
     $error_min_values[] = max($adaptivequiz->lowestlevel, $ability - ($standard_error * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
+    
+    $target_level_values[] = $target_level;
 }
 
 
 $g->x_data = $question_numbers;
 $g->y_data['qdiff'] = $question_difficulty_values;
 $g->y_data['ability'] = $ability_measure_values;
+$g->y_data['target_level'] = $target_level_values;
 $g->y_data['error_max'] = $error_max_values;
 $g->y_data['error_min'] = $error_min_values;
 
 // var_dump($g->y_data); exit;
 
 $g->y_format['qdiff'] = array('colour' => 'blue', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => 'Question Difficulty');
+$g->y_format['target_level'] = array('colour' => 'green', 'line' => 'brush', 'brush_size' => 1, 'shadow' => 'none', 'legend' => 'Target Difficulty');
 $g->y_format['ability'] = array('colour' => 'red', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => 'Ability Measure');
 $g->colour['pink'] = ImageColorAllocate ($g->image, 0xFF, 0xE5, 0xE5); 
 $g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill','shadow' => 'none', 'legend' => 'Standard Error');
@@ -151,19 +174,19 @@ if ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel <= 20) {
 
 // $g->draw();
 // Draw in custom order to get grid lines on top.
-$g->y_order = array('error_max', 'error_min', 'qdiff', 'ability');
+$g->y_order = array('error_max', 'error_min', 'target_level', 'qdiff', 'ability');
 $g->init();
 // After initializing with all data sets, reset the order to just the standard-error sets and draw them.
 $g->y_order = array('error_max', 'error_min');
 $g->draw_data();
 
 // Now draw the axis and text on top of the error ranges.
-$g->y_order = array('error_max', 'error_min', 'qdiff', 'ability');
+$g->y_order = array('ability', 'error_max', 'target_level', 'qdiff', 'error_min');
 $g->draw_y_axis();
 $g->draw_text();
 
 // Now reset the order and draw our lines 
-$g->y_order = array('qdiff', 'ability');
+$g->y_order = array('qdiff', 'target_level', 'ability');
 $g->draw_data();
 
 $g->output();
