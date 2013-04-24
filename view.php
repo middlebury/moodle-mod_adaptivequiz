@@ -17,6 +17,9 @@
 /**
  * Adaptive testing main view page script
  *
+ * This module was created as a collaborative effort between Middlebury College
+ * and Remote Learner.
+ *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
