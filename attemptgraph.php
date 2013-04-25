@@ -171,6 +171,9 @@ if ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel <= 20) {
     $g->parameter['y_decimal_left'] = 1;
 }
 
+// Ensure that the x-axis text isn't to cramped.
+$g->parameter['x_axis_text'] = ceil($questions_attempted / 40);
+
 
 // $g->draw();
 // Draw in custom order to get grid lines on top.
