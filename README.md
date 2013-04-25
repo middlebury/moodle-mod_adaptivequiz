@@ -164,8 +164,7 @@ level they can answer.
 
 Scoring
 ========
-As discussed in [Wright (1988)][1], the formula for calculating the standard error is
-given by:
+As discussed in [Wright (1988)][1], the formula for calculating the ability measure is given by:
 
     Ability Measure = H/L + ln(R/W)
 
@@ -187,3 +186,5 @@ answering a question correctly.
 For example, given a test with levels 1-10 and a test-taker that answered every
 question 5 and below correctly and every question 6 and up wrong, the test-taker's
 ability measure would fall close to 5.5.
+
+Remember that the ability measure does have error associated with it. Be sure to take the standard error ammount into account when acting on the score.
