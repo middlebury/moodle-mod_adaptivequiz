@@ -55,7 +55,7 @@ $PAGE->set_context($context);
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 /* Initialized parameter array for sql query */
-$param = array('instance' => $cm->instance, 'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED);
+$param = array('attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'instance' => $cm->instance);
 
 /* Constructo order by clause */
 $orderby = adaptivequiz_construct_view_report_orderby($sort, $sortdir);
@@ -80,7 +80,7 @@ if (0 != $groupid) {
 }
 
 /* Retreive a list of attempts made by each use, displaying the sum of attempts and showing the lowest standard error calculated of the user's attempts */
-$sql = "SELECT u.id, u.firstname, u.lastname, aa.standarderror AS stderror, a.highestlevel, a.lowestlevel, aa.id AS attemptid, aa.measure,
+$sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel, aa.id AS attemptid, score.measure, score.standarderror AS stderror, 
                (SELECT COUNT(*)
                   FROM {adaptivequiz_attempt} caa
                  WHERE caa.userid = u.id
@@ -88,13 +88,23 @@ $sql = "SELECT u.id, u.firstname, u.lastname, aa.standarderror AS stderror, a.hi
           FROM {adaptivequiz_attempt} aa
           JOIN {user} u ON u.id = aa.userid
           JOIN {adaptivequiz} a ON a.id = aa.instance
+          LEFT JOIN (
+            SELECT *
+            FROM (
+                SELECT 
+                    userid,
+                    instance,
+                    standarderror,
+                    measure
+                FROM {adaptivequiz_attempt}
+                WHERE attemptstate = :attemptstate
+                AND standarderror > 0.0
+                ORDER BY standarderror
+            ) score1
+            GROUP BY userid, instance
+          ) score ON (aa.instance = score.instance AND aa.userid = score.userid)
         $groupjoin
          WHERE aa.instance = :instance
-               AND aa.attemptstate = :attemptstate
-               AND aa.standarderror = (SELECT MIN(saa.standarderror)
-                                         FROM {adaptivequiz_attempt} saa
-                                        WHERE saa.userid = aa.userid
-                                              AND saa.instance = aa.instance)
         $groupwhere
       GROUP BY aa.userid
         $orderby";
