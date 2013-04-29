@@ -97,9 +97,8 @@ foreach ($quba->get_slots() as $i => $slot) {
     // The starting target difficulty is set by the test parameters
     if ($i == 0) {
         $target_level = $adaptivequiz->startinglevel;
-    }
+    } else {
     // Compute the target difficulty based on the last question.
-    else {
         if ($question_correct) {
             $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted, 
                 $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));

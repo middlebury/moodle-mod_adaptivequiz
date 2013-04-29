@@ -299,9 +299,9 @@ class adaptiveattempt {
                         $this->level++;
                     }
                 }
-            }
+            } else {
             // If the last question was wrong...
-            else {
+                
                 // Only ask questions easier than the last question unless we are already at the bottom of the ability scale
                 if (!is_null($this->last_difficulty_level) && $this->last_difficulty_level > $this->adaptivequiz->lowestlevel) {
                     $fetchquestion->set_maximum_level($this->last_difficulty_level - 1);

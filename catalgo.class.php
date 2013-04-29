@@ -457,7 +457,7 @@ class catalgo {
     public static function estimate_standard_error($questattempt, $sumcorrect, $sumincorrect) {
         if ($sumincorrect == 0) {
             $standarderror = sqrt($questattempt / ( ($sumcorrect - 0.5) * ($sumincorrect + 0.5) ) );
-        } elseif ($sumcorrect == 0) {
+        } else if ($sumcorrect == 0) {
             $standarderror = sqrt($questattempt / ( ($sumcorrect + 0.5) * ($sumincorrect - 0.5) ) );
         } else {
             $standarderror = sqrt($questattempt / ( $sumcorrect * $sumincorrect ) );
@@ -477,7 +477,7 @@ class catalgo {
     public static function estimate_measure($diffsum, $questattempt, $sumcorrect, $sumincorrect) {
         if ($sumincorrect == 0) {
             $measure = ($diffsum / $questattempt) + log( ($sumcorrect - 0.5) / ($sumincorrect + 0.5) );
-        } elseif ($sumcorrect == 0) {
+        } else if ($sumcorrect == 0) {
             $measure = ($diffsum / $questattempt) + log( ($sumcorrect + 0.5) / ($sumincorrect - 0.5) );
         } else {
             $measure = ($diffsum / $questattempt) + log( $sumcorrect / $sumincorrect );
