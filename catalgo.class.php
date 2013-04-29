@@ -651,9 +651,9 @@ class catalgo {
     /**
      * Map an linear-scale difficulty/ability level to a logit scale
      * 
-     * @param $level An integer level
-     * @param $min The lower bound of the scale
-     * @param $max The upper bound of the scale
+     * @param int $level An integer level
+     * @param int $min The lower bound of the scale
+     * @param int $max The upper bound of the scale
      * @return float
      */
     public static function convert_linear_to_logit($level, $min, $max) {
