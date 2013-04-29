@@ -717,7 +717,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param stdClass an object with the following properties: measure, highestlevel, lowestlevel and stderror.  The values must come from the activty instance and the user's
      * attempt record
      * @return string a user friendly format of the ability measure and standard error.  Ability measure is rounded to the nearest decimal.  Standard error is rounded to the
-     * nearest one hundredth then multiplied by 100 
+     * nearest one hundredth then multiplied by 100
      */
     protected function format_measure_and_standard_error($record) {
         if (is_null($record->measure) || is_null($record->stderror) || $record->stderror == 0.0) {

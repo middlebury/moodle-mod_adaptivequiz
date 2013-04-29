@@ -88,7 +88,7 @@ function adaptivequiz_get_question_categories($context) {
 }
 
 /**
- * This function is healper method to create default 
+ * This function is healper method to create default
  * @param object $context A context object
  * @return mixed The default category in the course context or false
  */
@@ -333,7 +333,7 @@ function adaptivequiz_user_entered_password($instance) {
 
 /**
  * Given a list of tags on a question, answer the question's difficulty.
- * 
+ *
  * @param array $tags the tags on a question.
  * @return int|null the difficulty level or null if unknown.
  */

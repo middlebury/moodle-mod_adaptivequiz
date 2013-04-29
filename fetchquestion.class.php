@@ -131,10 +131,10 @@ class fetchquestion {
     public function get_level() {
         return $this->level;
     }
-    
+
     /**
      * Reset the maximum question level to search for to a new value
-     * 
+     *
      * @param int $maximumlevel
      * @return void
      * @throws coding_exception if the maximum level is less than minimum level
@@ -145,10 +145,10 @@ class fetchquestion {
         }
         $this->maximumlevel = $maximumlevel;
     }
-    
+
     /**
      * Reset the maximum question level to search for to a new value
-     * 
+     *
      * @param int $maximumlevel
      * @return void
      * @throws coding_exception if the minimum level is less than maximum level

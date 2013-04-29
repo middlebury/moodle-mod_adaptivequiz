@@ -82,7 +82,7 @@ met. The possible stopping conditions are as follows:
  * There are no remaining harder questions to ask after a correct answer.
  * The standard error in the measure has become precise enough to stop.
  * The maximum number of questions has been exceeded.
- 
+
 ![Graph of an attempt](https://raw.github.com/middlebury/adaptivequiz/master/pix/attemptgraph.png)
 
 Test Parameters and Operation

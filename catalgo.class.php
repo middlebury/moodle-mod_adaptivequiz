@@ -84,7 +84,7 @@ class catalgo {
      */
     public function __construct($quba, $attemptid, $readytostop = true, $level = 0) {
         if (!$quba instanceof question_usage_by_activity) {
-            throw new coding_exception('catalgo: Argument 1 is not a question_usage_by_activity object', 
+            throw new coding_exception('catalgo: Argument 1 is not a question_usage_by_activity object',
                 'Question usage by activity must be a question_usage_by_activity object');
         }
 
@@ -359,7 +359,7 @@ class catalgo {
 
         // Get the standard error estimate
         $this->standarderror = self::estimate_standard_error($this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
-        
+
         $this->print_debug('perform_calculation_steps() - difficultysum: '.$this->difficultysum
             .', questattempted: '.$this->questattempted.', sumofcorrectanswers: '.$this->sumofcorrectanswers
             .', sumofincorrectanswers: '.$this->sumofincorrectanswers.' =&gt; measure: '
@@ -462,7 +462,7 @@ class catalgo {
         } else {
             $standarderror = sqrt($questattempt / ( $sumcorrect * $sumincorrect ) );
         }
-        
+
         return round($standarderror, 5);
     }
 
@@ -623,7 +623,7 @@ class catalgo {
      */
     public function compute_next_difficulty($level, $questattempted, $correct, $attempt) {
         $nextdifficulty =  0;
-        
+
         // Map the linear scale to a logrithmic logit scale
         $ls = self::convert_linear_to_logit($level, $attempt->lowestlevel, $attempt->highestlevel);
 
@@ -647,10 +647,10 @@ class catalgo {
         $this->print_debug('compute_next_difficulty() - Next difficulty level is: '.$difflevel);
         return (int) $difflevel;
     }
-    
+
     /**
      * Map an linear-scale difficulty/ability level to a logit scale
-     * 
+     *
      * @param int $level An integer level
      * @param int $min The lower bound of the scale
      * @param int $max The upper bound of the scale
@@ -659,9 +659,9 @@ class catalgo {
     public static function convert_linear_to_logit($level, $min, $max) {
         // Map the level on a linear percentage scale
         $percent = ($level - $min) / ($max - $min);
-        
+
         // We will use a limit that is 1/2th the granularity of the question levels as our base.
-        // For example, for levels 1-100, we will use a base of 0.5% (5.3 logits), 
+        // For example, for levels 1-100, we will use a base of 0.5% (5.3 logits),
         // for levels 1-1000 we will use a base of 0.05% (7.6 logits)
         //
         // Note that the choice of 1/2 the granularity is somewhat arbitrary.
@@ -671,7 +671,7 @@ class catalgo {
         //
         // For example, lets say that on a scale of 1-10, a user of level 5 makes
         // a dumb mistake and answers two level 1 questions wrong, but then continues
-        // the test and answers 20 more questions with every question up to level 5 
+        // the test and answers 20 more questions with every question up to level 5
         // right and those above wrong. The test should likely score the user somewhere
         // a bit below 5 with 5 being included in the Standard Error.
         //

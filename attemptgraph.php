@@ -50,7 +50,7 @@ $context = context_module::instance($cm->id);
 require_capability('mod/adaptivequiz:viewreport', $context);
 
 $param = array('uniqueid' => $uniqueid, 'userid' => $userid, 'activityid' => $cm->instance);
-$sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, a.startinglevel, aa.timecreated, aa.timemodified, aa.attemptstate, 
+$sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, a.startinglevel, aa.timecreated, aa.timemodified, aa.attemptstate,
                aa.attemptstopcriteria, aa.questionsattempted, aa.difficultysum, aa.standarderror, aa.measure
           FROM {adaptivequiz} a
           JOIN {adaptivequiz_attempt} aa ON a.id = aa.instance
@@ -67,7 +67,7 @@ $g->parameter['title'] = format_string($adaptivequiz->name).' for '.$user->first
 $g->parameter['y_label_left'] = 'Ability Measure';
 $g->parameter['legend']        = 'outside-top';
 $g->parameter['legend_border'] = 'black';
-$g->parameter['legend_offset'] = 4; 
+$g->parameter['legend_offset'] = 4;
 $g->parameter['grid_colour'] = 'grayCC';
 
 $question_numbers = array();
@@ -89,7 +89,7 @@ foreach ($quba->get_slots() as $i => $slot) {
     } else {
     // Compute the target difficulty based on the last question.
         if ($question_correct) {
-            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted, 
+            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted,
                 $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
             if ($target_level == $question_difficulty && $target_level < $adaptivequiz->highestlevel) {
                 $target_level++;
@@ -102,13 +102,13 @@ foreach ($quba->get_slots() as $i => $slot) {
             }
         }
     }
-    
+
     $question = $quba->get_question($slot);
     $tags = tag_get_tags_array('question', $question->id);
     $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
     $question_difficulty_in_logits = catalgo::convert_linear_to_logit($question_difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
     $question_correct = ($quba->get_question_mark($slot) > 0);
-    
+
     $questions_attempted++;
     $difficulty_sum = $difficulty_sum + $question_difficulty_in_logits;
     if ($question_correct) {
@@ -116,21 +116,21 @@ foreach ($quba->get_slots() as $i => $slot) {
     } else {
         $sum_of_incorrect_answers++;
     }
-    
+
     $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
     $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );
     $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
-    
+
     $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
     $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
-    
+
     $question_numbers[] = $questions_attempted;
     $question_difficulty_values[] = $question_difficulty;
     $ability_measure_values[] = $ability;
-    
+
     $error_max_values[] = min($adaptivequiz->highestlevel, $ability + ($standard_error * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
     $error_min_values[] = max($adaptivequiz->lowestlevel, $ability - ($standard_error * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
-    
+
     $target_level_values[] = $target_level;
 }
 
@@ -147,7 +147,7 @@ $g->y_data['error_min'] = $error_min_values;
 $g->y_format['qdiff'] = array('colour' => 'blue', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => 'Question Difficulty');
 $g->y_format['target_level'] = array('colour' => 'green', 'line' => 'brush', 'brush_size' => 1, 'shadow' => 'none', 'legend' => 'Target Difficulty');
 $g->y_format['ability'] = array('colour' => 'red', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => 'Ability Measure');
-$g->colour['pink'] = imagecolorallocate($g->image, 0xFF, 0xE5, 0xE5); 
+$g->colour['pink'] = imagecolorallocate($g->image, 0xFF, 0xE5, 0xE5);
 $g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill','shadow' => 'none', 'legend' => 'Standard Error');
 $g->y_format['error_min'] = array('colour' => 'white', 'area' => 'fill', 'shadow' => 'none');
 
@@ -181,7 +181,7 @@ $g->y_order = array('ability', 'error_max', 'target_level', 'qdiff', 'error_min'
 $g->draw_y_axis();
 $g->draw_text();
 
-// Now reset the order and draw our lines 
+// Now reset the order and draw our lines
 $g->y_order = array('qdiff', 'target_level', 'ability');
 $g->draw_data();
 

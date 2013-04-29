@@ -80,7 +80,7 @@ if (0 != $groupid) {
 }
 
 /* Retreive a list of attempts made by each use, displaying the sum of attempts and showing the lowest standard error calculated of the user's attempts */
-$sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel, aa.id AS attemptid, score.measure, score.standarderror AS stderror, 
+$sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel, aa.id AS attemptid, score.measure, score.standarderror AS stderror,
                (SELECT COUNT(*)
                   FROM {adaptivequiz_attempt} caa
                  WHERE caa.userid = u.id

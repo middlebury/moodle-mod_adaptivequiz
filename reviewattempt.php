@@ -143,7 +143,7 @@ foreach ($quba->get_slots() as $slot) {
     $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
     $question_difficulty_in_logits = catalgo::convert_linear_to_logit($question_difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
     $question_correct = ($quba->get_question_mark($slot) > 0);
-    
+
     $questions_attempted++;
     $difficulty_sum = $difficulty_sum + $question_difficulty_in_logits;
     if ($question_correct) {
@@ -151,14 +151,14 @@ foreach ($quba->get_slots() as $slot) {
     } else {
         $sum_of_incorrect_answers++;
     }
-    
+
     $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
     $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );
     $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
-    
+
     $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
     $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
-    
+
     print "\n\t<tr>";
     print "\n\t\t<td>".$slot."</td>";
     print "\n\t\t<td>".$question_difficulty."</td>";

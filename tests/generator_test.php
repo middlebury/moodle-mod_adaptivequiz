@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * @group mod_adaptivequiz
  */
 class mod_adaptivequiz_generator_testcase extends advanced_testcase {
-    
+
     /**
      * Unit test for adaptivequiz generator
      */
