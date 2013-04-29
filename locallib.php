@@ -335,7 +335,7 @@ function adaptivequiz_user_entered_password($instance) {
  * Given a list of tags on a question, answer the question's difficulty.
  * 
  * @param array $tags the tags on a question.
- * @return int the difficulty level or null if unknown.
+ * @return int|null the difficulty level or null if unknown.
  */
 function adaptivequiz_get_difficulty_from_tags(array $tags) {
     foreach ($tags as $tag) {
