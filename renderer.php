@@ -728,4 +728,117 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $format = $measure.' &plusmn; '.$percent.'%';
         return $format;
     }
+
+    /**
+     * Answer the summery information about an attempt
+     *
+     * @param stdClass $adaptivequiz the attempt record.
+     * @param stdClass $user the user who took the quiz that created the attempt
+     * @return string
+     */
+    public function get_attempt_summary_listing ($adaptivequiz, $user) {
+        $html = '';
+        $html .= html_writer::start_tag('dl', array('class' => 'adaptivequiz-summarylist'));
+        $html .= html_writer::tag('dt', 'User: ');
+        $html .= html_writer::tag('dd', $user->firstname." ".$user->lastname." (".$user->email.")");
+        $html .= html_writer::tag('dt', 'Attempt state: ');
+        $html .= html_writer::tag('dd', $adaptivequiz->attemptstate);
+        $html .= html_writer::tag('dt', 'Score: ');
+        $ability_in_fraction = 1 / ( 1 + exp( (-1 * $adaptivequiz->measure) ) );
+        $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
+        $standard_error = catalgo::convert_logit_to_percent($adaptivequiz->standarderror);
+        if ($standard_error > 0) {
+            $score = round($ability, 2)." &nbsp; &plusmn; ".round($standard_error * 100, 1)."%";
+        } else {
+            $score = 'n/a';
+        }
+        $html .= html_writer::tag('dd', $score);
+        $html .= html_writer::end_tag('dl');
+
+        $html .= html_writer::start_tag('dl', array('class' => 'adaptivequiz-summarylist'));
+        $html .= html_writer::tag('dt', 'Start Time: ');
+        $html .= html_writer::tag('dd', date('c', $adaptivequiz->timecreated));
+        $html .= html_writer::tag('dt', 'Modified Time: ');
+        $html .= html_writer::tag('dd', date('c', $adaptivequiz->timemodified));
+        $html .= html_writer::tag('dt', 'Total Time (hh:mm:ss): ');
+        $total_time = $adaptivequiz->timemodified - $adaptivequiz->timecreated;
+        $hours = floor($total_time/3600);
+        $remainder = $total_time - ($hours * 3600);
+        $minutes = floor($remainder/60);
+        $seconds = $remainder - ($minutes * 60);
+        $html .= html_writer::tag('dd', sprintf('%02d', $hours).":".sprintf('%02d', $minutes).":".sprintf('%02d', $seconds));
+        $html .= html_writer::tag('dt', 'Reason for stopping attempt: ');
+        $html .= html_writer::tag('dd', $adaptivequiz->attemptstopcriteria);
+        $html .= html_writer::end_tag('dl');
+        return $html;
+    }
+
+    /**
+     * Answer a table of the question difficulties and the intermediate scores
+     * throughout the attempt.
+     *
+     * @param stdClass $adaptivequiz the quiz attempt record
+     * @param question_usage_by_activity $quba the questions used in this attempt
+     * @return string
+     */
+    public function get_attempt_scoring_table ($adaptivequiz, $quba) {
+        $html = '';
+        $html .= html_writer::start_tag('table');
+        $html .= html_writer::start_tag('thead');
+        $html .= html_writer::start_tag('tr');
+        $html .= html_writer::tag('th', '#');
+        $html .= html_writer::tag('th', 'Question Level');
+        $html .= html_writer::tag('th', 'Right/Wrong');
+        $html .= html_writer::tag('th', 'Measured Ability');
+        $html .= html_writer::tag('th', 'Standard Error (&plusmn;&nbsp;x%)');
+        $html .= html_writer::tag('th', 'Question Difficulty (logits)');
+        $html .= html_writer::tag('th', 'Difficulty Sum');
+        $html .= html_writer::tag('th', 'Measured Ability (logits)');
+        $html .= html_writer::tag('th', 'Standard Error (&plusmn;&nbsp;logits)');
+        $html .= html_writer::end_tag('tr');
+        $html .= html_writer::end_tag('thead');
+        $html .= html_writer::start_tag('tbody');
+
+        $questions_attempted = 0;
+        $difficulty_sum = 0;
+        $sum_of_correct_answers = 0;
+        $sum_of_incorrect_answers = 0;
+        foreach ($quba->get_slots() as $slot) {
+            $question = $quba->get_question($slot);
+            $tags = tag_get_tags_array('question', $question->id);
+            $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
+            $question_difficulty_in_logits = catalgo::convert_linear_to_logit($question_difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+            $question_correct = ($quba->get_question_mark($slot) > 0);
+
+            $questions_attempted++;
+            $difficulty_sum = $difficulty_sum + $question_difficulty_in_logits;
+            if ($question_correct) {
+                $sum_of_correct_answers++;
+            } else {
+                $sum_of_incorrect_answers++;
+            }
+
+            $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
+            $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );
+            $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
+
+            $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
+            $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
+
+            $html .= html_writer::start_tag('tr');
+            $html .= html_writer::tag('td', $slot);
+            $html .= html_writer::tag('td', $question_difficulty);
+            $html .= html_writer::tag('td', ($question_correct?'r':'w'));
+            $html .= html_writer::tag('td', round($ability, 2));
+            $html .= html_writer::tag('td', round($standard_error * 100, 1)."%");
+            $html .= html_writer::tag('td', round($question_difficulty_in_logits, 5));
+            $html .= html_writer::tag('td', round($difficulty_sum, 5));
+            $html .= html_writer::tag('td', round($ability_in_logits, 5));
+            $html .= html_writer::tag('td', round($standard_error_in_logits, 5));
+            $html .= html_writer::end_tag('tr');
+        }
+        $html .= html_writer::end_tag('tbody');
+        $html .= html_writer::end_tag('table');
+        return $html;
+    }
 }

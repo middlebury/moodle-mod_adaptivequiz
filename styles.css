@@ -1,0 +1,9 @@
+.adaptivequiz-summarylist {
+    float: left;
+}
+.adaptivequiz-summarylist dt {
+    font-weight: bold;
+}
+.adaptivequiz-attemptgraph {
+    clear: both;
+}

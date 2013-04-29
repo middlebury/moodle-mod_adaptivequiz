@@ -77,108 +77,23 @@ $url = new moodle_url('/mod/adaptivequiz/viewattemptreport.php', array('cmid' =>
 $txt = get_string('backtoviewattemptreport', 'adaptivequiz');
 $button = $output->print_form_and_button($url, $txt);
 
+$user = $DB->get_record('user', array('id' => $userid));
+
 echo $header;
 
-$user = $DB->get_record('user', array('id' => $userid));
-print "\n<h2>Attempt Summary</h2>";
-
-print "\n<dl style='float: left;'>";
-print "\n\t<dt>User: </dt>";
-print "\n\t<dd>".$user->firstname." ".$user->lastname." (".$user->email.")</dd>";
-print "\n\t<dt>Attempt state: </dt>";
-print "\n\t<dd>".$adaptivequiz->attemptstate."</dd>";
-print "\n\t<dt>Score: </dt>";
-$ability_in_fraction = 1 / ( 1 + exp( (-1 * $adaptivequiz->measure) ) );
-$ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
-$standard_error = catalgo::convert_logit_to_percent($adaptivequiz->standarderror);
-if ($standard_error > 0) {
-    $score = round($ability, 2)." &nbsp; &plusmn; ".round($standard_error * 100, 1)."%";
-} else {
-    $score = 'n/a';
-}
-print "\n\t<dd>".$score."</dd>";
-print "\n</dl>";
-
-print "\n<dl style='float: left;'>";
-print "\n\t<dt>Start Time: </dt>";
-print "\n\t<dd>".date('c', $adaptivequiz->timecreated)."</dd>";
-print "\n\t<dt>Start Time: </dt>";
-print "\n\t<dd>".date('c', $adaptivequiz->timemodified)."</dd>";
-print "\n\t<dt>Total Time (hh:mm:ss): </dt>";
-$total_time = $adaptivequiz->timemodified - $adaptivequiz->timecreated;
-$hours = floor($total_time/3600);
-$remainder = $total_time - ($hours * 3600);
-$minutes = floor($remainder/60);
-$seconds = $remainder - ($minutes * 60);
-print "\n\t<dd>".sprintf('%02d', $hours).":".sprintf('%02d', $minutes).":".sprintf('%02d', $seconds)."</dd>";
-print "\n\t<dt>Reason for stopping attempt: </dt>";
-print "\n\t<dd>".$adaptivequiz->attemptstopcriteria."</dd>";
-print "\n</dl>";
+echo html_writer::tag('h2', 'Attempt Summary');
+echo $output->get_attempt_summary_listing($adaptivequiz, $user);
 
 $graph_url = new moodle_url('/mod/adaptivequiz/attemptgraph.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid));
-print "\n<img src=\"".$graph_url."\" style='clear: both;'>";
+$params = array('src' => $graph_url, 'class' => 'adaptivequiz-attemptgraph');
+echo html_writer::empty_tag('img', $params);
 
-print "\n<table>";
-print "\n\t<tr>";
-print "\n\t\t<th>#</th>";
-print "\n\t\t<th>Question Level</th>";
-print "\n\t\t<th>Right/Wrong</th>";
-print "\n\t\t<th>Measured Ability</th>";
-print "\n\t\t<th>Standard Error (&plusmn;&nbsp;x%)</th>";
-print "\n\t\t<th>Question Difficulty (logits)</th>";
-print "\n\t\t<th>Difficulty Sum</th>";
-print "\n\t\t<th>Measured Ability (logits)</th>";
-print "\n\t\t<th>Standard Error (&plusmn;&nbsp;logits)</th>";
-print "\n\t</tr>";
-print "\n</thead>";
-print "\n<tbody>";
+echo $output->get_attempt_scoring_table($adaptivequiz, $quba);
 
-$questions_attempted = 0;
-$difficulty_sum = 0;
-$sum_of_correct_answers = 0;
-$sum_of_incorrect_answers = 0;
-foreach ($quba->get_slots() as $slot) {
-    $question = $quba->get_question($slot);
-    $tags = tag_get_tags_array('question', $question->id);
-    $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-    $question_difficulty_in_logits = catalgo::convert_linear_to_logit($question_difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
-    $question_correct = ($quba->get_question_mark($slot) > 0);
-
-    $questions_attempted++;
-    $difficulty_sum = $difficulty_sum + $question_difficulty_in_logits;
-    if ($question_correct) {
-        $sum_of_correct_answers++;
-    } else {
-        $sum_of_incorrect_answers++;
-    }
-
-    $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
-    $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );
-    $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
-
-    $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
-    $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
-
-    print "\n\t<tr>";
-    print "\n\t\t<td>".$slot."</td>";
-    print "\n\t\t<td>".$question_difficulty."</td>";
-    print "\n\t\t<td>".($question_correct?'r':'w')."</td>";
-    print "\n\t\t<td>".round($ability, 2)."</td>";
-    print "\n\t\t<td>".round($standard_error * 100, 1)."%</td>";
-    print "\n\t\t<td>".round($question_difficulty_in_logits, 5)."</td>";
-    print "\n\t\t<td>".round($difficulty_sum, 5)."</td>";
-    print "\n\t\t<td>".round($ability_in_logits, 5)."</td>";
-    print "\n\t\t<td>".round($standard_error_in_logits, 5)."</td>";
-    print "\n\t</tr>";
-}
-print "\n</tbody>";
-print "\n</table>";
-
-print "\n<h2>Question Details</h2>";
+echo html_writer::tag('h2', 'Question Details');
 echo $pager;
-$user = $DB->get_record('user', array('id' => $userid));
 echo $output->print_questions_for_review($quba, $page, $user, $adaptivequiz->timemodified);
 echo $button;
-echo '<br />';
+echo html_writer::empty_tag('br');
 echo $pager;
 echo $footer;
