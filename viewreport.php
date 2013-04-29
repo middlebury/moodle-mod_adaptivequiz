@@ -90,15 +90,15 @@ $sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel, aa.
           JOIN {user} u ON u.id = aa.userid
           JOIN {adaptivequiz} a ON a.id = aa.instance
           LEFT JOIN (
-            SELECT *
-            FROM (
-                SELECT userid, instance, standarderror, measure
-                  FROM {adaptivequiz_attempt}
-                 WHERE attemptstate = :attemptstate
-                       AND standarderror > 0.0
-              ORDER BY standarderror
-            ) score1
-            GROUP BY userid, instance
+              SELECT *
+                FROM (
+                    SELECT userid, instance, standarderror, measure
+                      FROM {adaptivequiz_attempt}
+                     WHERE attemptstate = :attemptstate
+                           AND standarderror > 0.0
+                  ORDER BY standarderror
+              ) score1
+              GROUP BY userid, instance
           ) score ON (aa.instance = score.instance AND aa.userid = score.userid)
         $groupjoin
          WHERE aa.instance = :instance
