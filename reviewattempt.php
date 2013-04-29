@@ -101,10 +101,11 @@ print "\n\t<dt>Score: </dt>";
 $ability_in_fraction = 1 / ( 1 + exp( (-1 * $adaptivequiz->measure) ) );
 $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
 $standard_error = catalgo::convert_logit_to_percent($adaptivequiz->standarderror);
-if ($standard_error > 0)
+if ($standard_error > 0) {
     $score = round($ability, 2)." &nbsp; &plusmn; ".round($standard_error * 100, 1)."%";
-else
+} else {
     $score = 'n/a';
+}
 print "\n\t<dd>".$score."</dd>";
 print "\n</dl>";
 
@@ -157,10 +158,11 @@ foreach ($quba->get_slots() as $slot) {
     
     $questions_attempted++;
     $difficulty_sum = $difficulty_sum + $question_difficulty_in_logits;
-    if ($question_correct)
+    if ($question_correct) {
         $sum_of_correct_answers++;
-    else
+    } else {
         $sum_of_incorrect_answers++;
+    }
     
     $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
     $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );

@@ -720,8 +720,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * nearest one hundredth then multiplied by 100 
      */
     protected function format_measure_and_standard_error($record) {
-    	if (is_null($record->measure) || is_null($record->stderror) || $record->stderror == 0.0)
+    	if (is_null($record->measure) || is_null($record->stderror) || $record->stderror == 0.0) {
     		return 'n/a';
+    	}
         $measure = round(catalgo::map_logit_to_scale($record->measure, $record->highestlevel, $record->lowestlevel), 1);
         $percent = round(catalgo::convert_logit_to_percent($record->stderror), 2) * 100;
         $format = $measure.' &plusmn; '.$percent.'%';

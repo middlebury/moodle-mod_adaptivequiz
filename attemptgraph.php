@@ -102,12 +102,14 @@ foreach ($quba->get_slots() as $i => $slot) {
     else {
         if ($question_correct) {
             $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted, $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
-            if ($target_level == $question_difficulty && $target_level < $adaptivequiz->highestlevel)
+            if ($target_level == $question_difficulty && $target_level < $adaptivequiz->highestlevel) {
                 $target_level++;
+            }
         } else {
             $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits - 2 / $questions_attempted, $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
-            if ($target_level == $question_difficulty && $target_level > $adaptivequiz->lowestlevel)
+            if ($target_level == $question_difficulty && $target_level > $adaptivequiz->lowestlevel) {
                 $target_level--;
+            }
         }
     }
     
@@ -119,10 +121,11 @@ foreach ($quba->get_slots() as $i => $slot) {
     
     $questions_attempted++;
     $difficulty_sum = $difficulty_sum + $question_difficulty_in_logits;
-    if ($question_correct)
+    if ($question_correct) {
         $sum_of_correct_answers++;
-    else
+    } else {
         $sum_of_incorrect_answers++;
+    }
     
     $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
     $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );

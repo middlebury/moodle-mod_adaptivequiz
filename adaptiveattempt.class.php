@@ -168,10 +168,11 @@ class adaptiveattempt {
      * @return void
      */
     public function set_last_difficulty_level($last_difficulty_level) {
-        if (is_null($last_difficulty_level))
+        if (is_null($last_difficulty_level)) {
             $this->last_difficulty_level = null;
-        else
+        } else {
             $this->last_difficulty_level = (int) $last_difficulty_level;
+        }
     }
 
     /**

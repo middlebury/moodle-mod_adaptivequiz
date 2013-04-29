@@ -690,10 +690,11 @@ class catalgo {
         // Check if result is inifinite
         if (is_infinite($logit)) {
             $logit_floor = log( $percent_floor / (1 - $percent_floor) );
-            if ($logit > 0)
+            if ($logit > 0) {
                 return -1 * $logit_floor;
-            else
+            } else {
                 return $logit_floor;
+            }
         }
         return $logit;
     }
