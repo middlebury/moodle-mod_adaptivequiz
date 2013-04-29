@@ -121,13 +121,11 @@ print "\n<img src=\"".$graph_url."\" style='clear: both;'>";
 print "\n<table>";
 print "\n\t<tr>";
 print "\n\t\t<th>#</th>";
-// print "\n\t\t<th>Target Level</th>";
 print "\n\t\t<th>Question Level</th>";
 print "\n\t\t<th>Right/Wrong</th>";
 print "\n\t\t<th>Measured Ability</th>";
 print "\n\t\t<th>Standard Error (&plusmn;&nbsp;x%)</th>";
 print "\n\t\t<th>Question Difficulty (logits)</th>";
-// print "\n\t\t<th>Questions Attempted</th>";
 print "\n\t\t<th>Difficulty Sum</th>";
 print "\n\t\t<th>Measured Ability (logits)</th>";
 print "\n\t\t<th>Standard Error (&plusmn;&nbsp;logits)</th>";
@@ -163,13 +161,11 @@ foreach ($quba->get_slots() as $slot) {
     
     print "\n\t<tr>";
     print "\n\t\t<td>".$slot."</td>";
-//  print "\n\t\t<td>"."</td>";
     print "\n\t\t<td>".$question_difficulty."</td>";
     print "\n\t\t<td>".($question_correct?'r':'w')."</td>";
     print "\n\t\t<td>".round($ability, 2)."</td>";
     print "\n\t\t<td>".round($standard_error * 100, 1)."%</td>";
     print "\n\t\t<td>".round($question_difficulty_in_logits, 5)."</td>";
-//     print "\n\t\t<td>".round($questions_attempted, 5)."</td>";
     print "\n\t\t<td>".round($difficulty_sum, 5)."</td>";
     print "\n\t\t<td>".round($ability_in_logits, 5)."</td>";
     print "\n\t\t<td>".round($standard_error_in_logits, 5)."</td>";
