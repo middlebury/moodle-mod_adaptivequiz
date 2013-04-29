@@ -84,7 +84,8 @@ class catalgo {
      */
     public function __construct($quba, $attemptid, $readytostop = true, $level = 0) {
         if (!$quba instanceof question_usage_by_activity) {
-            throw new coding_exception('catalgo: Argument 1 is not a question_usage_by_activity object', 'Question usage by activity must be a question_usage_by_activity object');
+            throw new coding_exception('catalgo: Argument 1 is not a question_usage_by_activity object', 
+                'Question usage by activity must be a question_usage_by_activity object');
         }
 
         if (!is_int($attemptid) || 0 >= $attemptid) {
@@ -359,7 +360,10 @@ class catalgo {
         // Get the standard error estimate
         $this->standarderror = self::estimate_standard_error($this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
         
-        $this->print_debug('perform_calculation_steps() - difficultysum: '.$this->difficultysum.', questattempted: '.$this->questattempted.', sumofcorrectanswers: '.$this->sumofcorrectanswers.', sumofincorrectanswers: '.$this->sumofincorrectanswers.' =&gt; measure: '.$this->measure.', standard error: '.$this->standarderror);
+        $this->print_debug('perform_calculation_steps() - difficultysum: '.$this->difficultysum
+            .', questattempted: '.$this->questattempted.', sumofcorrectanswers: '.$this->sumofcorrectanswers
+            .', sumofincorrectanswers: '.$this->sumofincorrectanswers.' =&gt; measure: '
+            .$this->measure.', standard error: '.$this->standarderror);
 
         // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert it into a logit
         $quizdefinederror = $this->retrieve_standard_error($this->attemptid);

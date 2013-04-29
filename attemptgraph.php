@@ -101,12 +101,14 @@ foreach ($quba->get_slots() as $i => $slot) {
     // Compute the target difficulty based on the last question.
     else {
         if ($question_correct) {
-            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted, $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
+            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted, 
+                $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
             if ($target_level == $question_difficulty && $target_level < $adaptivequiz->highestlevel) {
                 $target_level++;
             }
         } else {
-            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits - 2 / $questions_attempted, $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
+            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits - 2 / $questions_attempted,
+                $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
             if ($target_level == $question_difficulty && $target_level > $adaptivequiz->lowestlevel) {
                 $target_level--;
             }

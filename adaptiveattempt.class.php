@@ -283,7 +283,8 @@ class adaptiveattempt {
             $this->print_debug("start_attempt() - Brand new attempt.  Set starting level: {$this->adaptivequiz->startinglevel}.");
 
         } else if (!empty($this->slot) && $this->was_answer_submitted_to_question($this->quba, $this->slot)) {
-            // If the attempt already has a question attached to it, check if an answer was submitted to the question.  If so fetch a new question
+            // If the attempt already has a question attached to it, check if an answer was submitted to the question.  
+            // If so fetch a new question
             
             // Provide the question-fetching process with limits based on our last question.
             // If the last question was correct...
@@ -293,7 +294,8 @@ class adaptiveattempt {
                     $fetchquestion->set_minimum_level($this->last_difficulty_level + 1);
                     // Do not ask a question of the same level unless we are already at the max.
                     if ($this->last_difficulty_level == $this->level) {
-                        $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, incrementing level from {$this->level} to ".($this->level + 1).".");
+                        $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, incrementing level "
+                            ."from {$this->level} to ".($this->level + 1).".");
                         $this->level++;
                     }
                 }
@@ -305,7 +307,8 @@ class adaptiveattempt {
                     $fetchquestion->set_maximum_level($this->last_difficulty_level - 1);
                     // Do not ask a question of the same level unless we are already at the min.
                     if ($this->last_difficulty_level == $this->level) {
-                        $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, decrementing level from {$this->level} to ".($this->level - 1).".");
+                        $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, decrementing level "
+                            ."from {$this->level} to ".($this->level - 1).".");
                         $this->level--;
                     }
                 }
@@ -319,8 +322,10 @@ class adaptiveattempt {
             $this->print_debug("start_attempt() - Continuing attempt.  Set level: {$this->level}.");
 
         } else if (empty($this->slot) && 0 < $adpqattempt->questionsattempted) {
-            // If this condition is met, then something went wrong because the slot id is empty BUT the questions attempted is greater than zero.  Stop attempt
-            $this->print_debug('start_attempt() - something went horribly wrong since the quba has no slot number AND the number of question answered is greater than 0');
+            // If this condition is met, then something went wrong because the slot id is empty BUT the questions attempted is 
+            // greater than zero.  Stop attempt
+            $this->print_debug('start_attempt() - something went horribly wrong since the quba has no slot number AND the number '
+                .'of question answered is greater than 0');
             $this->status = get_string('errorattemptstate', 'adaptivequiz');
             return false;
         }
@@ -389,7 +394,8 @@ class adaptiveattempt {
 
         // Set class level property to the difficulty level of the question returned from fetchquestion class
         $this->level = $fetchquestion->get_level();
-        $this->print_debug('get_question_ready() - Question: '.print_r($question, true).' loaded and attempt started.  Question_usage_by_activity saved.');
+        $this->print_debug('get_question_ready() - Question: '.print_r($question, true)
+            .' loaded and attempt started.  Question_usage_by_activity saved.');
         return true;
     }
 
@@ -498,7 +504,8 @@ class adaptiveattempt {
                     print_r($quba, true));
         }
 
-        // The last slot in the array should be the last question that was attempted (meaning it was either shown to the user or the user submitted an answer to it)
+        // The last slot in the array should be the last question that was attempted (meaning it was either shown to the user
+        // or the user submitted an answer to it)
         $questslots = $quba->get_slots();
 
         if (empty($questslots) || !is_array($questslots)) {
