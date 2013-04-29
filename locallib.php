@@ -337,7 +337,7 @@ function adaptivequiz_user_entered_password($instance) {
  * @param array $tags the tags on a question.
  * @return int the difficulty level or null if unknown.
  */
-function adaptivequiz_get_difficulty_from_tags (array $tags) {
+function adaptivequiz_get_difficulty_from_tags(array $tags) {
     foreach ($tags as $tag) {
         if (preg_match('/^'.ADAPTIVEQUIZ_QUESTION_TAG.'([0-9]+)$/', $tag, $matches)) {
             return (int) $matches[1];

@@ -450,7 +450,7 @@ function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $
  *
  * @return boolean
  **/
-function adaptivequiz_cron () {
+function adaptivequiz_cron() {
     return false;
 }
 

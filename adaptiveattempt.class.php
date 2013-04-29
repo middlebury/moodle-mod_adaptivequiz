@@ -167,7 +167,7 @@ class adaptiveattempt {
      * @param int $last_difficulty_level
      * @return void
      */
-    public function set_last_difficulty_level ($last_difficulty_level) {
+    public function set_last_difficulty_level($last_difficulty_level) {
         if (is_null($last_difficulty_level))
             $this->last_difficulty_level = null;
         else

@@ -652,7 +652,7 @@ class catalgo {
      * @param $max The upper bound of the scale
      * @return float
      */
-    public static function convert_linear_to_logit ($level, $min, $max) {
+    public static function convert_linear_to_logit($level, $min, $max) {
         // Map the level on a linear percentage scale
         $percent = ($level - $min) / ($max - $min);
         
