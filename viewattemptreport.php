@@ -44,7 +44,7 @@ require_capability('mod/adaptivequiz:viewreport', $context);
 
 $param = array('instance' => $cm->instance, 'userid' => $userid);
 $sql = "SELECT aa.id, aa.userid, aa.uniqueid, aa.attemptstopcriteria, aa.measure, aa.attemptstate, aa.questionsattempted, aa.timemodified, aa.standarderror AS stderror,
-			   a.highestlevel, a.lowestlevel, a.name, aa.timecreated
+               a.highestlevel, a.lowestlevel, a.name, aa.timecreated
           FROM {adaptivequiz_attempt} aa
           JOIN {adaptivequiz} a ON aa.instance = a.id
          WHERE aa.instance = :instance
