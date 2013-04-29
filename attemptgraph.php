@@ -64,7 +64,7 @@ $user = $DB->get_record('user', array('id' => $userid));
 $g = new graph(750, 300);
 $g->parameter['title'] = format_string($adaptivequiz->name).' for '.$user->firstname." ".$user->lastname;
 // $g->parameter['x_label'] = 'Day of the Week';
-$g->parameter['y_label_left'] = 'Ability Measure';
+$g->parameter['y_label_left'] = get_string('attemptquestion_ability', 'adaptivequiz');
 $g->parameter['legend']        = 'outside-top';
 $g->parameter['legend_border'] = 'black';
 $g->parameter['legend_offset'] = 4;
@@ -144,11 +144,11 @@ $g->y_data['error_min'] = $error_min_values;
 
 // var_dump($g->y_data); exit;
 
-$g->y_format['qdiff'] = array('colour' => 'blue', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => 'Question Difficulty');
-$g->y_format['target_level'] = array('colour' => 'green', 'line' => 'brush', 'brush_size' => 1, 'shadow' => 'none', 'legend' => 'Target Difficulty');
-$g->y_format['ability'] = array('colour' => 'red', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => 'Ability Measure');
+$g->y_format['qdiff'] = array('colour' => 'blue', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => get_string('attemptquestion_level', 'adaptivequiz'));
+$g->y_format['target_level'] = array('colour' => 'green', 'line' => 'brush', 'brush_size' => 1, 'shadow' => 'none', 'legend' => get_string('graphlegend_target', 'adaptivequiz'));
+$g->y_format['ability'] = array('colour' => 'red', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => get_string('attemptquestion_ability', 'adaptivequiz'));
 $g->colour['pink'] = imagecolorallocate($g->image, 0xFF, 0xE5, 0xE5);
-$g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill','shadow' => 'none', 'legend' => 'Standard Error');
+$g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill','shadow' => 'none', 'legend' => get_string('graphlegend_error', 'adaptivequiz'));
 $g->y_format['error_min'] = array('colour' => 'white', 'area' => 'fill', 'shadow' => 'none');
 
 $g->parameter['y_min_left'] = $adaptivequiz->lowestlevel;

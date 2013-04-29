@@ -81,7 +81,7 @@ $user = $DB->get_record('user', array('id' => $userid));
 
 echo $header;
 
-echo html_writer::tag('h2', 'Attempt Summary');
+echo html_writer::tag('h2', get_string('attempt_summary', 'adaptivequiz'));
 echo $output->get_attempt_summary_listing($adaptivequiz, $user);
 
 $graph_url = new moodle_url('/mod/adaptivequiz/attemptgraph.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid));
@@ -90,7 +90,7 @@ echo html_writer::empty_tag('img', $params);
 
 echo $output->get_attempt_scoring_table($adaptivequiz, $quba);
 
-echo html_writer::tag('h2', 'Question Details');
+echo html_writer::tag('h2', get_string('attempt_questiondetails', 'adaptivequiz'));
 echo $pager;
 echo $output->print_questions_for_review($quba, $page, $user, $adaptivequiz->timemodified);
 echo $button;
