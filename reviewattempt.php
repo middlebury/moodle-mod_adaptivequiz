@@ -47,18 +47,8 @@ $context = context_module::instance($cm->id);
 require_capability('mod/adaptivequiz:viewreport', $context);
 
 $param = array('uniqueid' => $uniqueid, 'userid' => $userid, 'activityid' => $cm->instance);
-$sql = 'SELECT 
-            a.name, 
-            a.highestlevel, 
-            a.lowestlevel, 
-            aa.timecreated,
-            aa.timemodified, 
-            aa.attemptstate, 
-            aa.attemptstopcriteria,
-            aa.questionsattempted,
-            aa.difficultysum,
-            aa.standarderror,
-            aa.measure
+$sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, aa.timecreated, aa.timemodified, aa.attemptstate, aa.attemptstopcriteria,
+               aa.questionsattempted, aa.difficultysum, aa.standarderror, aa.measure
           FROM {adaptivequiz} a
           JOIN {adaptivequiz_attempt} aa ON a.id = aa.instance
          WHERE aa.uniqueid = :uniqueid
