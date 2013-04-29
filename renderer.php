@@ -782,23 +782,23 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @return string
      */
     public function get_attempt_scoring_table ($adaptivequiz, $quba) {
-        $html = '';
-        $html .= html_writer::start_tag('table');
-        $html .= html_writer::start_tag('thead');
-        $html .= html_writer::start_tag('tr');
-        $html .= html_writer::tag('th', get_string('attemptquestion_num', 'adaptivequiz'));
-        $html .= html_writer::tag('th', get_string('attemptquestion_level', 'adaptivequiz'));
-        $html .= html_writer::tag('th', get_string('attemptquestion_rightwrong', 'adaptivequiz'));
-        $html .= html_writer::tag('th', get_string('attemptquestion_ability', 'adaptivequiz'));
-        $html .= html_writer::tag('th', get_string('attemptquestion_error', 'adaptivequiz'));
-        $html .= html_writer::tag('th', get_string('attemptquestion_difficulty', 'adaptivequiz'));
-        $html .= html_writer::tag('th', get_string('attemptquestion_diffsum', 'adaptivequiz'));
-        $html .= html_writer::tag('th', get_string('attemptquestion_abilitylogits', 'adaptivequiz'));
-        $html .= html_writer::tag('th', get_string('attemptquestion_stderr', 'adaptivequiz'));
-        $html .= html_writer::end_tag('tr');
-        $html .= html_writer::end_tag('thead');
-        $html .= html_writer::start_tag('tbody');
+        $table = new html_table();
 
+        $num = get_string('attemptquestion_num', 'adaptivequiz');
+        $level = get_string('attemptquestion_level', 'adaptivequiz');
+        $rightwrong = get_string('attemptquestion_rightwrong', 'adaptivequiz');
+        $ability = get_string('attemptquestion_ability', 'adaptivequiz');
+        $error = get_string('attemptquestion_error', 'adaptivequiz');
+        $difficulty = get_string('attemptquestion_difficulty', 'adaptivequiz');
+        $diffsum = get_string('attemptquestion_diffsum', 'adaptivequiz');
+        $abilitylogits = get_string('attemptquestion_abilitylogits', 'adaptivequiz');
+        $stderr = get_string('attemptquestion_stderr', 'adaptivequiz');
+
+        $table->head = array($num, $level, $rightwrong, $ability, $error, $difficulty, $diffsum, $abilitylogits, $stderr);
+        $table->align = array('center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center');
+        $table->size = array('', '', '', '', '', '');
+        $table->data = array();
+        
         $questions_attempted = 0;
         $difficulty_sum = 0;
         $sum_of_correct_answers = 0;
@@ -825,20 +825,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
             $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
 
-            $html .= html_writer::start_tag('tr');
-            $html .= html_writer::tag('td', $slot);
-            $html .= html_writer::tag('td', $question_difficulty);
-            $html .= html_writer::tag('td', ($question_correct?'r':'w'));
-            $html .= html_writer::tag('td', round($ability, 2));
-            $html .= html_writer::tag('td', round($standard_error * 100, 1)."%");
-            $html .= html_writer::tag('td', round($question_difficulty_in_logits, 5));
-            $html .= html_writer::tag('td', round($difficulty_sum, 5));
-            $html .= html_writer::tag('td', round($ability_in_logits, 5));
-            $html .= html_writer::tag('td', round($standard_error_in_logits, 5));
-            $html .= html_writer::end_tag('tr');
+            $table->data[] = array($slot, $question_difficulty, ($question_correct?'r':'w'), round($ability, 2), 
+                round($standard_error * 100, 1)."%", round($question_difficulty_in_logits, 5), round($difficulty_sum, 5),
+                round($ability_in_logits, 5), round($standard_error_in_logits, 5));
         }
-        $html .= html_writer::end_tag('tbody');
-        $html .= html_writer::end_tag('table');
-        return $html;
+        return html_writer::table($table);
     }
 }
