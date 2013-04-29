@@ -147,7 +147,7 @@ $g->y_data['error_min'] = $error_min_values;
 $g->y_format['qdiff'] = array('colour' => 'blue', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => 'Question Difficulty');
 $g->y_format['target_level'] = array('colour' => 'green', 'line' => 'brush', 'brush_size' => 1, 'shadow' => 'none', 'legend' => 'Target Difficulty');
 $g->y_format['ability'] = array('colour' => 'red', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => 'Ability Measure');
-$g->colour['pink'] = ImageColorAllocate($g->image, 0xFF, 0xE5, 0xE5); 
+$g->colour['pink'] = imagecolorallocate($g->image, 0xFF, 0xE5, 0xE5); 
 $g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill','shadow' => 'none', 'legend' => 'Standard Error');
 $g->y_format['error_min'] = array('colour' => 'white', 'area' => 'fill', 'shadow' => 'none');
 
