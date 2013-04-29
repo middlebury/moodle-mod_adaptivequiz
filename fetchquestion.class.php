@@ -137,6 +137,7 @@ class fetchquestion {
      * 
      * @param int $maximumlevel
      * @return void
+     * @throws coding_exception if the maximum level is less than minimum level
      */
     public function set_maximum_level($maximumlevel) {
         if ($maximumlevel < $this->minimumlevel) {
@@ -150,6 +151,7 @@ class fetchquestion {
      * 
      * @param int $maximumlevel
      * @return void
+     * @throws coding_exception if the minimum level is less than maximum level
      */
     public function set_minimum_level($minimumlevel) {
         if ($minimumlevel > $this->maximumlevel) {
