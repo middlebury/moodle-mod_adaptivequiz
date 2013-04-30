@@ -187,7 +187,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('test firstname', $output);
         $this->assertContains('test lastname', $output);
         $this->assertContains('/user/profile.php?id=1', $output);
-        $this->assertContains('6.3 +- 4%', $output);
+        $this->assertContains('6.3 &plusmn; 4%', $output);
         $this->assertContains('5', $output);
         /* Check table column headers */
         $this->assertContains('sort=firstname', $output);
@@ -414,7 +414,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('cmid=1', $output);
         /* Check table row */
         $this->assertContains('stopped for some reason', $output);
-        $this->assertContains('6.3 +- 4%', $output);
+        $this->assertContains('6.3 &plusmn; 4%', $output);
         $this->assertContains('12', $output);
         $this->assertContains('</table>', $output);
     }
