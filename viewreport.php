@@ -55,7 +55,7 @@ $PAGE->set_context($context);
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 /* Initialized parameter array for sql query */
-$param = array('attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'instance' => $cm->instance);
+$param = array('attemptstate1' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'attemptstate2' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'instance' => $cm->instance);
 
 /* Constructo order by clause */
 $orderby = adaptivequiz_construct_view_report_orderby($sort, $sortdir);
@@ -80,26 +80,31 @@ if (0 != $groupid) {
 }
 
 /* Retreive a list of attempts made by each use, displaying the sum of attempts and showing the lowest standard error calculated of the user's attempts */
-$sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel, aa.id AS attemptid, score.measure, score.standarderror AS stderror,
+$sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
                (SELECT COUNT(*)
                   FROM {adaptivequiz_attempt} caa
                  WHERE caa.userid = u.id
                        AND caa.instance = aa.instance
-                ) AS attempts
+                ) AS attempts,
+                (SELECT maa.measure
+                  FROM mdl_adaptivequiz_attempt maa
+                 WHERE maa.instance = a.id
+                       AND maa.userid = u.id
+                       AND maa.attemptstate = :attemptstate1
+                       AND maa.standarderror > 0.0
+              ORDER BY standarderror ASC
+                 LIMIT 1) AS measure,
+               (SELECT saa.standarderror
+                  FROM mdl_adaptivequiz_attempt saa
+                 WHERE saa.instance = a.id
+                       AND saa.userid = u.id
+                       AND saa.attemptstate = :attemptstate2
+                       AND saa.standarderror > 0.0
+              ORDER BY standarderror ASC
+                 LIMIT 1) AS stderror
           FROM {adaptivequiz_attempt} aa
           JOIN {user} u ON u.id = aa.userid
           JOIN {adaptivequiz} a ON a.id = aa.instance
-          LEFT JOIN (
-              SELECT *
-                FROM (
-                    SELECT userid, instance, standarderror, measure
-                      FROM {adaptivequiz_attempt}
-                     WHERE attemptstate = :attemptstate
-                           AND standarderror > 0.0
-                  ORDER BY standarderror
-              ) score1
-              GROUP BY userid, instance
-          ) score ON (aa.instance = score.instance AND aa.userid = score.userid)
         $groupjoin
          WHERE aa.instance = :instance
         $groupwhere
