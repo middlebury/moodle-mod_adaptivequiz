@@ -495,7 +495,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $link = html_writer::link($attemptlink, $record->attempts);
             $result = $this->format_measure_and_standard_error($record);
             $profileurl = new moodle_url('/user/profile.php', array('id' => $record->id));
-            $name = $record->firstname.', '.$record->lastname;
+            $name = $record->firstname.' '.$record->lastname;
             $namelink = html_writer::link($profileurl, $name);
             $row = array($namelink, $link, $result);
             $table->data[] = $row;
