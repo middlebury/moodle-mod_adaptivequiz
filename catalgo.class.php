@@ -350,7 +350,7 @@ class catalgo {
 
         if ($validatenumbers != $this->questattempted) {
             $this->status = get_string('errorsumrightwrong', 'adaptivequiz');
-            $this->print_debug('perform_calculation_steps() - Sum of correct and incorrect answers doesn\'t equals the total number of questions attempted');
+            $this->print_debug('perform_calculation_steps() - Sum of correct and incorrect answers ('.$validatenumbers.') doesn\'t equals the total number of questions attempted ('.$this->questattempted.')');
             return 0;
         }
 

@@ -573,8 +573,8 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $functions = array(
-                'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty', 'compute_right_answers', 'compute_wrong_answers',
-                'estimate_measure', 'estimate_standard_error', 'retrieve_standard_error', 'standard_error_within_parameters');
+                'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty', 
+                'compute_right_answers', 'compute_wrong_answers', 'retrieve_standard_error');
         $mockcatalgo = $this->getMock('catalgo', $functions, array(), '', false);
 
         $dummyattempt = new stdClass();
@@ -599,19 +599,11 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
 
         $mockcatalgo->expects($this->once())
                 ->method('compute_wrong_answers')
-                ->will($this->returnValue(1));
+                ->will($this->returnValue(10)); // Wrong answers is set to 10
 
-        $mockcatalgo->expects($this->never())
-                ->method('estimate_measure');
-
-        $mockcatalgo->expects($this->never())
-                ->method('estimate_standard_error');
-
-        $mockcatalgo->expects($this->never())
-                ->method('retrieve_standard_error');
-
-        $mockcatalgo->expects($this->never())
-                ->method('standard_error_within_parameters');
+        $mockcatalgo->expects($this->once())
+                ->method('retrieve_standard_error')
+                ->will($this->returnValue(1.45095));
 
         $result = $mockcatalgo->perform_calculation_steps();
 
@@ -625,8 +617,8 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $functions = array(
-                'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty', 'compute_right_answers', 'compute_wrong_answers',
-                'estimate_measure', 'estimate_standard_error', 'retrieve_standard_error', 'standard_error_within_parameters');
+                'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty', 
+                'compute_right_answers', 'compute_wrong_answers', 'retrieve_standard_error');
         $mockcatalgo = $this->getMock('catalgo', $functions, array(), '', false);
 
         $dummyattempt = new stdClass();
@@ -637,7 +629,7 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
                 ->method('retrieve_attempt_record')
                 ->will($this->returnValue($dummyattempt));
 
-        $mockcatalgo->expects($this->once())
+        $mockcatalgo->expects($this->any())
                 ->method('question_was_marked_correct')
                 ->will($this->returnValue(true));
 
@@ -647,23 +639,15 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
 
         $mockcatalgo->expects($this->once())
                 ->method('compute_right_answers')
-                ->will($this->returnValue(1));
+                ->will($this->returnValue(10)); // Right answers is set to 10
 
         $mockcatalgo->expects($this->once())
                 ->method('compute_wrong_answers')
                 ->will($this->returnValue(0)); // Wrong answers is set to zero
 
-        $mockcatalgo->expects($this->never())
-                ->method('estimate_measure');
-
-        $mockcatalgo->expects($this->never())
-                ->method('estimate_standard_error');
-
-        $mockcatalgo->expects($this->never())
-                ->method('retrieve_standard_error');
-
-        $mockcatalgo->expects($this->never())
-                ->method('standard_error_within_parameters');
+        $mockcatalgo->expects($this->once())
+                ->method('retrieve_standard_error')
+                ->will($this->returnValue(1.45095));
 
         $result = $mockcatalgo->perform_calculation_steps();
 
@@ -893,7 +877,7 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
 
         $functions = array(
                 'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty', 'compute_right_answers', 'compute_wrong_answers',
-                'estimate_measure', 'estimate_standard_error', 'retrieve_standard_error', 'standard_error_within_parameters');
+                'retrieve_standard_error', 'standard_error_within_parameters');
         // Minimum stopping criteria has been met
         $mockcatalgo = $this->getMock('catalgo', $functions, array($mockquba, 1, true, 50));
 
@@ -924,16 +908,6 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
                 ->method('compute_wrong_answers')
                 ->withAnyParameters()
                 ->will($this->returnValue(1));
-
-        $mockcatalgo->expects($this->once())
-                ->method('estimate_measure')
-                ->with(50, 2, 1, 1)
-                ->will($this->returnValue(1));
-
-        $mockcatalgo->expects($this->once())
-                ->method('estimate_standard_error')
-                ->with(2, 1, 1)
-                ->will($this->returnValue(0.02));
 
         $mockcatalgo->expects($this->once())
                 ->method('retrieve_standard_error')
