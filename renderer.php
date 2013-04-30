@@ -476,7 +476,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $firstname = html_writer::link($firstnameurl, get_string('firstname')).$firstname;
         $lastname = html_writer::link($lastnameurl, get_string('lastname')).$lastname;
         $numofattempts = html_writer::link($numofattemptsurl, get_string('numofattemptshdr', 'adaptivequiz')).$numofattempts;
-        $standarderror = html_writer::link($standarderrorurl, get_string('score', 'adaptivequiz')).$standarderror;
+        $standarderror = html_writer::link($standarderrorurl, get_string('bestscore', 'adaptivequiz')).$standarderror;
 
         return array($firstname.' / '.$lastname, $numofattempts, $standarderror);
     }

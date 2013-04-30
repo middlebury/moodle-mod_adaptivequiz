@@ -105,6 +105,7 @@ $string['backtoviewattemptreport'] = 'Back to view attempt report';
 $string['backtoviewreport'] = 'Back to main reports';
 $string['reviewattemptreport'] = 'Reviewing attempt by {$a->fullname} submitted on {$a->finished}';
 $string['score'] = 'Score';
+$string['bestscore'] = 'Best Score';
 $string['attempt_summary'] = 'Attempt Summary';
 $string['attempt_questiondetails'] = 'Question Details';
 $string['attemptstarttime'] = 'Attempt start time';

@@ -92,7 +92,7 @@ $sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
                        AND maa.userid = u.id
                        AND maa.attemptstate = :attemptstate1
                        AND maa.standarderror > 0.0
-              ORDER BY standarderror ASC
+              ORDER BY measure DESC
                  LIMIT 1) AS measure,
                (SELECT saa.standarderror
                   FROM mdl_adaptivequiz_attempt saa
@@ -100,7 +100,7 @@ $sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
                        AND saa.userid = u.id
                        AND saa.attemptstate = :attemptstate2
                        AND saa.standarderror > 0.0
-              ORDER BY standarderror ASC
+              ORDER BY measure DESC
                  LIMIT 1) AS stderror
           FROM {adaptivequiz_attempt} aa
           JOIN {user} u ON u.id = aa.userid
