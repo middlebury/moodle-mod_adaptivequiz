@@ -60,6 +60,11 @@ $sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, a.startinglevel, aa.timecr
       ORDER BY a.name ASC';
 $adaptivequiz  = $DB->get_record_sql($sql, $param);
 $user = $DB->get_record('user', array('id' => $userid));
+if (!$user) {
+    $user = new stdClass();
+    $user->firstname = get_string('unknownuser', 'adaptivequiz');
+    $user->lastname = '#'.$userid;
+}
 
 $g = new graph(750, 300);
 $g->parameter['title'] = format_string($adaptivequiz->name).' for '.$user->firstname." ".$user->lastname;

@@ -78,6 +78,11 @@ $txt = get_string('backtoviewattemptreport', 'adaptivequiz');
 $button = $output->print_form_and_button($url, $txt);
 
 $user = $DB->get_record('user', array('id' => $userid));
+if (!$user) {
+    $user = new stdClass();
+    $user->firstname = get_string('unknownuser', 'adaptivequiz');
+    $user->lastname = '#'.$userid;
+}
 
 echo $header;
 

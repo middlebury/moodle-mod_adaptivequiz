@@ -123,3 +123,4 @@ $string['attemptquestion_abilitylogits'] = 'Measured Ability (logits)';
 $string['attemptquestion_stderr'] = 'Standard Error (&plusmn;&nbsp;logits)';
 $string['graphlegend_target'] = 'Target Level';
 $string['graphlegend_error'] = 'Standard Error';
+$string['unknownuser'] = 'Unknown user';
