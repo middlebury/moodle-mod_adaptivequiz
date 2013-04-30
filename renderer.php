@@ -757,9 +757,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         $html .= html_writer::start_tag('dl', array('class' => 'adaptivequiz-summarylist'));
         $html .= html_writer::tag('dt', get_string('attemptstarttime', 'adaptivequiz').': ');
-        $html .= html_writer::tag('dd', date('c', $adaptivequiz->timecreated));
+        $html .= html_writer::tag('dd', userdate($adaptivequiz->timecreated));
         $html .= html_writer::tag('dt', get_string('attemptfinishedtimestamp', 'adaptivequiz').': ');
-        $html .= html_writer::tag('dd', date('c', $adaptivequiz->timemodified));
+        $html .= html_writer::tag('dd', userdate($adaptivequiz->timemodified));
         $html .= html_writer::tag('dt', get_string('attempttotaltime', 'adaptivequiz').': ');
         $total_time = $adaptivequiz->timemodified - $adaptivequiz->timecreated;
         $hours = floor($total_time/3600);
