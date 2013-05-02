@@ -294,21 +294,20 @@ class adaptiveattempt {
                     $fetchquestion->set_minimum_level($this->last_difficulty_level + 1);
                     // Do not ask a question of the same level unless we are already at the max.
                     if ($this->last_difficulty_level == $this->level) {
-                        $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, incrementing level "
-                            ."from {$this->level} to ".($this->level + 1).".");
+                        $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, incrementing level ".
+                                "from {$this->level} to ".($this->level + 1).".");
                         $this->level++;
                     }
                 }
             } else {
-            // If the last question was wrong...
-
+                // If the last question was wrong...
                 // Only ask questions easier than the last question unless we are already at the bottom of the ability scale
                 if (!is_null($this->last_difficulty_level) && $this->last_difficulty_level > $this->adaptivequiz->lowestlevel) {
                     $fetchquestion->set_maximum_level($this->last_difficulty_level - 1);
                     // Do not ask a question of the same level unless we are already at the min.
                     if ($this->last_difficulty_level == $this->level) {
-                        $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, decrementing level "
-                            ."from {$this->level} to ".($this->level - 1).".");
+                        $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, decrementing level ".
+                                "from {$this->level} to ".($this->level - 1).".");
                         $this->level--;
                     }
                 }
@@ -324,8 +323,7 @@ class adaptiveattempt {
         } else if (empty($this->slot) && 0 < $adpqattempt->questionsattempted) {
             // If this condition is met, then something went wrong because the slot id is empty BUT the questions attempted is
             // greater than zero.  Stop attempt
-            $this->print_debug('start_attempt() - something went horribly wrong since the quba has no slot number AND the number '
-                .'of question answered is greater than 0');
+            $this->print_debug('start_attempt() - something went horribly wrong since the quba has no slot number AND the number of question answered is greater than 0');
             $this->status = get_string('errorattemptstate', 'adaptivequiz');
             return false;
         }
@@ -394,8 +392,7 @@ class adaptiveattempt {
 
         // Set class level property to the difficulty level of the question returned from fetchquestion class
         $this->level = $fetchquestion->get_level();
-        $this->print_debug('get_question_ready() - Question: '.print_r($question, true)
-            .' loaded and attempt started.  Question_usage_by_activity saved.');
+        $this->print_debug('get_question_ready() - Question: '.print_r($question, true).' loaded and attempt started.  Question_usage_by_activity saved.');
         return true;
     }
 
@@ -500,8 +497,7 @@ class adaptiveattempt {
      */
     public function find_last_quest_used_by_attempt($quba) {
         if (!$quba instanceof question_usage_by_activity) {
-            throw new coding_exception('find_last_quest_used_by_attempt() - Argument was not a question_usage_by_activity object',
-                    print_r($quba, true));
+            throw new coding_exception('find_last_quest_used_by_attempt() - Argument was not a question_usage_by_activity object', print_r($quba, true));
         }
 
         // The last slot in the array should be the last question that was attempted (meaning it was either shown to the user

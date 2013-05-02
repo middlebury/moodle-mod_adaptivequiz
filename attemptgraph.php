@@ -92,16 +92,16 @@ foreach ($quba->get_slots() as $i => $slot) {
     if ($i == 0) {
         $target_level = $adaptivequiz->startinglevel;
     } else {
-    // Compute the target difficulty based on the last question.
+        // Compute the target difficulty based on the last question.
         if ($question_correct) {
             $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted,
-                $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
+                    $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
             if ($target_level == $question_difficulty && $target_level < $adaptivequiz->highestlevel) {
                 $target_level++;
             }
         } else {
             $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits - 2 / $questions_attempted,
-                $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
+                    $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
             if ($target_level == $question_difficulty && $target_level > $adaptivequiz->lowestlevel) {
                 $target_level--;
             }
@@ -153,7 +153,7 @@ $g->y_format['qdiff'] = array('colour' => 'blue', 'line' => 'brush', 'brush_size
 $g->y_format['target_level'] = array('colour' => 'green', 'line' => 'brush', 'brush_size' => 1, 'shadow' => 'none', 'legend' => get_string('graphlegend_target', 'adaptivequiz'));
 $g->y_format['ability'] = array('colour' => 'red', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => get_string('attemptquestion_ability', 'adaptivequiz'));
 $g->colour['pink'] = imagecolorallocate($g->image, 0xFF, 0xE5, 0xE5);
-$g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill','shadow' => 'none', 'legend' => get_string('graphlegend_error', 'adaptivequiz'));
+$g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill', 'shadow' => 'none', 'legend' => get_string('graphlegend_error', 'adaptivequiz'));
 $g->y_format['error_min'] = array('colour' => 'white', 'area' => 'fill', 'shadow' => 'none');
 
 $g->parameter['y_min_left'] = $adaptivequiz->lowestlevel;

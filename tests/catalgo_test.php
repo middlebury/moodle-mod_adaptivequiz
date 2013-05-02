@@ -573,7 +573,7 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $functions = array(
-                'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty', 
+                'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty',
                 'compute_right_answers', 'compute_wrong_answers', 'retrieve_standard_error');
         $mockcatalgo = $this->getMock('catalgo', $functions, array(), '', false);
 
@@ -617,7 +617,7 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $functions = array(
-                'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty', 
+                'retrieve_attempt_record', 'question_was_marked_correct', 'compute_next_difficulty',
                 'compute_right_answers', 'compute_wrong_answers', 'retrieve_standard_error');
         $mockcatalgo = $this->getMock('catalgo', $functions, array(), '', false);
 

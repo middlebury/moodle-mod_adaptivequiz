@@ -736,7 +736,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param stdClass $user the user who took the quiz that created the attempt
      * @return string
      */
-    public function get_attempt_summary_listing ($adaptivequiz, $user) {
+    public function get_attempt_summary_listing($adaptivequiz, $user) {
         $html = '';
         $html .= html_writer::start_tag('dl', array('class' => 'adaptivequiz-summarylist'));
         $html .= html_writer::tag('dt', get_string('attempt_user', 'adaptivequiz').': ');
@@ -781,7 +781,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param question_usage_by_activity $quba the questions used in this attempt
      * @return string
      */
-    public function get_attempt_scoring_table ($adaptivequiz, $quba) {
+    public function get_attempt_scoring_table($adaptivequiz, $quba) {
         $table = new html_table();
 
         $num = get_string('attemptquestion_num', 'adaptivequiz');
@@ -798,7 +798,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table->align = array('center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center');
         $table->size = array('', '', '', '', '', '');
         $table->data = array();
-        
+
         $questions_attempted = 0;
         $difficulty_sum = 0;
         $sum_of_correct_answers = 0;
@@ -825,9 +825,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
             $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
 
-            $table->data[] = array($slot, $question_difficulty, ($question_correct?'r':'w'), round($ability, 2), 
-                round($standard_error * 100, 1)."%", round($question_difficulty_in_logits, 5), round($difficulty_sum, 5),
-                round($ability_in_logits, 5), round($standard_error_in_logits, 5));
+            $table->data[] = array($slot, $question_difficulty, ($question_correct?'r':'w'), round($ability, 2),
+                    round($standard_error * 100, 1)."%", round($question_difficulty_in_logits, 5), round($difficulty_sum, 5),
+                    round($ability_in_logits, 5), round($standard_error_in_logits, 5));
         }
         return html_writer::table($table);
     }
