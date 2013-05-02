@@ -7,9 +7,9 @@
         <column>path</column>
         <column>depth</column>
         <row>
-            <value>16</value>
+            <value>200</value>
             <value>50</value>
-            <value>2</value>
+            <value>200</value>
             <value>/1/3/16</value>
             <value>3</value>
         </row>
@@ -27,7 +27,7 @@
         <column>fullname</column>
         <column>shortname</column>
         <row>
-            <value>2</value>
+            <value>200</value>
             <value>1</value>
             <value>101</value>
             <value>101</value>
