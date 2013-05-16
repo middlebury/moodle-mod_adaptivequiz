@@ -19,7 +19,7 @@ Come."][2] *MESA Memorandum No. 69 (2000)*.
 [2]: http://www.rasch.org/memo69.pdf
 
 This Moodle activity module was created as a collaborative effort between [Middlebury
-College][3] and [Remote Learner][3]. The latest code, documentation, and bug-tracker
+College][3] and [Remote Learner][4]. The latest code, documentation, and bug-tracker
 can be found at [https://github.com/middlebury/moodle-mod_adaptivequiz][5].
 
 [3]: http://www.middlebury.edu/
