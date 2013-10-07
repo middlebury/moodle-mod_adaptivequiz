@@ -418,6 +418,15 @@ class catalgo {
         }
         return ( 1 / ( 1 + exp(0 - $logit) ) ) - 0.5;
     }
+    
+    /**
+     * Convert a logit value to a fraction between 0 and 1.
+     * @param float $logit logit value
+     * @return float the logit value mapped as a fraction
+     */
+    public static function convert_logit_to_fraction($logit) {
+        return exp($logit) / ( 1 + exp($logit) );
+    }
 
     /**
      * This function takes the inverse of a logit value, then maps the value onto the scale defined for the attempt
@@ -427,7 +436,7 @@ class catalgo {
      * @return float the logit value mapped onto the scale
      */
     public static function map_logit_to_scale($logit, $max, $min) {
-        $fraction = exp($logit) / ( 1 + exp($logit) );
+        $fraction = self::convert_logit_to_fraction($logit);
         $scaledvalue = ( ( $max - $min ) * $fraction ) + $min;
         return $scaledvalue;
     }
