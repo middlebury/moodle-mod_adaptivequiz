@@ -101,6 +101,31 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         return $html;
     }
+    
+    /**
+     * This function displays a form with a button to view the question analysis report
+     * @param string $cmid: course module id
+     * @return string - HTML markup displaying the description and form with a submit button
+     */
+    public function display_question_analysis_form($cmid) {
+        $html = '';
+
+        $param = array('cmid' => $cmid);
+        $target = new moodle_url('/mod/adaptivequiz/questionanalysis/overview.php', $param);
+        $attributes = array('method' => 'POST', 'action' => $target);
+
+        $html .= html_writer::start_tag('form', $attributes);
+
+        $html .= html_writer::empty_tag('br');
+        $html .= html_writer::empty_tag('br');
+
+        $buttonlabel = get_string('questionanalysisbtn', 'adaptivequiz');
+        $params = array('type' => 'submit', 'value' => $buttonlabel, 'class' => 'submitbtns adaptivequizbtn');
+        $html .= html_writer::empty_tag('input', $params);
+        $html .= html_writer::end_tag('form');
+
+        return $html;
+    }
 
     /**
      * This function sets up the javascript required by the page

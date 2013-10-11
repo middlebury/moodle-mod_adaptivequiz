@@ -83,6 +83,7 @@ if (has_capability('mod/adaptivequiz:attempt', $context)) {
 
 if (has_capability('mod/adaptivequiz:viewreport', $context)) {
     echo $renderer->display_view_report_form($cm->id);
+    echo $renderer->display_question_analysis_form($cm->id);
 }
 // Finish the page
 echo $OUTPUT->footer();
