@@ -32,6 +32,7 @@ require_once(dirname(__FILE__).'/lib/quiz_analyser.class.php');
 require_once(dirname(__FILE__).'/renderer.php');
 
 require_once(dirname(__FILE__).'/lib/statistics/times_used_statistic.class.php');
+require_once(dirname(__FILE__).'/lib/statistics/percent_correct_statistic.class.php');
 $id = required_param('cmid', PARAM_INT);
 $sortdir = optional_param('sortdir', 'DESC', PARAM_ALPHA);
 $sort = optional_param('sort', 'times_used', PARAM_ALPHANUMEXT);
@@ -60,6 +61,7 @@ $output = $PAGE->get_renderer('mod_adaptivequiz_questions');
 $quiz_analyser = new adaptivequiz_quiz_analyser();
 $quiz_analyser->load_attempts($cm->instance);
 $quiz_analyser->add_statistic('times_used', new adaptivequiz_times_used_statistic());
+$quiz_analyser->add_statistic('percent_correct', new adaptivequiz_percent_correct_statistic());
 
 $headers = $quiz_analyser->get_header();
 $records = $quiz_analyser->get_records($sort, $sortdir);

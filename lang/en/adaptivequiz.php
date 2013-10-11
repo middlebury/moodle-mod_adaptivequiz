@@ -128,3 +128,4 @@ $string['questionanalysisbtn'] = 'Question Analysis';
 $string['name'] = 'Name';
 $string['questions_report'] = 'Questions Report';
 $string['times_used_display_name'] = 'Times Used';
+$string['percent_correct_display_name'] = '% Correct';
