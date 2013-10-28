@@ -140,4 +140,14 @@ class adaptivequiz_question_analyser {
     	    throw new InvalidArgumentException("Unknown statistic key '$key'.");
         return $this->statistic_results[$key];
     }
+    
+    /**
+     * Utility function to map a logit value to this question's scale
+     * 
+     * @param $logit
+     * @return float Scaled value
+     */
+    public function map_logit_to_scale ($logit) {
+    	return catalgo::map_logit_to_scale($logit, $this->highest_level, $this->lowest_level);
+    }
 }
