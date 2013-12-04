@@ -118,6 +118,7 @@ class adaptivequiz_quiz_analyser {
      */
     public function get_header () {
     	$header = array();
+    	$header['id'] = get_string('id', 'adaptivequiz');
     	$header['name'] = get_string('adaptivequizname', 'adaptivequiz');
     	$header['level'] = get_string('attemptquestion_level', 'adaptivequiz');
     	foreach ($this->statistics as $key => $statistic) {
@@ -138,6 +139,7 @@ class adaptivequiz_quiz_analyser {
         
         foreach ($this->questions as $question) {
             $record = array();
+            $record[] = $question->get_question_definition()->id;
             $record[] = $question->get_question_definition()->name;
             $record[] = $question->get_question_level();
             foreach ($this->statistics as $key => $statistic) {
@@ -173,5 +175,36 @@ class adaptivequiz_quiz_analyser {
         }
         
         return $records;
+    }
+    
+    /**
+     * Answer a question-analyzer for a particular question id analyze
+     * 
+     * @param int $qid The question id
+     * @return adaptivequiz_question_analyser
+     */
+    public function get_question_analyzer ($qid) {
+    	if (!isset($this->questions[$qid])) {
+    	    throw new Exception('Question-id not found.');
+    	}
+    	return $this->questions[$qid];
+    }
+    
+    /**
+     * Answer the record for a single question
+     * 
+     * @param int $qid The question id
+     * @return array
+     */
+    public function get_record ($qid) {
+        $question = $this->get_question_analyzer($qid);
+    	$record = array();
+        $record[] = $question->get_question_definition()->id;
+        $record[] = $question->get_question_definition()->name;
+        $record[] = $question->get_question_level();
+        foreach ($this->statistics as $key => $statistic) {
+            $record[] = $question->get_statistic_result($key)->printable();
+        }
+        return $record;
     }
 }

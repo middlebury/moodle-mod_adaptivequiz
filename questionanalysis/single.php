@@ -35,8 +35,10 @@ require_once(dirname(__FILE__).'/lib/statistics/times_used_statistic.class.php')
 require_once(dirname(__FILE__).'/lib/statistics/percent_correct_statistic.class.php');
 require_once(dirname(__FILE__).'/lib/statistics/discrimination_statistic.class.php');
 require_once(dirname(__FILE__).'/lib/statistics/estimated_level_statistic.class.php');
+require_once(dirname(__FILE__).'/lib/statistics/answers_statistic.class.php');
 
 $id = required_param('cmid', PARAM_INT);
+$qid = required_param('qid', PARAM_INT);
 $sortdir = optional_param('sortdir', 'DESC', PARAM_ALPHA);
 $sort = optional_param('sort', 'times_used', PARAM_ALPHANUMEXT);
 $page = optional_param('page', 0, PARAM_INT);
@@ -48,53 +50,56 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
     print_error("coursemisconf");
 }
 
+
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 require_capability('mod/adaptivequiz:viewreport', $context);
 
 $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*');
-$PAGE->set_url('/mod/adaptivequiz/questionanalysis/overview.php', array('cmid' => $cm->id));
-$PAGE->set_title(format_string($adaptivequiz->name));
+
+$quiz_analyzer = new adaptivequiz_quiz_analyser();
+$quiz_analyzer->load_attempts($cm->instance);
+$question_analyzer = $quiz_analyzer->get_question_analyzer($qid);
+$question_definition = $question_analyzer->get_question_definition();
+
+$PAGE->set_url('/mod/adaptivequiz/questionanalysis/single.php', array('cmid' => $cm->id, 'qid' => $qid));
+$PAGE->set_title(format_string($question_definition->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 $output = $PAGE->get_renderer('mod_adaptivequiz_questions');
 
 
-$quiz_analyser = new adaptivequiz_quiz_analyser();
-$quiz_analyser->load_attempts($cm->instance);
-$quiz_analyser->add_statistic('times_used', new adaptivequiz_times_used_statistic());
-$quiz_analyser->add_statistic('percent_correct', new adaptivequiz_percent_correct_statistic());
-$quiz_analyser->add_statistic('discrimination', new adaptivequiz_discrimination_statistic());
-$quiz_analyser->add_statistic('estimated_level', new adaptivequiz_estimated_level_statistic());
+$quiz_analyzer->add_statistic('times_used', new adaptivequiz_times_used_statistic());
+$quiz_analyzer->add_statistic('percent_correct', new adaptivequiz_percent_correct_statistic());
+$quiz_analyzer->add_statistic('discrimination', new adaptivequiz_discrimination_statistic());
+$quiz_analyzer->add_statistic('estimated_level', new adaptivequiz_estimated_level_statistic());
+$quiz_analyzer->add_statistic('answers', new adaptivequiz_answers_statistic());
 
-$headers = $quiz_analyser->get_header();
-$records = $quiz_analyser->get_records($sort, $sortdir);
-$recordscount = count($records);
-$records = array_slice($records, $page * ADAPTIVEQUIZ_REC_PER_PAGE, ADAPTIVEQUIZ_REC_PER_PAGE);
+$headers = $quiz_analyzer->get_header();
+$record = $quiz_analyzer->get_record($qid);
 
-// Merge the question id and names into links.
-unset($headers['id']);
-foreach ($records as &$record) {
-    $id = array_shift($record);
-    $url = new moodle_url('/mod/adaptivequiz/questionanalysis/single.php', array('cmid' => $cm->id, 'qid' => $id, 'sort' => $sort, 'sortdir' => $sortdir, 'page' => $page));
-    $record[0] = html_writer::link($url, $record[0]);
-}
-
+// Get rid of the question id and name columns:
+unset($headers['id'], $headers['name']);
+array_shift($record);
+array_shift($record);
 
 /* print header information */
 $header = $output->print_header();
-$title = $output->heading(get_string('questions_report', 'adaptivequiz'));
+$title = $output->heading(get_string('question_report', 'adaptivequiz'));
+/* return link */
+$url = new moodle_url('/mod/adaptivequiz/questionanalysis/overview.php', array('cmid' => $cm->id, 'sort' => $sort, 'sortdir' => $sortdir, 'page' => $page));
+$return_link = html_writer::link($url, get_string('back_to_all_questions', 'adaptivequiz'));
+
 /* Output attempts table */
-$reporttable = $output->get_report_table($headers, $records, $cm, '/mod/adaptivequiz/questionanalysis/overview.php', $sort, $sortdir);
-/* Output paging bar */
-$pagingbar = $output->print_paging_bar($recordscount, $page, ADAPTIVEQUIZ_REC_PER_PAGE, $cm, '/mod/adaptivequiz/questionanalysis/overview.php', $sort, $sortdir);
+$question_details = $output->get_question_details($question_analyzer, $context);
+$reporttable = $output->get_single_question_report($headers, $record, $cm, '/mod/adaptivequiz/questionanalysis/overview.php', $sort, $sortdir);
 /* Output footer information */
 $footer = $output->print_footer();
 
 echo $header;
-echo $pagingbar;
+echo $return_link;
 echo $title;
+echo $question_details;
 echo $reporttable;
-echo $pagingbar;
 echo $footer;
