@@ -783,6 +783,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     public function get_attempt_scoring_table($adaptivequiz, $quba) {
         $table = new html_table();
+        $table->id = 'adpq_scoring_table';
 
         $num = get_string('attemptquestion_num', 'adaptivequiz');
         $level = get_string('attemptquestion_level', 'adaptivequiz');
