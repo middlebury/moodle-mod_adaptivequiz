@@ -64,6 +64,9 @@ $PAGE->set_context($context);
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
+$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_reviewattempt', null, false, $output->adaptivequiz_get_js_module());
+
+
 /* print header information */
 $header = $output->print_header();
 /* Output footer information */
@@ -93,6 +96,12 @@ $graph_url = new moodle_url('/mod/adaptivequiz/attemptgraph.php', array('uniquei
 $params = array('src' => $graph_url, 'class' => 'adaptivequiz-attemptgraph');
 echo html_writer::empty_tag('img', $params);
 
+echo html_writer::start_tag('a', array('href' => '#', 'id' => 'adpq_scoring_table_link'));
+echo html_writer::start_tag('h2');
+echo html_writer::tag('span', '&#9660;', array('id' => 'adpq_scoring_table_link_icon'));
+echo ' '.get_string('scoring_table', 'adaptivequiz');
+echo html_writer::end_tag('h3');
+echo html_writer::end_tag('a');
 echo $output->get_attempt_scoring_table($adaptivequiz, $quba);
 
 echo html_writer::tag('h2', get_string('attempt_questiondetails', 'adaptivequiz'));

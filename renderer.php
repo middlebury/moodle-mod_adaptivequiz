@@ -783,19 +783,20 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     public function get_attempt_scoring_table($adaptivequiz, $quba) {
         $table = new html_table();
+        $table->id = 'adpq_scoring_table';
 
         $num = get_string('attemptquestion_num', 'adaptivequiz');
         $level = get_string('attemptquestion_level', 'adaptivequiz');
         $rightwrong = get_string('attemptquestion_rightwrong', 'adaptivequiz');
         $ability = get_string('attemptquestion_ability', 'adaptivequiz');
         $error = get_string('attemptquestion_error', 'adaptivequiz');
-        $difficulty = get_string('attemptquestion_difficulty', 'adaptivequiz');
-        $diffsum = get_string('attemptquestion_diffsum', 'adaptivequiz');
-        $abilitylogits = get_string('attemptquestion_abilitylogits', 'adaptivequiz');
-        $stderr = get_string('attemptquestion_stderr', 'adaptivequiz');
+#        $difficulty = get_string('attemptquestion_difficulty', 'adaptivequiz');
+#        $diffsum = get_string('attemptquestion_diffsum', 'adaptivequiz');
+#        $abilitylogits = get_string('attemptquestion_abilitylogits', 'adaptivequiz');
+#        $stderr = get_string('attemptquestion_stderr', 'adaptivequiz');
 
-        $table->head = array($num, $level, $rightwrong, $ability, $error, $difficulty, $diffsum, $abilitylogits, $stderr);
-        $table->align = array('center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center');
+        $table->head = array($num, $level, $rightwrong, $ability, $error);
+        $table->align = array('center', 'center', 'center', 'center', 'center');
         $table->size = array('', '', '', '', '', '');
         $table->data = array();
 
@@ -826,8 +827,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
 
             $table->data[] = array($slot, $question_difficulty, ($question_correct?'r':'w'), round($ability, 2),
-                    round($standard_error * 100, 1)."%", round($question_difficulty_in_logits, 5), round($difficulty_sum, 5),
-                    round($ability_in_logits, 5), round($standard_error_in_logits, 5));
+                    round($standard_error * 100, 1)."%");
         }
         return html_writer::table($table);
     }

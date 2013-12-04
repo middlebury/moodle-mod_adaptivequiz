@@ -128,3 +128,24 @@ M.mod_adaptivequiz.init_comment_popup = function(Y) {
     Y.one('#id_submitbutton').ancestor().append(closebutton);
     Y.on('click', function() { window.close() }, closebutton);
 }
+
+M.mod_adaptivequiz.init_reviewattempt = function(Y) {
+    Y.one('#adpq_scoring_table').hide();
+    Y.one('#adpq_scoring_table_link_icon').setContent('&#9654;');
+    
+    
+    Y.use('node', function(Y) {
+        Y.delegate('click', function(e) {
+            if (e.currentTarget.get('id') === 'adpq_scoring_table_link') {
+                var table = Y.one('#adpq_scoring_table');
+                table.toggleView();
+                if (table.getComputedStyle('display') === 'none') {
+                    Y.one('#adpq_scoring_table_link_icon').setContent('&#9654;');
+                } else {
+                    Y.one('#adpq_scoring_table_link_icon').setContent('&#9660;');
+                }
+            }
+        
+        }, document, 'a');
+    });
+};
