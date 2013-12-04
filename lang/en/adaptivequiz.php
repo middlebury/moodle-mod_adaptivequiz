@@ -132,7 +132,6 @@ $string['question_report'] = 'Question Analysis';
 $string['times_used_display_name'] = 'Times Used';
 $string['percent_correct_display_name'] = '% Correct';
 $string['discrimination_display_name'] = 'Discrimination';
-$string['estimated_level_display_name'] = 'Est. Qustn. Level';
 $string['back_to_all_questions'] = '&laquo; Back to all questions';
 $string['answers_display_name'] = 'Answers';
 $string['statistic'] = 'Statistic';

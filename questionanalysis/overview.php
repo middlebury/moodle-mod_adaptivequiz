@@ -34,7 +34,6 @@ require_once(dirname(__FILE__).'/renderer.php');
 require_once(dirname(__FILE__).'/lib/statistics/times_used_statistic.class.php');
 require_once(dirname(__FILE__).'/lib/statistics/percent_correct_statistic.class.php');
 require_once(dirname(__FILE__).'/lib/statistics/discrimination_statistic.class.php');
-require_once(dirname(__FILE__).'/lib/statistics/estimated_level_statistic.class.php');
 
 $id = required_param('cmid', PARAM_INT);
 $sortdir = optional_param('sortdir', 'DESC', PARAM_ALPHA);
@@ -66,7 +65,6 @@ $quiz_analyser->load_attempts($cm->instance);
 $quiz_analyser->add_statistic('times_used', new adaptivequiz_times_used_statistic());
 $quiz_analyser->add_statistic('percent_correct', new adaptivequiz_percent_correct_statistic());
 $quiz_analyser->add_statistic('discrimination', new adaptivequiz_discrimination_statistic());
-$quiz_analyser->add_statistic('estimated_level', new adaptivequiz_estimated_level_statistic());
 
 $headers = $quiz_analyser->get_header();
 $records = $quiz_analyser->get_records($sort, $sortdir);
