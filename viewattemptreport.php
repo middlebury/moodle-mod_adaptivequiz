@@ -26,6 +26,7 @@
  */
 
 require_once(dirname(__FILE__).'/../../config.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 
 $id = required_param('cmid', PARAM_INT);
 $userid = required_param('userid', PARAM_INT);

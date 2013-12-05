@@ -386,6 +386,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         foreach ($records as $record) {
             $reviewurl = new moodle_url('/mod/adaptivequiz/reviewattempt.php', array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
             $link = html_writer::link($reviewurl, get_string('reviewattempt', 'adaptivequiz'));
+            if ($record->attemptstate != ADAPTIVEQUIZ_ATTEMPT_COMPLETED) {
+                $closeurl = new moodle_url('/mod/adaptivequiz/closeattempt.php', array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
+                $closelink = html_writer::link($closeurl, get_string('closeattempt', 'adaptivequiz'));
+            } else {
+                $closelink = '';
+            }
             $deleteurl = new moodle_url('/mod/adaptivequiz/delattempt.php', array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
             $dellink = html_writer::link($deleteurl, get_string('deleteattemp', 'adaptivequiz'));
 
@@ -398,7 +404,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $measure = $this->format_measure_and_standard_error($record);
 
             $row = array($attemptstate, format_string($record->attemptstopcriteria), $record->questionsattempted, $measure,
-                    userdate($record->timecreated), userdate($record->timemodified), $link.'&nbsp;&nbsp;'.$dellink);
+                    userdate($record->timecreated), userdate($record->timemodified), $link.($closelink?'&nbsp;&nbsp;'.$closelink:'').'&nbsp;&nbsp;'.$dellink);
             $table->data[] = $row;
             $table->rowclasses[] = 'studentattempt';
         }
@@ -728,7 +734,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * attempt record
      * @return string a user friendly format of the ability measure.  Ability measure is rounded to the nearest decimal.
      */
-    protected function format_measure($record) {
+    public function format_measure($record) {
         if (is_null($record->measure)) {
             return 'n/a';
         }
@@ -742,7 +748,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @return string a user friendly format of the standard error. Standard error is
      * rounded to the nearest one hundredth then multiplied by 100
      */
-    protected function format_standard_error($record) {
+    public function format_standard_error($record) {
         if (is_null($record->stderror) || $record->stderror == 0.0) {
             return 'n/a';
         }
