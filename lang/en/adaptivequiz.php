@@ -106,6 +106,7 @@ $string['backtoviewreport'] = 'Back to main reports';
 $string['reviewattemptreport'] = 'Reviewing attempt by {$a->fullname} submitted on {$a->finished}';
 $string['score'] = 'Score';
 $string['bestscore'] = 'Best Score';
+$string['bestscorestderror'] = 'Standard Error';
 $string['attempt_summary'] = 'Attempt Summary';
 $string['scoring_table'] = 'Scoring Table';
 $string['attempt_questiondetails'] = 'Question Details';

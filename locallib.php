@@ -297,6 +297,7 @@ function adaptivequiz_construct_view_report_orderby($sort, $sortdir) {
         case 'firstname':
         case 'lastname':
         case 'attempts':
+        case 'measure':
         case 'stderror':
             $orderby = 'ORDER BY '.$sort;
             break;

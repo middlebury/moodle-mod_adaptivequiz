@@ -333,8 +333,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable quizsummaryofattempt boxaligncenter';
         $table->head =  $this->format_report_table_headers($cm, $sort, $sortdir);
-        $table->align = array('center', 'center', 'center');
-        $table->size = array('', '', '');
+        $table->align = array('center', 'center', 'center', 'center');
+        $table->size = array('', '', '', '');
 
         $table->data = array();
         $this->get_report_table_rows($records, $cm, $table);
@@ -419,6 +419,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $firstname = '';
         $lastname = '';
         $numofattempts = '';
+        $measure = '';
         $standarderror = '';
 
         /* Determine the next sorting direction and icon to display */
@@ -445,6 +446,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $lastnameurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
         $param['sort'] = 'attempts';
         $numofattemptsurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
+        $param['sort'] = 'measure';
+        $measureurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
         $param['sort'] = 'stderror';
         $standarderrorurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
 
@@ -465,6 +468,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $this->sorturl = $numofattemptsurl;
                 $numofattempts .= '&nbsp;'.$columnicon;
                 break;
+            case 'measure':
+                $measureurl->params(array('sortdir' => $newsortdir));
+                $this->sorturl = $measureurl;
+                $measure .= '&nbsp;'.$columnicon;
+                break;
             case 'stderror':
                 $standarderrorurl->params(array('sortdir' => $newsortdir));
                 $this->sorturl = $standarderrorurl;
@@ -476,9 +484,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $firstname = html_writer::link($firstnameurl, get_string('firstname')).$firstname;
         $lastname = html_writer::link($lastnameurl, get_string('lastname')).$lastname;
         $numofattempts = html_writer::link($numofattemptsurl, get_string('numofattemptshdr', 'adaptivequiz')).$numofattempts;
-        $standarderror = html_writer::link($standarderrorurl, get_string('bestscore', 'adaptivequiz')).$standarderror;
+        $measure = html_writer::link($measureurl, get_string('bestscore', 'adaptivequiz')).$measure;
+        $standarderror = html_writer::link($standarderrorurl, get_string('bestscorestderror', 'adaptivequiz')).$standarderror;
 
-        return array($firstname.' / '.$lastname, $numofattempts, $standarderror);
+        return array($firstname.' / '.$lastname, $numofattempts, $measure, $standarderror);
     }
 
     /**
@@ -493,11 +502,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         foreach ($records as $record) {
             $attemptlink = new moodle_url('/mod/adaptivequiz/viewattemptreport.php', array('userid' => $record->id, 'cmid' => $cm->id));
             $link = html_writer::link($attemptlink, $record->attempts);
-            $result = $this->format_measure_and_standard_error($record);
+            $measure = $this->format_measure($record);
+            $stderror = $this->format_standard_error($record);
             $profileurl = new moodle_url('/user/profile.php', array('id' => $record->id));
             $name = $record->firstname.' '.$record->lastname;
             $namelink = html_writer::link($profileurl, $name);
-            $row = array($namelink, $link, $result);
+            $row = array($namelink, $link, $measure, $stderror);
             $table->data[] = $row;
             $table->rowclasses[] = 'studentattempt';
         }
@@ -710,6 +720,34 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $html .= html_writer::end_tag('form');
 
         return $html;
+    }
+
+    /**
+     * This function formats the ability measure into a user friendly format
+     * @param stdClass an object with the following properties: measure, highestlevel, lowestlevel and stderror.  The values must come from the activty instance and the user's
+     * attempt record
+     * @return string a user friendly format of the ability measure.  Ability measure is rounded to the nearest decimal.
+     */
+    protected function format_measure($record) {
+        if (is_null($record->measure)) {
+            return 'n/a';
+        }
+        return round(catalgo::map_logit_to_scale($record->measure, $record->highestlevel, $record->lowestlevel), 1);
+    }
+
+    /**
+     * This function formats the standard error into a user friendly format
+     * @param stdClass an object with the following properties: measure, highestlevel, lowestlevel and stderror.  The values must come from the activty instance and the user's
+     * attempt record
+     * @return string a user friendly format of the standard error. Standard error is
+     * rounded to the nearest one hundredth then multiplied by 100
+     */
+    protected function format_standard_error($record) {
+        if (is_null($record->stderror) || $record->stderror == 0.0) {
+            return 'n/a';
+        }
+        $percent = round(catalgo::convert_logit_to_percent($record->stderror), 2) * 100;
+        return '&plusmn; '.$percent.'%';
     }
 
     /**
