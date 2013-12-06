@@ -689,16 +689,25 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $this->init_metadata($quba, $pageqslots);
 
         foreach ($pageqslots as $slot) {
-            $output .= $quba->render_question($slot, $options);
+            $output .= html_writer::empty_tag('hr');
+            
+            $label = html_writer::tag('label', get_string('questionnumber', 'adaptivequiz'));
+            $output .= html_writer::tag('div', $label.': '.format_string($slot));
+            
             // Retrieve question attempt object
             $questattempt = $quba->get_question_attempt($slot);
             // Get question definition object
             $questdef = $questattempt->get_question();
             // Retrieve the tags associated with this question
             $qtags = tag_get_tags_array('question', $questdef->id);
+            
+            $label = html_writer::tag('label', get_string('attemptquestion_level', 'adaptivequiz'));
+            $output .= html_writer::tag('div', $label.': '.format_string(adaptivequiz_get_difficulty_from_tags($qtags)));
+            
             $label = html_writer::tag('label', get_string('tags'));
             $output .= html_writer::tag('div', $label.': '.format_string(implode(' ', $qtags)), $attr);
-            $output .= html_writer::empty_tag('hr');
+            
+            $output .= $quba->render_question($slot, $options);
         }
 
         return $output;

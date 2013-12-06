@@ -139,3 +139,4 @@ $string['answerdistgraph_questiondifficulty'] = 'Question level';
 $string['answerdistgraph_numrightwrong'] = 'Num wrong (-)  /  Num right (+)';
 $string['numright'] = 'Num right';
 $string['numwrong'] = 'Num wrong';
+$string['questionnumber'] = 'Question #';
