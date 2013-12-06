@@ -96,13 +96,23 @@ $graph_url = new moodle_url('/mod/adaptivequiz/attemptgraph.php', array('uniquei
 $params = array('src' => $graph_url, 'class' => 'adaptivequiz-attemptgraph');
 echo html_writer::empty_tag('img', $params);
 
+echo ' ';
+
+$graph_url = new moodle_url('/mod/adaptivequiz/answerdistributiongraph.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid));
+$params = array('src' => $graph_url, 'class' => 'adaptivequiz-answerdistributiongraph');
+echo html_writer::empty_tag('img', $params);
+
 echo html_writer::start_tag('a', array('href' => '#', 'id' => 'adpq_scoring_table_link'));
 echo html_writer::start_tag('h2');
 echo html_writer::tag('span', '&#9660;', array('id' => 'adpq_scoring_table_link_icon'));
 echo ' '.get_string('scoring_table', 'adaptivequiz');
 echo html_writer::end_tag('h3');
 echo html_writer::end_tag('a');
+echo html_writer::start_tag('div', array('id' => 'adpq_scoring_table'));
 echo $output->get_attempt_scoring_table($adaptivequiz, $quba);
+echo $output->get_attempt_distribution_table($adaptivequiz, $quba);
+echo html_writer::tag('div', '', array('class' => 'clearfix'));
+echo html_writer::end_tag('div');
 
 echo html_writer::tag('h2', get_string('attempt_questiondetails', 'adaptivequiz'));
 echo $pager;

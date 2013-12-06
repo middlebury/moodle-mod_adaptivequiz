@@ -827,7 +827,6 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     public function get_attempt_scoring_table($adaptivequiz, $quba) {
         $table = new html_table();
-        $table->id = 'adpq_scoring_table';
 
         $num = get_string('attemptquestion_num', 'adaptivequiz');
         $level = get_string('attemptquestion_level', 'adaptivequiz');
@@ -873,6 +872,62 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $table->data[] = array($slot, $question_difficulty, ($question_correct?'r':'w'), round($ability, 2),
                     round($standard_error * 100, 1)."%");
         }
+        return html_writer::table($table);
+    }
+    
+    /**
+     * Answer a table of the question difficulties and the number of questions answered
+     * right and wrong for each difficulty.
+     *
+     * @param stdClass $adaptivequiz the quiz attempt record
+     * @param question_usage_by_activity $quba the questions used in this attempt
+     * @return string
+     */
+    public function get_attempt_distribution_table($adaptivequiz, $quba) {
+        $table = new html_table();
+
+        $level = get_string('attemptquestion_level', 'adaptivequiz');
+        $numright = get_string('numright', 'adaptivequiz');
+        $numwrong = get_string('numwrong', 'adaptivequiz');
+
+        $table->head = array($level, $numright, $numwrong);
+        $table->align = array('center', 'center', 'center',);
+        $table->size = array('', '', '',);
+        $table->data = array();
+        
+        // Set up our data arrays
+        $question_difficulties = array();
+        $right_answers = array();
+        $wrong_answers = array();
+        
+        for ($i = $adaptivequiz->lowestlevel; $i <= $adaptivequiz->highestlevel; $i++) {
+            $question_difficulties[] = intval($i);
+            $right_answers[] = 0;
+            $wrong_answers[] = 0;
+        }
+        
+        foreach ($quba->get_slots() as $i => $slot) {
+            $question = $quba->get_question($slot);
+            $tags = tag_get_tags_array('question', $question->id);
+            $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
+            $question_correct = ($quba->get_question_mark($slot) > 0);
+        
+            $position = array_search($question_difficulty, $question_difficulties);
+            if ($question_correct) {
+                $right_answers[$position]++;
+            } else {
+                $wrong_answers[$position]++;
+            }
+        }
+        
+        foreach ($question_difficulties as $key => $val) {
+            $table->data[] = array(
+                $val,
+                $right_answers[$key],
+                $wrong_answers[$key],
+            );
+        }
+        
         return html_writer::table($table);
     }
 }
