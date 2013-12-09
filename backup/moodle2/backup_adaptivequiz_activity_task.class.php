@@ -74,16 +74,16 @@ class backup_adaptivequiz_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot, '/');
 
         // Link to the list of adatpivequizzes.
-        $search="/(".$base."\/mod\/adaptivequiz\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@ADAPTIVEQUIZINDEX*$2@$', $content);
+        $search = "/(".$base."\/mod\/adaptivequiz\/index.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@ADAPTIVEQUIZINDEX*$2@$', $content);
 
         // Link to adaptivequiz view by moduleid.
-        $search="/(".$base."\/mod\/adaptivequiz\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@ADAPTIVEQUIZVIEWBYID*$2@$', $content);
+        $search = "/(".$base."\/mod\/adaptivequiz\/view.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@ADAPTIVEQUIZVIEWBYID*$2@$', $content);
 
         // Link to adaptivequiz view by adaptivequizid.
-        $search="/(".$base."\/mod\/adaptivequiz\/view.php\?q\=)([0-9]+)/";
-        $content= preg_replace($search, '$@ADAPTIVEQUIZVIEWBYQ*$2@$', $content);
+        $search = "/(".$base."\/mod\/adaptivequiz\/view.php\?q\=)([0-9]+)/";
+        $content = preg_replace($search, '$@ADAPTIVEQUIZVIEWBYQ*$2@$', $content);
 
         return $content;
     }

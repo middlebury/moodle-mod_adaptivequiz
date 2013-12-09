@@ -95,9 +95,9 @@ $message = html_writer::tag('p', get_string('confirmcloseattempt', 'adaptivequiz
 if ($confirm) {
     // Close the attempt record and redirect
     $status_message = get_string('attemptclosedstatus', 'adaptivequiz', $a);
-    
+
     $close_message = get_string('attemptclosed', 'adaptivequiz', $a);
-    
+
     adaptivequiz_complete_attempt($uniqueid, $cm->instance, $userid, $adaptivequiz->stderror, $status_message);
     redirect($returnurl, $close_message, 4);
 }

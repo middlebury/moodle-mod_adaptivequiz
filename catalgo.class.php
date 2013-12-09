@@ -621,7 +621,7 @@ class catalgo {
      * @return int the next difficult level
      */
     public function compute_next_difficulty($level, $questattempted, $correct, $attempt) {
-        $nextdifficulty =  0;
+        $nextdifficulty = 0;
 
         // Map the linear scale to a logrithmic logit scale
         $ls = self::convert_linear_to_logit($level, $attempt->lowestlevel, $attempt->highestlevel);

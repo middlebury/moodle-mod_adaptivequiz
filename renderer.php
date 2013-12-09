@@ -332,7 +332,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         $table = new html_table();
         $table->attributes['class'] = 'generaltable quizsummaryofattempt boxaligncenter';
-        $table->head =  $this->format_report_table_headers($cm, $sort, $sortdir);
+        $table->head = $this->format_report_table_headers($cm, $sort, $sortdir);
         $table->align = array('center', 'center', 'center', 'center', '');
         $table->size = array('', '', '', '', '');
 
@@ -519,7 +519,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $link = html_writer::link($attemptlink, $record->attempts);
             $measure = $this->format_measure($record);
             if ($record->uniqueid) {
-                $attempt_link = new moodle_url('/mod/adaptivequiz/reviewattempt.php', array('userid' => $record->id, 'uniqueid' => $record->uniqueid,  'cmid' => $cm->id));
+                $attempt_link = new moodle_url('/mod/adaptivequiz/reviewattempt.php', array('userid' => $record->id, 'uniqueid' => $record->uniqueid, 'cmid' => $cm->id));
                 $measure = html_writer::link($attempt_link, $measure);
             }
             $stderror = $this->format_standard_error($record);
@@ -660,12 +660,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         for ($i = 0; $i < $pages; $i++) {
             // If we are currently on this page, then don't make it an anchor tag
             if ($i == $page) {
-                $output .= '&nbsp'.html_writer::tag('span', $i+1, $attr).'&nbsp';
+                $output .= '&nbsp'.html_writer::tag('span', $i + 1, $attr).'&nbsp';
                 continue;
             }
 
             $url->params(array('page' => $i));
-            $output .= '&nbsp'.html_writer::link($url, $i+1, $attr).'&nbsp';
+            $output .= '&nbsp'.html_writer::link($url, $i + 1, $attr).'&nbsp';
         }
         $output .= html_writer::end_tag('center');
 
@@ -708,23 +708,23 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         foreach ($pageqslots as $slot) {
             $output .= html_writer::empty_tag('hr');
-            
+
             $label = html_writer::tag('label', get_string('questionnumber', 'adaptivequiz'));
             $output .= html_writer::tag('div', $label.': '.format_string($slot));
-            
+
             // Retrieve question attempt object
             $questattempt = $quba->get_question_attempt($slot);
             // Get question definition object
             $questdef = $questattempt->get_question();
             // Retrieve the tags associated with this question
             $qtags = tag_get_tags_array('question', $questdef->id);
-            
+
             $label = html_writer::tag('label', get_string('attemptquestion_level', 'adaptivequiz'));
             $output .= html_writer::tag('div', $label.': '.format_string(adaptivequiz_get_difficulty_from_tags($qtags)));
-            
+
             $label = html_writer::tag('label', get_string('tags'));
             $output .= html_writer::tag('div', $label.': '.format_string(implode(' ', $qtags)), $attr);
-            
+
             $output .= $quba->render_question($slot, $options);
         }
 
@@ -833,9 +833,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $html .= html_writer::tag('dd', userdate($adaptivequiz->timemodified));
         $html .= html_writer::tag('dt', get_string('attempttotaltime', 'adaptivequiz').': ');
         $total_time = $adaptivequiz->timemodified - $adaptivequiz->timecreated;
-        $hours = floor($total_time/3600);
+        $hours = floor($total_time / 3600);
         $remainder = $total_time - ($hours * 3600);
-        $minutes = floor($remainder/60);
+        $minutes = floor($remainder / 60);
         $seconds = $remainder - ($minutes * 60);
         $html .= html_writer::tag('dd', sprintf('%02d', $hours).":".sprintf('%02d', $minutes).":".sprintf('%02d', $seconds));
         $html .= html_writer::tag('dt', get_string('attemptstopcriteria', 'adaptivequiz').': ');
@@ -860,10 +860,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $rightwrong = get_string('attemptquestion_rightwrong', 'adaptivequiz');
         $ability = get_string('attemptquestion_ability', 'adaptivequiz');
         $error = get_string('attemptquestion_error', 'adaptivequiz');
-#        $difficulty = get_string('attemptquestion_difficulty', 'adaptivequiz');
-#        $diffsum = get_string('attemptquestion_diffsum', 'adaptivequiz');
-#        $abilitylogits = get_string('attemptquestion_abilitylogits', 'adaptivequiz');
-#        $stderr = get_string('attemptquestion_stderr', 'adaptivequiz');
+        // $difficulty = get_string('attemptquestion_difficulty', 'adaptivequiz');
+        // $diffsum = get_string('attemptquestion_diffsum', 'adaptivequiz');
+        // $abilitylogits = get_string('attemptquestion_abilitylogits', 'adaptivequiz');
+        // $stderr = get_string('attemptquestion_stderr', 'adaptivequiz');
 
         $table->head = array($num, $level, $rightwrong, $ability, $error);
         $table->align = array('center', 'center', 'center', 'center', 'center');
@@ -901,7 +901,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         }
         return html_writer::table($table);
     }
-    
+
     /**
      * Answer a table of the question difficulties and the number of questions answered
      * right and wrong for each difficulty.
@@ -918,27 +918,27 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $numwrong = get_string('numwrong', 'adaptivequiz');
 
         $table->head = array($level, $numright, $numwrong);
-        $table->align = array('center', 'center', 'center',);
-        $table->size = array('', '', '',);
+        $table->align = array('center', 'center', 'center');
+        $table->size = array('', '', '' );
         $table->data = array();
-        
+
         // Set up our data arrays
         $question_difficulties = array();
         $right_answers = array();
         $wrong_answers = array();
-        
+
         for ($i = $adaptivequiz->lowestlevel; $i <= $adaptivequiz->highestlevel; $i++) {
             $question_difficulties[] = intval($i);
             $right_answers[] = 0;
             $wrong_answers[] = 0;
         }
-        
+
         foreach ($quba->get_slots() as $i => $slot) {
             $question = $quba->get_question($slot);
             $tags = tag_get_tags_array('question', $question->id);
             $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
             $question_correct = ($quba->get_question_mark($slot) > 0);
-        
+
             $position = array_search($question_difficulty, $question_difficulties);
             if ($question_correct) {
                 $right_answers[$position]++;
@@ -946,7 +946,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $wrong_answers[$position]++;
             }
         }
-        
+
         foreach ($question_difficulties as $key => $val) {
             $table->data[] = array(
                 $val,
@@ -954,7 +954,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $wrong_answers[$key],
             );
         }
-        
+
         return html_writer::table($table);
     }
 }

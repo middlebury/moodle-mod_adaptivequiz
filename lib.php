@@ -382,7 +382,7 @@ function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $
     $contect = '';
 
     // Define table
-    $attr = array('border'=> '0', 'cellpadding' => '3', 'cellspacing' => '0', 'class' => 'adaptivequiz-recent');
+    $attr = array('border' => '0', 'cellpadding' => '3', 'cellspacing' => '0', 'class' => 'adaptivequiz-recent');
     $output .= html_writer::start_tag('table', $attr);
 
     // Define table columns

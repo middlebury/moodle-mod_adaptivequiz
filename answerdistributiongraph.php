@@ -75,21 +75,21 @@ $a->lastname = $user->lastname;
 $g->parameter['title'] = get_string('answerdistgraph_title', 'adaptivequiz', $a);
 
 $g->parameter['x_label'] = get_string('answerdistgraph_questiondifficulty', 'adaptivequiz');
-$g->parameter['x_label_angle']     =  0;
+$g->parameter['x_label_angle'] = 0;
 $g->parameter['y_label_left'] = get_string('answerdistgraph_numrightwrong', 'adaptivequiz');
-$g->parameter['legend']        = 'none';
+$g->parameter['legend'] = 'none';
 $g->parameter['legend_border'] = 'black';
 $g->parameter['legend_offset'] = 4;
 $g->parameter['grid_colour'] = 'grayCC';
 
-$g->parameter['y_resolution_left']= 1;
+$g->parameter['y_resolution_left'] = 1;
 $g->parameter['y_decimal_left'] = 0;
 
-$g->parameter['shadow']           = 'grayCC'; // set default shadow for all data sets.
-$g->parameter['bar_size']         = 2;
-$g->parameter['bar_spacing']      = 10;
-$g->parameter['zero_axis']        = 'black';
-$g->parameter['inner_border_type']= 'y-left'; // only draw left y axis as zero axis already selected above.
+$g->parameter['shadow'] = 'grayCC'; // set default shadow for all data sets.
+$g->parameter['bar_size'] = 2;
+$g->parameter['bar_spacing'] = 10;
+$g->parameter['zero_axis'] = 'black';
+$g->parameter['inner_border_type'] = 'y-left'; // only draw left y axis as zero axis already selected above.
 
 
 // Set up our data arrays
@@ -135,7 +135,7 @@ $g->parameter['y_max_left'] = $max + 1;
 $g->parameter['y_axis_text_left'] = ceil($max / 10);
 
 // Space out the bars so that their width slowly decreases as the number of ticks increases.
-$g->parameter['bar_spacing'] = max(4, round(700 / count($question_difficulties)) - 11 + round(8 * count($question_difficulties)/100));
+$g->parameter['bar_spacing'] = max(4, round(700 / count($question_difficulties)) - 11 + round(8 * count($question_difficulties) / 100));
 
 // Skip some x-axis labels for legibility
 $g->parameter['x_axis_text'] = ceil(count($question_difficulties) / 50);
