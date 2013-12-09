@@ -55,7 +55,7 @@ $PAGE->set_context($context);
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 /* Initialized parameter array for sql query */
-$param = array('attemptstate1' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'attemptstate2' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'instance' => $cm->instance);
+$param = array('attemptstate1' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'attemptstate2' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'attemptstate3' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'instance' => $cm->instance);
 
 /* Constructo order by clause */
 $orderby = adaptivequiz_construct_view_report_orderby($sort, $sortdir);
@@ -101,7 +101,15 @@ $sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
                        AND saa.attemptstate = :attemptstate2
                        AND saa.standarderror > 0.0
               ORDER BY measure DESC
-                 LIMIT 1) AS stderror
+                 LIMIT 1) AS stderror,
+               (SELECT taa.timemodified
+                  FROM {adaptivequiz_attempt} taa
+                 WHERE taa.instance = a.id
+                       AND taa.userid = u.id
+                       AND taa.attemptstate = :attemptstate3
+                       AND taa.standarderror > 0.0
+              ORDER BY measure DESC
+                 LIMIT 1) AS timemodified
           FROM {adaptivequiz_attempt} aa
           JOIN {user} u ON u.id = aa.userid
           JOIN {adaptivequiz} a ON a.id = aa.instance

@@ -333,8 +333,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable quizsummaryofattempt boxaligncenter';
         $table->head =  $this->format_report_table_headers($cm, $sort, $sortdir);
-        $table->align = array('center', 'center', 'center', 'center');
-        $table->size = array('', '', '', '');
+        $table->align = array('center', 'center', 'center', 'center', '');
+        $table->size = array('', '', '', '', '');
 
         $table->data = array();
         $this->get_report_table_rows($records, $cm, $table);
@@ -359,10 +359,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $attemptstopcriteria = get_string('attemptstopcriteria', 'adaptivequiz');
         $questionsattempted = get_string('questionsattempted', 'adaptivequiz');
         $score = get_string('score', 'adaptivequiz');
-        $timemodifed = get_string('attemptfinishedtimestamp', 'adaptivequiz');
+        $timemodified = get_string('attemptfinishedtimestamp', 'adaptivequiz');
         $timecreated = get_string('attemptstarttime', 'adaptivequiz');
 
-        $table->head = array($attemptstate, $attemptstopcriteria, $questionsattempted, $score, $timecreated, $timemodifed, '');
+        $table->head = array($attemptstate, $attemptstopcriteria, $questionsattempted, $score, $timecreated, $timemodified, '');
         $table->align = array('center', 'center', 'center', 'center', 'center', 'center', 'center');
         $table->size = array('', '', '', '', '', '');
         $table->data = array();
@@ -427,6 +427,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $numofattempts = '';
         $measure = '';
         $standarderror = '';
+        $timemodified = '';
 
         /* Determine the next sorting direction and icon to display */
         switch ($sortdir) {
@@ -456,6 +457,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $measureurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
         $param['sort'] = 'stderror';
         $standarderrorurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
+        $param['sort'] = 'timemodified';
+        $timemodifiedurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
 
         /* Update column header links with a sorting directional icon */
         switch ($sort) {
@@ -484,6 +487,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $this->sorturl = $standarderrorurl;
                 $standarderror .= '&nbsp;'.$columnicon;
                 break;
+            case 'timemodified':
+                $timemodifiedurl->params(array('sortdir' => $newsortdir));
+                $this->sorturl = $timemodifiedurl;
+                $timemodified .= '&nbsp;'.$columnicon;
+                break;
         }
 
         // Create header HTML markup
@@ -492,8 +500,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $numofattempts = html_writer::link($numofattemptsurl, get_string('numofattemptshdr', 'adaptivequiz')).$numofattempts;
         $measure = html_writer::link($measureurl, get_string('bestscore', 'adaptivequiz')).$measure;
         $standarderror = html_writer::link($standarderrorurl, get_string('bestscorestderror', 'adaptivequiz')).$standarderror;
+        $timemodified = html_writer::link($timemodifiedurl, get_string('attemptfinishedtimestamp', 'adaptivequiz')).$timemodified;
 
-        return array($firstname.' / '.$lastname, $numofattempts, $measure, $standarderror);
+        return array($firstname.' / '.$lastname, $numofattempts, $measure, $standarderror, $timemodified);
     }
 
     /**
@@ -510,10 +519,15 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $link = html_writer::link($attemptlink, $record->attempts);
             $measure = $this->format_measure($record);
             $stderror = $this->format_standard_error($record);
+            if (intval($record->timemodified)) {
+                $timemodified = userdate(intval($record->timemodified));
+            } else {
+                $timemodified = get_string('na', 'adaptivequiz');
+            }
             $profileurl = new moodle_url('/user/profile.php', array('id' => $record->id));
             $name = $record->firstname.' '.$record->lastname;
             $namelink = html_writer::link($profileurl, $name);
-            $row = array($namelink, $link, $measure, $stderror);
+            $row = array($namelink, $link, $measure, $stderror, $timemodified);
             $table->data[] = $row;
             $table->rowclasses[] = 'studentattempt';
         }

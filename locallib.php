@@ -299,6 +299,7 @@ function adaptivequiz_construct_view_report_orderby($sort, $sortdir) {
         case 'attempts':
         case 'measure':
         case 'stderror':
+        case 'timemodified':
             $orderby = 'ORDER BY '.$sort;
             break;
         default:
