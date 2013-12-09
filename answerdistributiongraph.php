@@ -125,8 +125,10 @@ $g->x_data = $question_difficulties;
 $g->y_data['right_answers'] = $right_answers;
 $g->y_data['wrong_answers'] = $wrong_answers;
 
-$g->y_format['right_answers'] = array('colour' => 'blue', 'bar' => 'fill', 'shadow' => 'none', 'legend' => get_string('answerdistgraph_right', 'adaptivequiz'));
-$g->y_format['wrong_answers'] = array('colour' => 'red', 'bar' => 'fill', 'shadow' => 'none', 'legend' => get_string('answerdistgraph_wrong', 'adaptivequiz'));
+$g->y_format['right_answers'] = array('colour' => 'blue', 'bar' => 'fill', 'shadow' => 'none',
+    'legend' => get_string('answerdistgraph_right', 'adaptivequiz'));
+$g->y_format['wrong_answers'] = array('colour' => 'red', 'bar' => 'fill', 'shadow' => 'none',
+    'legend' => get_string('answerdistgraph_wrong', 'adaptivequiz'));
 
 $g->parameter['y_min_left'] = -1 * ($max + 1);
 $g->parameter['y_max_left'] = $max + 1;

@@ -401,7 +401,8 @@ function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $
         $attr = array('src' => $OUTPUT->pix_url('icon', $activity->type), 'class' => 'icon', 'alt' => $modname);
         $content .= html_writer::empty_tag('img', $attr);
         // Create anchor markup
-        $attr = array('href' => "{$CFG->wwwroot}/mod/adaptivequiz/view.php?id={$activity->cmid}", 'class' => 'icon', 'alt' => $modname);
+        $attr = array('href' => "{$CFG->wwwroot}/mod/adaptivequiz/view.php?id={$activity->cmid}",
+            'class' => 'icon', 'alt' => $modname);
         $content .= html_writer::tag('a', $activity->name, $attr);
         // End div
         $content .= html_writer::end_tag('div');

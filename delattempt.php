@@ -82,7 +82,8 @@ if ($confirm) {
     redirect($returnurl, $message, 4);
 }
 
-$confirm = new moodle_url('/mod/adaptivequiz/delattempt.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid, 'confirm' => 1));
+$confirm = new moodle_url('/mod/adaptivequiz/delattempt.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id,
+    'userid' => $userid, 'confirm' => 1));
 echo $OUTPUT->header();
 echo $OUTPUT->confirm($message, $confirm, $returnurl);
 echo $OUTPUT->footer();

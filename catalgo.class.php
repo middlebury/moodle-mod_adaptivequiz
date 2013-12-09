@@ -34,7 +34,9 @@ class catalgo {
     /** @var $attemptid an adaptivequiz_attempt attempt id */
     protected $attemptid = 0;
 
-    /** @var bool $debugenabled flag to denote developer debugging is enabled and this class should write message to the debug array */
+    /**
+     * @var bool $debugenabled flag to denote developer debugging is enabled and this class should write message to the debug array
+     */
     protected $debugenabled = false;
 
     /** @var array $debug debugging array of messages */
@@ -43,7 +45,10 @@ class catalgo {
     /** @var int $level level of difficulty of the most recently attempted question */
     protected $level = 0;
 
-    /** @var float $levelogit the logit value of the difficulty level represented as a percentage of the minimum and maximum difficulty @see compute_next_difficulty() */
+    /**
+     * @var float $levelogit the logit value of the difficulty level represented as a percentage of the minimum and maximum
+     *      difficulty @see compute_next_difficulty()
+     */
     protected $levellogit = 0.0;
 
     /** @var bool $readytostop flag to denote whether to assume the student has met the minimum requirements */
@@ -75,10 +80,12 @@ class catalgo {
 
     /**
      * Constructor to initialize the parameters needed by the adaptive alrogithm
-     * @throws moodle_exception - exception is thrown if first argument is not an instance of question_usage_by_activity class or second argument is not a positive integer.
+     * @throws moodle_exception - exception is thrown if first argument is not an instance of question_usage_by_activity class or
+     *      second argument is not a positive integer.
      * @param question_usage_by_activity $quba an object loaded using the unique id of the attempt
      * @param int $attemptid the adaptivequiz_attempt attempt id
-     * @param bool $readytostop true of the algo should assume the user has answered the minimum number of question and should compare the results againts the standard error
+     * @param bool $readytostop true of the algo should assume the user has answered the minimum number of question and should
+     *      compare the results againts the standard error
      * @param int $level the level of difficulty for the most recently attempted question
      * @return void
      */
@@ -89,7 +96,8 @@ class catalgo {
         }
 
         if (!is_int($attemptid) || 0 >= $attemptid) {
-            throw new coding_exception('catalgo: Argument 2 not a positive integer', 'Attempt id argument must be a positive integer');
+            throw new coding_exception('catalgo: Argument 2 not a positive integer',
+                'Attempt id argument must be a positive integer');
         }
 
         if (!is_int($level) || 0 >= $level) {
@@ -187,11 +195,13 @@ class catalgo {
             return 0;
         }
 
-        // The last slot in the array should be the last question that was attempted (meaning it was either shown to the user or the user submitted an answer to it)
+        // The last slot in the array should be the last question that was attempted (meaning it was either shown to the user or the
+        // user submitted an answer to it).
         $questslots = $this->quba->get_slots();
 
         if (empty($questslots) || !is_array($questslots)) {
-            $this->print_debug('find_last_quest_used_by_attempt() - No question slots found for this question_usage_by_activity object');
+            $this->print_debug('find_last_quest_used_by_attempt() - No question slots found for this question_usage_by_activity '.
+                'object');
             return 0;
         }
 
@@ -215,7 +225,8 @@ class catalgo {
         $state = $this->quba->get_question_state($slotid);
 
         // Check if the state of the quesiton attempted was graded right, partially right or wrong
-        $marked = $state instanceof question_state_gradedright || $state instanceof question_state_gradedpartial || $state instanceof question_state_gradedwrong;
+        $marked = $state instanceof question_state_gradedright || $state instanceof question_state_gradedpartial
+            || $state instanceof question_state_gradedwrong;
         if ($marked) {
             return true;
         } else {
@@ -248,7 +259,8 @@ class catalgo {
 
     /**
      * This function retreives the mark received from the student's submission to the question
-     * @return bool|null true if the question was marked correct. False if the question was marked incorrect or null if there is an error determining mark
+     * @return bool|null true if the question was marked correct. False if the question was marked incorrect or null if there is an
+     *      error determining mark
      */
     public function question_was_marked_correct() {
         // Find the last question attempted by the user
@@ -350,21 +362,24 @@ class catalgo {
 
         if ($validatenumbers != $this->questattempted) {
             $this->status = get_string('errorsumrightwrong', 'adaptivequiz');
-            $this->print_debug('perform_calculation_steps() - Sum of correct and incorrect answers ('.$validatenumbers.') doesn\'t equals the total number of questions'.
-                    'attempted ('.$this->questattempted.')');
+            $this->print_debug('perform_calculation_steps() - Sum of correct and incorrect answers ('.$validatenumbers.') '.
+                    'doesn\'t equals the total number of questions attempted ('.$this->questattempted.')');
             return 0;
         }
 
         // Get the measure estimate
-        $this->measure = self::estimate_measure($this->difficultysum, $this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
+        $this->measure = self::estimate_measure($this->difficultysum, $this->questattempted, $this->sumofcorrectanswers,
+            $this->sumofincorrectanswers);
 
         // Get the standard error estimate
-        $this->standarderror = self::estimate_standard_error($this->questattempted, $this->sumofcorrectanswers, $this->sumofincorrectanswers);
+        $this->standarderror = self::estimate_standard_error($this->questattempted, $this->sumofcorrectanswers,
+            $this->sumofincorrectanswers);
 
-        $this->print_debug('perform_calculation_steps() - difficultysum: '.$this->difficultysum.', questattempted: '.$this->questattempted.', sumofcorrectanswers: '.
-                $this->sumofcorrectanswers.', sumofincorrectanswers: '.$this->sumofincorrectanswers.' =&gt; measure: '.$this->measure.', standard error: '.$this->standarderror);
+        $this->print_debug('perform_calculation_steps() - difficultysum: '.$this->difficultysum.', questattempted: '.
+                $this->questattempted.', sumofcorrectanswers: '.$this->sumofcorrectanswers.', sumofincorrectanswers: '.
+                $this->sumofincorrectanswers.' =&gt; measure: '.$this->measure.', standard error: '.$this->standarderror);
 
-        // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert it into a logit
+        // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert to a logit
         $quizdefinederror = $this->retrieve_standard_error($this->attemptid);
         $quizdefinederror = $quizdefinederror / 100;
         $quizdefinederror = self::convert_percent_to_logit($quizdefinederror);
@@ -414,7 +429,8 @@ class catalgo {
      */
     public static function convert_logit_to_percent($logit) {
         if ($logit < 0) {
-            throw new coding_exception('convert_logit_to_percent: logit is out of bounds', 'logit must be greater than or equal to 0');
+            throw new coding_exception('convert_logit_to_percent: logit is out of bounds',
+                'logit must be greater than or equal to 0');
         }
         return ( 1 / ( 1 + exp(0 - $logit) ) ) - 0.5;
     }
@@ -543,23 +559,25 @@ class catalgo {
     public function get_current_diff_level($quba, $level, $attemptobj) {
         // Check if level is a positive integer
         if (!is_int($level) || 0 >= $level) {
-            throw new coding_exception('get_current_diff_level: Arg 2 needs to be a positive integer', 'Invalid level of :'.$level.' was passed');
+            throw new coding_exception('get_current_diff_level: Arg 2 needs to be a positive integer',
+                'Invalid level of :'.$level.' was passed');
         }
         // Check if quba is a valid instance of question_usage_by_activity
         if (!$quba instanceof question_usage_by_activity) {
-            throw new coding_exception('get_current_diff_level: Arg 1 needs to be an instance of question_usage_by_activity', 'Invalid quba of :'.get_class($quba));
+            throw new coding_exception('get_current_diff_level: Arg 1 needs to be an instance of question_usage_by_activity',
+                'Invalid quba of :'.get_class($quba));
         }
         // Check if attempt object has required properties defined
         if (!isset($attemptobj->lowestlevel) || !isset($attemptobj->highestlevel)) {
             throw new coding_exception('get_current_diff_level: Arg 3 needs to have lowestlevel and highestlevel properties',
-                    'Invalid attemptobj of :'.print_r($attemptobj, true));
+                'Invalid attemptobj of :'.print_r($attemptobj, true));
         }
         // Check if attempt object has required property value types
-        $conditions = !is_int($attemptobj->lowestlevel) || 0 >= $attemptobj->lowestlevel || !is_int($attemptobj->highestlevel) || 0 >= $attemptobj->highestlevel ||
-                $attemptobj->lowestlevel >= $attemptobj->highestlevel;
+        $conditions = !is_int($attemptobj->lowestlevel) || 0 >= $attemptobj->lowestlevel || !is_int($attemptobj->highestlevel)
+                || 0 >= $attemptobj->highestlevel || $attemptobj->lowestlevel >= $attemptobj->highestlevel;
         if ($conditions) {
-            throw new coding_exception('get_current_diff_level: Arg 3 lowestlevel and highestlevel properties must be positive integers',
-                    'Invalid attemptobj of :'.print_r($attemptobj, true));
+            throw new coding_exception('get_current_diff_level: Arg 3 lowestlevel and highestlevel properties must be positive '.
+                'integers', 'Invalid attemptobj of :'.print_r($attemptobj, true));
         }
 
         return $this->return_current_diff_level($quba, $level, $attemptobj);
@@ -587,7 +605,8 @@ class catalgo {
 
         // Get the last question's state
         $state = $quba->get_question_state(end($slots));
-        // If the state of the last question in the attempt is 'todo' remove it from the array, as the user never submitted their answer
+        // If the state of the last question in the attempt is 'todo' remove it from the array, as the user never submitted their
+        // answer.
         if ($state instanceof question_state_todo) {
             array_pop($slots);
         }

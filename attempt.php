@@ -144,7 +144,8 @@ if (!empty($uniqueid) && confirm_sesskey()) {
             $difflogit = $algo->get_levellogit();
             $standarderror = $algo->get_standarderror();
             $measure = $algo->get_measure();
-            $everythingokay = adaptivequiz_update_attempt_data($uniqueid, $cm->instance, $USER->id, $difflogit, $standarderror, $measure);
+            $everythingokay = adaptivequiz_update_attempt_data($uniqueid, $cm->instance, $USER->id, $difflogit, $standarderror,
+                                    $measure);
 
             // Something went wrong with updating the attempt.  Print an error.
             if (!$everythingokay) {
@@ -158,7 +159,8 @@ if (!empty($uniqueid) && confirm_sesskey()) {
             if (!empty($message)) {
 
                 $standarderror = $algo->get_standarderror();
-                // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the attempt finished page
+                // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the
+                // attempt finished page.
                 adaptivequiz_complete_attempt($uniqueid, $cm->instance, $USER->id, $standarderror, $message);
 
                 $param = array('cmid' => $cm->id, 'id' => $cm->instance, 'uattid' => $uniqueid);
@@ -213,7 +215,8 @@ if (empty($attemptstatus)) {
     // Retrieve the most recent status message for the attempt
     $message = $adaptiveattempt->get_status();
 
-    // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the attempt finished page
+    // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the attempt-finished
+    // page.
     if ($algo instanceof catalgo) {
         $standarderror = $algo->get_standarderror();
     }
@@ -229,7 +232,8 @@ if (empty($attemptstatus)) {
 $slot = $adaptiveattempt->get_question_slot_number();
 // Retrieve the question_usage_by_activity object
 $quba = $adaptiveattempt->get_quba();
-// If $nextdiff is null then this is either a new attempt or a continuation of an previous attempt.  Calculate the current difficulty level the attempt should be at
+// If $nextdiff is null then this is either a new attempt or a continuation of an previous attempt.  Calculate the current
+// difficulty level the attempt should be at.
 if (is_null($nextdiff)) {
     // Calculate the current difficulty level
     $adaptivequiz->lowestlevel = (int) $adaptivequiz->lowestlevel;
@@ -244,7 +248,8 @@ if (is_null($nextdiff)) {
 }
 
 $headtags = $output->init_metadata($quba, $slot);
-$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', array($viewurl->out(), $adaptivequiz->browsersecurity), false, $output->adaptivequiz_get_js_module());
+$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', array($viewurl->out(), $adaptivequiz->browsersecurity),
+    false, $output->adaptivequiz_get_js_module());
 
 // Init secure window if enabled
 if (!empty($adaptivequiz->browsersecurity)) {

@@ -48,7 +48,8 @@ $context = context_module::instance($cm->id);
 require_capability('mod/adaptivequiz:viewreport', $context);
 
 $param = array('uniqueid' => $uniqueid, 'userid' => $userid, 'activityid' => $cm->instance);
-$sql = 'SELECT a.name, aa.attemptstate, aa.timecreated, aa.timemodified, aa.id, u.firstname, u.lastname, aa.attemptstate, aa.questionsattempted, aa.measure, aa.standarderror AS stderror, a.highestlevel, a.lowestlevel
+$sql = 'SELECT a.name, aa.attemptstate, aa.timecreated, aa.timemodified, aa.id, u.firstname, u.lastname, aa.attemptstate,
+               aa.questionsattempted, aa.measure, aa.standarderror AS stderror, a.highestlevel, a.lowestlevel
           FROM {adaptivequiz} a
           JOIN {adaptivequiz_attempt} aa ON a.id = aa.instance
           JOIN {user} u ON u.id = aa.userid
@@ -102,7 +103,8 @@ if ($confirm) {
     redirect($returnurl, $close_message, 4);
 }
 
-$confirm = new moodle_url('/mod/adaptivequiz/closeattempt.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid, 'confirm' => 1));
+$confirm = new moodle_url('/mod/adaptivequiz/closeattempt.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id,
+    'userid' => $userid, 'confirm' => 1));
 echo $OUTPUT->header();
 echo $OUTPUT->confirm($message, $confirm, $returnurl);
 echo $OUTPUT->footer();

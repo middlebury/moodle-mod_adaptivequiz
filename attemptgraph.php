@@ -111,7 +111,8 @@ foreach ($quba->get_slots() as $i => $slot) {
     $question = $quba->get_question($slot);
     $tags = tag_get_tags_array('question', $question->id);
     $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-    $question_difficulty_in_logits = catalgo::convert_linear_to_logit($question_difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+    $question_difficulty_in_logits = catalgo::convert_linear_to_logit($question_difficulty, $adaptivequiz->lowestlevel,
+        $adaptivequiz->highestlevel);
     $question_correct = ($quba->get_question_mark($slot) > 0);
 
     $questions_attempted++;
@@ -122,11 +123,13 @@ foreach ($quba->get_slots() as $i => $slot) {
         $sum_of_incorrect_answers++;
     }
 
-    $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
+    $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers,
+        $sum_of_incorrect_answers);
     $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );
     $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
 
-    $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
+    $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers,
+        $sum_of_incorrect_answers);
     $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
 
     $question_numbers[] = $questions_attempted;
@@ -149,11 +152,15 @@ $g->y_data['error_min'] = $error_min_values;
 
 // var_dump($g->y_data); exit;
 
-$g->y_format['qdiff'] = array('colour' => 'blue', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => get_string('attemptquestion_level', 'adaptivequiz'));
-$g->y_format['target_level'] = array('colour' => 'green', 'line' => 'brush', 'brush_size' => 1, 'shadow' => 'none', 'legend' => get_string('graphlegend_target', 'adaptivequiz'));
-$g->y_format['ability'] = array('colour' => 'red', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none', 'legend' => get_string('attemptquestion_ability', 'adaptivequiz'));
+$g->y_format['qdiff'] = array('colour' => 'blue', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none',
+    'legend' => get_string('attemptquestion_level', 'adaptivequiz'));
+$g->y_format['target_level'] = array('colour' => 'green', 'line' => 'brush', 'brush_size' => 1, 'shadow' => 'none',
+    'legend' => get_string('graphlegend_target', 'adaptivequiz'));
+$g->y_format['ability'] = array('colour' => 'red', 'line' => 'brush', 'brush_size' => 2, 'shadow' => 'none',
+    'legend' => get_string('attemptquestion_ability', 'adaptivequiz'));
 $g->colour['pink'] = imagecolorallocate($g->image, 0xFF, 0xE5, 0xE5);
-$g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill', 'shadow' => 'none', 'legend' => get_string('graphlegend_error', 'adaptivequiz'));
+$g->y_format['error_max'] = array('colour' => 'pink', 'area' => 'fill', 'shadow' => 'none',
+    'legend' => get_string('graphlegend_error', 'adaptivequiz'));
 $g->y_format['error_min'] = array('colour' => 'white', 'area' => 'fill', 'shadow' => 'none');
 
 $g->parameter['y_min_left'] = $adaptivequiz->lowestlevel;
