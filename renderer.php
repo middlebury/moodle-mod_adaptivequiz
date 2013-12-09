@@ -518,6 +518,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $attemptlink = new moodle_url('/mod/adaptivequiz/viewattemptreport.php', array('userid' => $record->id, 'cmid' => $cm->id));
             $link = html_writer::link($attemptlink, $record->attempts);
             $measure = $this->format_measure($record);
+            if ($record->uniqueid) {
+                $attempt_link = new moodle_url('/mod/adaptivequiz/reviewattempt.php', array('userid' => $record->id, 'uniqueid' => $record->uniqueid,  'cmid' => $cm->id));
+                $measure = html_writer::link($attempt_link, $measure);
+            }
             $stderror = $this->format_standard_error($record);
             if (intval($record->timemodified)) {
                 $timemodified = userdate(intval($record->timemodified));
