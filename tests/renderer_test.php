@@ -170,6 +170,8 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $records[1]->lastname = 'test lastname';
         $records[1]->measure = -0.6;
         $records[1]->stderror = 0.17;
+        $records[1]->timemodified = 12345678;
+        $records[1]->uniqueid = 1111;
         $records[1]->highestlevel = 16;
         $records[1]->lowestlevel = 1;
         $records[1]->attempts = 5;
@@ -431,7 +433,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $dummycm->id = 99;
 
         $output = $renderer->format_report_table_headers($dummycm, 'stderror', 'ASC');
-        $this->assertEquals(4, count($output));
+        $this->assertEquals(5, count($output));
         $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[0]);
         $this->assertContains('sort=firstname&amp;sortdir=ASC', $output[0]);
         $this->assertContains('sort=lastname&amp;sortdir=ASC', $output[0]);
@@ -441,5 +443,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('sort=measure&amp;sortdir=ASC', $output[2]);
         $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[3]);
         $this->assertContains('sort=stderror&amp;sortdir=DESC', $output[3]);
+        $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[4]);
+        $this->assertContains('sort=timemodified&amp;sortdir=ASC', $output[4]);
     }
 }
