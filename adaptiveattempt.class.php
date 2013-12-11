@@ -68,7 +68,7 @@ class adaptiveattempt {
      */
     protected $adaptivequiz;
 
-    /** @var stdClass $adaptivequiz_attempt object, properties come from the adaptivequiz_attempt table */
+    /** @var stdClass $adpqattempt object, properties come from the adaptivequiz_attempt table */
     protected $adpqattempt;
 
     /** @var int $userid user id */
@@ -101,8 +101,8 @@ class adaptiveattempt {
     /** @var int $level the difficulty level the attempt is currently set at */
     protected $level = 0;
 
-    /** @var int $last_difficulty_level the last difficulty level used in the attempt if any */
-    protected $last_difficulty_level = null;
+    /** @var int $lastdifficultylevel the last difficulty level used in the attempt if any */
+    protected $lastdifficultylevel = null;
 
     /**
      * Constructor initializes required data to process the attempt
@@ -167,14 +167,14 @@ class adaptiveattempt {
      * Set the last difficulty level that was used.
      * This may influence the next question chosing process.
      *
-     * @param int $last_difficulty_level
+     * @param int $lastdifficultylevel
      * @return void
      */
-    public function set_last_difficulty_level($last_difficulty_level) {
-        if (is_null($last_difficulty_level)) {
-            $this->last_difficulty_level = null;
+    public function set_last_difficulty_level($lastdifficultylevel) {
+        if (is_null($lastdifficultylevel)) {
+            $this->lastdifficultylevel = null;
         } else {
-            $this->last_difficulty_level = (int) $last_difficulty_level;
+            $this->lastdifficultylevel = (int) $lastdifficultylevel;
         }
     }
 
@@ -294,10 +294,10 @@ class adaptiveattempt {
             // If the last question was correct...
             if ($this->quba->get_question_mark($this->slot) > 0) {
                 // Only ask questions harder than the last question unless we are already at the top of the ability scale
-                if (!is_null($this->last_difficulty_level) && $this->last_difficulty_level < $this->adaptivequiz->highestlevel) {
-                    $fetchquestion->set_minimum_level($this->last_difficulty_level + 1);
+                if (!is_null($this->lastdifficultylevel) && $this->lastdifficultylevel < $this->adaptivequiz->highestlevel) {
+                    $fetchquestion->set_minimum_level($this->lastdifficultylevel + 1);
                     // Do not ask a question of the same level unless we are already at the max.
-                    if ($this->last_difficulty_level == $this->level) {
+                    if ($this->lastdifficultylevel == $this->level) {
                         $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, ".
                                 "incrementing level from {$this->level} to ".($this->level + 1).".");
                         $this->level++;
@@ -306,10 +306,10 @@ class adaptiveattempt {
             } else {
                 // If the last question was wrong...
                 // Only ask questions easier than the last question unless we are already at the bottom of the ability scale
-                if (!is_null($this->last_difficulty_level) && $this->last_difficulty_level > $this->adaptivequiz->lowestlevel) {
-                    $fetchquestion->set_maximum_level($this->last_difficulty_level - 1);
+                if (!is_null($this->lastdifficultylevel) && $this->lastdifficultylevel > $this->adaptivequiz->lowestlevel) {
+                    $fetchquestion->set_maximum_level($this->lastdifficultylevel - 1);
                     // Do not ask a question of the same level unless we are already at the min.
-                    if ($this->last_difficulty_level == $this->level) {
+                    if ($this->lastdifficultylevel == $this->level) {
                         $this->print_debug("start_attempt() - Last difficulty is the same as the new difficulty, ".
                                 "decrementing level from {$this->level} to ".($this->level - 1).".");
                         $this->level--;

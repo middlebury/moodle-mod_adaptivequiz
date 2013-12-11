@@ -530,9 +530,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $link = html_writer::link($attemptlink, $record->attempts);
             $measure = $this->format_measure($record);
             if ($record->uniqueid) {
-                $attempt_link = new moodle_url('/mod/adaptivequiz/reviewattempt.php',
+                $attemptlink = new moodle_url('/mod/adaptivequiz/reviewattempt.php',
                     array('userid' => $record->id, 'uniqueid' => $record->uniqueid, 'cmid' => $cm->id));
-                $measure = html_writer::link($attempt_link, $measure);
+                $measure = html_writer::link($attemptlink, $measure);
             }
             $stderror = $this->format_standard_error($record);
             if (intval($record->timemodified)) {
@@ -834,11 +834,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $html .= html_writer::tag('dt', get_string('attempt_state', 'adaptivequiz').': ');
         $html .= html_writer::tag('dd', $adaptivequiz->attemptstate);
         $html .= html_writer::tag('dt', get_string('score', 'adaptivequiz').': ');
-        $ability_in_fraction = 1 / ( 1 + exp( (-1 * $adaptivequiz->measure) ) );
-        $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
-        $standard_error = catalgo::convert_logit_to_percent($adaptivequiz->standarderror);
-        if ($standard_error > 0) {
-            $score = round($ability, 2)." &nbsp; &plusmn; ".round($standard_error * 100, 1)."%";
+        $abilityfraction = 1 / ( 1 + exp( (-1 * $adaptivequiz->measure) ) );
+        $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $abilityfraction) + $adaptivequiz->lowestlevel;
+        $stderror = catalgo::convert_logit_to_percent($adaptivequiz->standarderror);
+        if ($stderror > 0) {
+            $score = round($ability, 2)." &nbsp; &plusmn; ".round($stderror * 100, 1)."%";
         } else {
             $score = 'n/a';
         }
@@ -851,9 +851,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $html .= html_writer::tag('dt', get_string('attemptfinishedtimestamp', 'adaptivequiz').': ');
         $html .= html_writer::tag('dd', userdate($adaptivequiz->timemodified));
         $html .= html_writer::tag('dt', get_string('attempttotaltime', 'adaptivequiz').': ');
-        $total_time = $adaptivequiz->timemodified - $adaptivequiz->timecreated;
-        $hours = floor($total_time / 3600);
-        $remainder = $total_time - ($hours * 3600);
+        $totaltime = $adaptivequiz->timemodified - $adaptivequiz->timecreated;
+        $hours = floor($totaltime / 3600);
+        $remainder = $totaltime - ($hours * 3600);
         $minutes = floor($remainder / 60);
         $seconds = $remainder - ($minutes * 60);
         $html .= html_writer::tag('dd', sprintf('%02d', $hours).":".sprintf('%02d', $minutes).":".sprintf('%02d', $seconds));
@@ -889,36 +889,35 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table->size = array('', '', '', '', '', '');
         $table->data = array();
 
-        $questions_attempted = 0;
-        $difficulty_sum = 0;
-        $sum_of_correct_answers = 0;
-        $sum_of_incorrect_answers = 0;
+        $numattempted = 0;
+        $difficultysum = 0;
+        $sumcorrect = 0;
+        $sumincorrect = 0;
         foreach ($quba->get_slots() as $slot) {
             $question = $quba->get_question($slot);
             $tags = tag_get_tags_array('question', $question->id);
-            $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-            $question_difficulty_in_logits = catalgo::convert_linear_to_logit($question_difficulty, $adaptivequiz->lowestlevel,
+            $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
+            $qdifficultylogits = catalgo::convert_linear_to_logit($qdifficulty, $adaptivequiz->lowestlevel,
                 $adaptivequiz->highestlevel);
-            $question_correct = ($quba->get_question_mark($slot) > 0);
+            $correct = ($quba->get_question_mark($slot) > 0);
 
-            $questions_attempted++;
-            $difficulty_sum = $difficulty_sum + $question_difficulty_in_logits;
-            if ($question_correct) {
-                $sum_of_correct_answers++;
+            $numattempted++;
+            $difficultysum = $difficultysum + $qdifficultylogits;
+            if ($correct) {
+                $sumcorrect++;
             } else {
-                $sum_of_incorrect_answers++;
+                $sumincorrect++;
             }
 
-            $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers,
-                $sum_of_incorrect_answers);
-            $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );
-            $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
+            $abilitylogits = catalgo::estimate_measure($difficultysum, $numattempted, $sumcorrect, $sumincorrect);
+            $abilityfraction = 1 / ( 1 + exp( (-1 * $abilitylogits) ) );
+            $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $abilityfraction) + $adaptivequiz->lowestlevel;
 
-            $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers, $sum_of_incorrect_answers);
-            $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
+            $stderrorlogits = catalgo::estimate_standard_error($numattempted, $sumcorrect, $sumincorrect);
+            $stderror = catalgo::convert_logit_to_percent($stderrorlogits);
 
-            $table->data[] = array($slot, $question_difficulty, ($question_correct?'r':'w'), round($ability, 2),
-                    round($standard_error * 100, 1)."%");
+            $table->data[] = array($slot, $qdifficulty, ($correct?'r':'w'), round($ability, 2),
+                    round($stderror * 100, 1)."%");
         }
         return html_writer::table($table);
     }
@@ -944,35 +943,35 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table->data = array();
 
         // Set up our data arrays
-        $question_difficulties = array();
-        $right_answers = array();
-        $wrong_answers = array();
+        $qdifficulties = array();
+        $rightanswers = array();
+        $wronganswers = array();
 
         for ($i = $adaptivequiz->lowestlevel; $i <= $adaptivequiz->highestlevel; $i++) {
-            $question_difficulties[] = intval($i);
-            $right_answers[] = 0;
-            $wrong_answers[] = 0;
+            $qdifficulties[] = intval($i);
+            $rightanswers[] = 0;
+            $wronganswers[] = 0;
         }
 
         foreach ($quba->get_slots() as $i => $slot) {
             $question = $quba->get_question($slot);
             $tags = tag_get_tags_array('question', $question->id);
-            $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-            $question_correct = ($quba->get_question_mark($slot) > 0);
+            $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
+            $correct = ($quba->get_question_mark($slot) > 0);
 
-            $position = array_search($question_difficulty, $question_difficulties);
-            if ($question_correct) {
-                $right_answers[$position]++;
+            $position = array_search($qdifficulty, $qdifficulties);
+            if ($correct) {
+                $rightanswers[$position]++;
             } else {
-                $wrong_answers[$position]++;
+                $wronganswers[$position]++;
             }
         }
 
-        foreach ($question_difficulties as $key => $val) {
+        foreach ($qdifficulties as $key => $val) {
             $table->data[] = array(
                 $val,
-                $right_answers[$key],
-                $wrong_answers[$key],
+                $rightanswers[$key],
+                $wronganswers[$key],
             );
         }
 

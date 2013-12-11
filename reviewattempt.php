@@ -92,16 +92,16 @@ echo $header;
 echo html_writer::tag('h2', get_string('attempt_summary', 'adaptivequiz'));
 echo $output->get_attempt_summary_listing($adaptivequiz, $user);
 
-$graph_url = new moodle_url('/mod/adaptivequiz/attemptgraph.php',
+$graphurl = new moodle_url('/mod/adaptivequiz/attemptgraph.php',
     array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid));
-$params = array('src' => $graph_url, 'class' => 'adaptivequiz-attemptgraph');
+$params = array('src' => $graphurl, 'class' => 'adaptivequiz-attemptgraph');
 echo html_writer::empty_tag('img', $params);
 
 echo ' ';
 
-$graph_url = new moodle_url('/mod/adaptivequiz/answerdistributiongraph.php',
+$graphurl = new moodle_url('/mod/adaptivequiz/answerdistributiongraph.php',
     array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid));
-$params = array('src' => $graph_url, 'class' => 'adaptivequiz-answerdistributiongraph');
+$params = array('src' => $graphurl, 'class' => 'adaptivequiz-answerdistributiongraph');
 echo html_writer::empty_tag('img', $params);
 
 echo html_writer::start_tag('a', array('href' => '#', 'id' => 'adpq_scoring_table_link'));

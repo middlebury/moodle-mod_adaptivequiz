@@ -699,11 +699,11 @@ class catalgo {
         // still allowing consistent answers at the edges to trend the ability measure to
         // the top/bottom level.
         $granularity = 1 / ($max - $min);
-        $percent_floor = $granularity / 2;
+        $percentfloor = $granularity / 2;
 
         // Avoid a division by zero error
         if ($percent == 1) {
-            $percent = 1 - $percent_floor;
+            $percent = 1 - $percentfloor;
         }
 
         // Map the percentage scale to a logrithmic logit scale
@@ -711,11 +711,11 @@ class catalgo {
 
         // Check if result is inifinite
         if (is_infinite($logit)) {
-            $logit_floor = log( $percent_floor / (1 - $percent_floor) );
+            $logitfloor = log( $percentfloor / (1 - $percentfloor) );
             if ($logit > 0) {
-                return -1 * $logit_floor;
+                return -1 * $logitfloor;
             } else {
-                return $logit_floor;
+                return $logitfloor;
             }
         }
         return $logit;

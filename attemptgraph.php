@@ -75,80 +75,79 @@ $g->parameter['legend_border'] = 'black';
 $g->parameter['legend_offset'] = 4;
 $g->parameter['grid_colour'] = 'grayCC';
 
-$question_numbers = array();
-$question_difficulty_values = array();
-$ability_measure_values = array();
-$error_max_values = array();
-$error_min_values = array();
-$target_level_values = array();
+$qnumbers = array();
+$qdifficulties = array();
+$abilitymeasures = array();
+$errormaximums = array();
+$errorminimums = array();
+$targetlevels = array();
 
 $quba = question_engine::load_questions_usage_by_activity($uniqueid);
-$questions_attempted = 0;
-$difficulty_sum = 0;
-$sum_of_correct_answers = 0;
-$sum_of_incorrect_answers = 0;
+$numattempted = 0;
+$difficultysum = 0;
+$sumcorrect = 0;
+$sumincorrect = 0;
 foreach ($quba->get_slots() as $i => $slot) {
     // The starting target difficulty is set by the test parameters
     if ($i == 0) {
-        $target_level = $adaptivequiz->startinglevel;
+        $targetlevel = $adaptivequiz->startinglevel;
     } else {
         // Compute the target difficulty based on the last question.
-        if ($question_correct) {
-            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits + 2 / $questions_attempted,
+        if ($questioncorrect) {
+            $targetlevel = round(catalgo::map_logit_to_scale($qdifficultylogits + 2 / $numattempted,
                     $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
-            if ($target_level == $question_difficulty && $target_level < $adaptivequiz->highestlevel) {
-                $target_level++;
+            if ($targetlevel == $qdifficulty && $targetlevel < $adaptivequiz->highestlevel) {
+                $targetlevel++;
             }
         } else {
-            $target_level = round(catalgo::map_logit_to_scale($question_difficulty_in_logits - 2 / $questions_attempted,
+            $targetlevel = round(catalgo::map_logit_to_scale($qdifficultylogits - 2 / $numattempted,
                     $adaptivequiz->highestlevel, $adaptivequiz->lowestlevel));
-            if ($target_level == $question_difficulty && $target_level > $adaptivequiz->lowestlevel) {
-                $target_level--;
+            if ($targetlevel == $qdifficulty && $targetlevel > $adaptivequiz->lowestlevel) {
+                $targetlevel--;
             }
         }
     }
 
     $question = $quba->get_question($slot);
     $tags = tag_get_tags_array('question', $question->id);
-    $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-    $question_difficulty_in_logits = catalgo::convert_linear_to_logit($question_difficulty, $adaptivequiz->lowestlevel,
+    $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
+    $qdifficultylogits = catalgo::convert_linear_to_logit($qdifficulty, $adaptivequiz->lowestlevel,
         $adaptivequiz->highestlevel);
-    $question_correct = ($quba->get_question_mark($slot) > 0);
+    $questioncorrect = ($quba->get_question_mark($slot) > 0);
 
-    $questions_attempted++;
-    $difficulty_sum = $difficulty_sum + $question_difficulty_in_logits;
-    if ($question_correct) {
-        $sum_of_correct_answers++;
+    $numattempted++;
+    $difficultysum = $difficultysum + $qdifficultylogits;
+    if ($questioncorrect) {
+        $sumcorrect++;
     } else {
-        $sum_of_incorrect_answers++;
+        $sumincorrect++;
     }
 
-    $ability_in_logits = catalgo::estimate_measure($difficulty_sum, $questions_attempted, $sum_of_correct_answers,
-        $sum_of_incorrect_answers);
-    $ability_in_fraction = 1 / ( 1 + exp( (-1 * $ability_in_logits) ) );
-    $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $ability_in_fraction) + $adaptivequiz->lowestlevel;
+    $abilitylogits = catalgo::estimate_measure($difficultysum, $numattempted, $sumcorrect,
+        $sumincorrect);
+    $abilityfraction = 1 / ( 1 + exp( (-1 * $abilitylogits) ) );
+    $ability = (($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel) * $abilityfraction) + $adaptivequiz->lowestlevel;
 
-    $standard_error_in_logits = catalgo::estimate_standard_error($questions_attempted, $sum_of_correct_answers,
-        $sum_of_incorrect_answers);
-    $standard_error = catalgo::convert_logit_to_percent($standard_error_in_logits);
+    $stderrlogits = catalgo::estimate_standard_error($numattempted, $sumcorrect, $sumincorrect);
+    $stderr = catalgo::convert_logit_to_percent($stderrlogits);
 
-    $question_numbers[] = $questions_attempted;
-    $question_difficulty_values[] = $question_difficulty;
-    $ability_measure_values[] = $ability;
+    $qnumbers[] = $numattempted;
+    $qdifficulties[] = $qdifficulty;
+    $abilitymeasures[] = $ability;
 
-    $error_max_values[] = min($adaptivequiz->highestlevel, $ability + ($standard_error * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
-    $error_min_values[] = max($adaptivequiz->lowestlevel, $ability - ($standard_error * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
+    $errormaximums[] = min($adaptivequiz->highestlevel, $ability + ($stderr * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
+    $errorminimums[] = max($adaptivequiz->lowestlevel, $ability - ($stderr * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
 
-    $target_level_values[] = $target_level;
+    $targetlevels[] = $targetlevel;
 }
 
 
-$g->x_data = $question_numbers;
-$g->y_data['qdiff'] = $question_difficulty_values;
-$g->y_data['ability'] = $ability_measure_values;
-$g->y_data['target_level'] = $target_level_values;
-$g->y_data['error_max'] = $error_max_values;
-$g->y_data['error_min'] = $error_min_values;
+$g->x_data = $qnumbers;
+$g->y_data['qdiff'] = $qdifficulties;
+$g->y_data['ability'] = $abilitymeasures;
+$g->y_data['target_level'] = $targetlevels;
+$g->y_data['error_max'] = $errormaximums;
+$g->y_data['error_min'] = $errorminimums;
 
 // var_dump($g->y_data); exit;
 
@@ -177,7 +176,7 @@ if ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel <= 20) {
 }
 
 // Ensure that the x-axis text isn't to cramped.
-$g->parameter['x_axis_text'] = ceil($questions_attempted / 40);
+$g->parameter['x_axis_text'] = ceil($numattempted / 40);
 
 
 // $g->draw();

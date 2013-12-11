@@ -93,37 +93,37 @@ $g->parameter['inner_border_type'] = 'y-left'; // only draw left y axis as zero 
 
 
 // Set up our data arrays
-$question_difficulties = array();
-$right_answers = array();
-$wrong_answers = array();
+$difficulties = array();
+$rightanswers = array();
+$wronganswers = array();
 
 // for ($i = $adaptivequiz->lowestlevel; $i <= 102; $i++) {
 for ($i = $adaptivequiz->lowestlevel; $i <= $adaptivequiz->highestlevel; $i++) {
-    $question_difficulties[] = intval($i);
-    $right_answers[] = 0;
-    $wrong_answers[] = 0;
+    $difficulties[] = intval($i);
+    $rightanswers[] = 0;
+    $wronganswers[] = 0;
 }
 
 $quba = question_engine::load_questions_usage_by_activity($uniqueid);
 foreach ($quba->get_slots() as $i => $slot) {
     $question = $quba->get_question($slot);
     $tags = tag_get_tags_array('question', $question->id);
-    $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-    $question_correct = ($quba->get_question_mark($slot) > 0);
+    $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
+    $correct = ($quba->get_question_mark($slot) > 0);
 
-    $position = array_search($question_difficulty, $question_difficulties);
-    if ($question_correct) {
-        $right_answers[$position]++;
+    $position = array_search($difficulty, $difficulties);
+    if ($correct) {
+        $rightanswers[$position]++;
     } else {
-        $wrong_answers[$position]--;
+        $wronganswers[$position]--;
     }
 }
 
-$max = max(max($right_answers), -1 * min($wrong_answers));
+$max = max(max($rightanswers), -1 * min($wronganswers));
 
-$g->x_data = $question_difficulties;
-$g->y_data['right_answers'] = $right_answers;
-$g->y_data['wrong_answers'] = $wrong_answers;
+$g->x_data = $difficulties;
+$g->y_data['right_answers'] = $rightanswers;
+$g->y_data['wrong_answers'] = $wronganswers;
 
 $g->y_format['right_answers'] = array('colour' => 'blue', 'bar' => 'fill', 'shadow' => 'none',
     'legend' => get_string('answerdistgraph_right', 'adaptivequiz'));
@@ -137,10 +137,10 @@ $g->parameter['y_max_left'] = $max + 1;
 $g->parameter['y_axis_text_left'] = ceil($max / 10);
 
 // Space out the bars so that their width slowly decreases as the number of ticks increases.
-$g->parameter['bar_spacing'] = max(4, round(700 / count($question_difficulties)) - 11 + round(8 * count($question_difficulties) / 100));
+$g->parameter['bar_spacing'] = max(4, round(700 / count($difficulties)) - 11 + round(8 * count($difficulties) / 100));
 
 // Skip some x-axis labels for legibility
-$g->parameter['x_axis_text'] = ceil(count($question_difficulties) / 50);
+$g->parameter['x_axis_text'] = ceil(count($difficulties) / 50);
 
 $g->y_order = array('right_answers', 'wrong_answers');
 
