@@ -64,7 +64,7 @@ if ($adaptivequiz->intro) { // Conditions to show the intro can change to look f
 
 $renderer = $PAGE->get_renderer('mod_adaptivequiz');
 
-// check if the instance exists.
+// Check if the instance exists.
 if (has_capability('mod/adaptivequiz:attempt', $context)) {
 
     // Check if the user has any previous attempts at this activity.

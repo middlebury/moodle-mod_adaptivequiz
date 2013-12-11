@@ -85,11 +85,11 @@ $g->parameter['grid_colour'] = 'grayCC';
 $g->parameter['y_resolution_left'] = 1;
 $g->parameter['y_decimal_left'] = 0;
 
-$g->parameter['shadow'] = 'grayCC'; // set default shadow for all data sets.
+$g->parameter['shadow'] = 'grayCC'; // Set default shadow for all data sets.
 $g->parameter['bar_size'] = 2;
 $g->parameter['bar_spacing'] = 10;
 $g->parameter['zero_axis'] = 'black';
-$g->parameter['inner_border_type'] = 'y-left'; // only draw left y axis as zero axis already selected above.
+$g->parameter['inner_border_type'] = 'y-left'; // Only draw left y axis as zero axis already selected above.
 
 
 // Set up our data arrays.

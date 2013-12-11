@@ -28,7 +28,7 @@
 require_once(dirname(__FILE__).'/../..config.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/lib.php');
 
-$id = required_param('id', PARAM_INT);   // course.
+$id = required_param('id', PARAM_INT);   // Course.
 
 $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 

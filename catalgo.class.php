@@ -230,7 +230,7 @@ class catalgo {
         if ($marked) {
             return true;
         } else {
-            // save some debugging information.
+            // Save some debugging information.
             $debugmsg = 'was_answer_submitted_to_question() refactored - question state is unrecognized state: '.get_class($state);
             $debugmsg .= ' questionslotid: '.$slotid.' quba id: '.$this->quba->get_id();
             $this->print_debug($debugmsg);

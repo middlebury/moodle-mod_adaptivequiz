@@ -139,10 +139,10 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->setDefault('standarderror', 5.0);
         $mform->setType('standarderror', PARAM_NUMBER);
 
-        // add standard elements, common to all modules.
+        // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
-        // add standard buttons, common to all modules.
+        // Add standard buttons, common to all modules.
         $this->add_action_buttons();
     }
 

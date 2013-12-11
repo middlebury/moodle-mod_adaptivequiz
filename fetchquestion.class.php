@@ -105,7 +105,7 @@ class fetchquestion {
 
         $this->level = $level;
 
-        // initialize $tagquestsum property.
+        // Initialize $tagquestsum property.
         if (!isset($SESSION->adpqtagquestsum)) {
             $SESSION->adpqtagquestsum = array();
             $this->tagquestsum = $SESSION->adpqtagquestsum;

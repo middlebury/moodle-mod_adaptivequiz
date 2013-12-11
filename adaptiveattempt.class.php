@@ -326,7 +326,7 @@ class adaptiveattempt {
 
         } else if (empty($this->slot) && 0 < $adpqattempt->questionsattempted) {
             // If this condition is met, then something went wrong because the slot id is empty BUT the questions attempted is
-            // greater than zero.  Stop attempt.
+            // Greater than zero.  Stop attempt.
             $this->print_debug('start_attempt() - something went horribly wrong since the quba has no slot number AND the number '.
                     'of question answered is greater than 0');
             $this->status = get_string('errorattemptstate', 'adaptivequiz');
@@ -543,7 +543,7 @@ class adaptiveattempt {
         if ($marked) {
             return true;
         } else {
-            // save some debugging information.
+            // Save some debugging information.
             $this->print_debug('was_answer_submitted_to_question() - question state is unrecognized state: '.get_class($state).'
                     question slotid: '.$slotid.' quba id: '.$quba->get_id());
         }
@@ -596,7 +596,7 @@ class adaptiveattempt {
         if (!empty($behaviours)) {
             foreach ($behaviours as $key => $behaviour) {
                 if (0 == strcmp(self::ATTEMPTBEHAVIOUR, $key)) {
-                    // behaviour found, exit the loop.
+                    // Behaviour found, exit the loop.
                     $exists = true;
                     break;
                 }
