@@ -134,8 +134,10 @@ foreach ($quba->get_slots() as $i => $slot) {
     $qdifficulties[] = $qdifficulty;
     $abilitymeasures[] = $ability;
 
-    $errormaximums[] = min($adaptivequiz->highestlevel, $ability + ($stderr * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
-    $errorminimums[] = max($adaptivequiz->lowestlevel, $ability - ($stderr * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
+    $errormaximums[] = min($adaptivequiz->highestlevel,
+        $ability + ($stderr * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
+    $errorminimums[] = max($adaptivequiz->lowestlevel,
+        $ability - ($stderr * ($adaptivequiz->highestlevel - $adaptivequiz->lowestlevel)));
 
     $targetlevels[] = $targetlevel;
 }

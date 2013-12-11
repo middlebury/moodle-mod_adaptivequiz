@@ -44,7 +44,8 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         $adaptivequiz = new restore_path_element('adaptivequiz', '/activity/adaptivequiz');
         $paths[] = $adaptivequiz;
 
-        $paths[] = new restore_path_element('adaptivequiz_question', '/activity/adaptivequiz/adatpivequestioncats/adatpivequestioncat');
+        $paths[] = new restore_path_element('adaptivequiz_question',
+            '/activity/adaptivequiz/adatpivequestioncats/adatpivequestioncat');
 
         if ($userinfo) {
             $attempt = new restore_path_element('adaptivequiz_attempt', '/activity/adaptivequiz/adaptiveattempts/adaptiveattempt');

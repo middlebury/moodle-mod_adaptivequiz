@@ -379,7 +379,8 @@ class catalgo {
                 $this->questattempted.', sumofcorrectanswers: '.$this->sumofcorrectanswers.', sumofincorrectanswers: '.
                 $this->sumofincorrectanswers.' =&gt; measure: '.$this->measure.', standard error: '.$this->standarderror);
 
-        // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert to a logit.
+        // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then
+        // convert to a logit.
         $quizdefinederror = $this->retrieve_standard_error($this->attemptid);
         $quizdefinederror = $quizdefinederror / 100;
         $quizdefinederror = self::convert_percent_to_logit($quizdefinederror);
