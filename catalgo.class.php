@@ -224,13 +224,13 @@ class catalgo {
 
         $state = $this->quba->get_question_state($slotid);
 
-        // Check if the state of the quesiton attempted was graded right, partially right or wrong
+        // Check if the state of the quesiton attempted was graded right, partially right or wrong.
         $marked = $state instanceof question_state_gradedright || $state instanceof question_state_gradedpartial
             || $state instanceof question_state_gradedwrong;
         if ($marked) {
             return true;
         } else {
-            // save some debugging information
+            // save some debugging information.
             $debugmsg = 'was_answer_submitted_to_question() refactored - question state is unrecognized state: '.get_class($state);
             $debugmsg .= ' questionslotid: '.$slotid.' quba id: '.$this->quba->get_id();
             $this->print_debug($debugmsg);
@@ -263,21 +263,21 @@ class catalgo {
      *      error determining mark
      */
     public function question_was_marked_correct() {
-        // Find the last question attempted by the user
+        // Find the last question attempted by the user.
         $slotid = $this->find_last_quest_used_by_attempt();
 
         if (empty($slotid)) {
             return null;
         }
 
-        // Check if the question was marked
+        // Check if the question was marked.
         if (!$this->was_answer_submitted_to_question($slotid)) {
-            // If no answer was submitted then the question muast be marked as incorrect.  Increment questions attempted
+            // If no answer was submitted then the question muast be marked as incorrect.  Increment questions attempted.
             $this->questattempted++;
             return false;
         }
 
-        // Retrieve the mark received
+        // Retrieve the mark received.
         $mark = $this->get_question_mark($this->quba, $slotid);
 
         if (is_null($mark)) {
@@ -286,12 +286,12 @@ class catalgo {
 
         // Return true if the question was marked correct.
         if ((float) 0 < $mark) {
-            // Increment questions attempted
+            // Increment questions attempted.
             $this->questattempted++;
             return true;
         }
 
-        // Increment questions attempted
+        // Increment questions attempted.
         $this->questattempted++;
         return false;
     }
@@ -320,20 +320,20 @@ class catalgo {
      * @return int returns the next difficulty level or 0 if there was an error
      */
     public function perform_calculation_steps() {
-        // Retrieve attempt record
+        // Retrieve attempt record.
         $record = $this->retrieve_attempt_record($this->attemptid);
 
         $this->difficultysum = $record->difficultysum;
         $this->questattempted = $record->questionsattempted;
 
-        // If the user answered the previous question correctly, calculate the sum of correct answers
+        // If the user answered the previous question correctly, calculate the sum of correct answers.
         $correct = $this->question_was_marked_correct();
 
         if (true === $correct) {
-            // Compute the next difficulty level for the next question
+            // Compute the next difficulty level for the next question.
             $this->nextdifficulty = $this->compute_next_difficulty($this->level, $this->questattempted, true, $record);
         } else if (false === $correct) {
-            // Compute the next difficulty level for the next question
+            // Compute the next difficulty level for the next question.
             $this->nextdifficulty = $this->compute_next_difficulty($this->level, $this->questattempted, false, $record);
         } else {
             $this->status = get_string('errorlastattpquest', 'adaptivequiz');
@@ -341,13 +341,13 @@ class catalgo {
             return 0;
         }
 
-        // If he user hasn't met the minimum requirements to end the attempt, then return with the next difficulty level
+        // If he user hasn't met the minimum requirements to end the attempt, then return with the next difficulty level.
         if (empty($this->readytostop)) {
             $this->print_debug('perform_calculation_steps() - Not ready to stop the attempt, returning next difficulty number');
             return $this->nextdifficulty;
         }
 
-        // Calculate the sum of correct answers and the sum of incorrect answers
+        // Calculate the sum of correct answers and the sum of incorrect answers.
         $this->sumofcorrectanswers = $this->compute_right_answers($this->quba);
         $this->sumofincorrectanswers = $this->compute_wrong_answers($this->quba);
 
@@ -357,7 +357,7 @@ class catalgo {
             return 0;
         }
 
-        // Test that the sum of incorrect and correct answers equal to the sum of question attempted
+        // Test that the sum of incorrect and correct answers equal to the sum of question attempted.
         $validatenumbers = $this->sumofcorrectanswers + $this->sumofincorrectanswers;
 
         if ($validatenumbers != $this->questattempted) {
@@ -367,11 +367,11 @@ class catalgo {
             return 0;
         }
 
-        // Get the measure estimate
+        // Get the measure estimate.
         $this->measure = self::estimate_measure($this->difficultysum, $this->questattempted, $this->sumofcorrectanswers,
             $this->sumofincorrectanswers);
 
-        // Get the standard error estimate
+        // Get the standard error estimate.
         $this->standarderror = self::estimate_standard_error($this->questattempted, $this->sumofcorrectanswers,
             $this->sumofincorrectanswers);
 
@@ -379,14 +379,14 @@ class catalgo {
                 $this->questattempted.', sumofcorrectanswers: '.$this->sumofcorrectanswers.', sumofincorrectanswers: '.
                 $this->sumofincorrectanswers.' =&gt; measure: '.$this->measure.', standard error: '.$this->standarderror);
 
-        // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert to a logit
+        // Retrieve the standard error (as a percent) set for the attempt, convert it into a decimal percent then convert to a logit.
         $quizdefinederror = $this->retrieve_standard_error($this->attemptid);
         $quizdefinederror = $quizdefinederror / 100;
         $quizdefinederror = self::convert_percent_to_logit($quizdefinederror);
 
-        // If the calculated standard error is within the parameters of the attempt then populate the status message
+        // If the calculated standard error is within the parameters of the attempt then populate the status message.
         if ($this->standard_error_within_parameters($this->standarderror, $quizdefinederror)) {
-            // Convert logits to percent for display
+            // Convert logits to percent for display.
             $val = new stdClass();
             $val->calerror = self::convert_logit_to_percent($this->standarderror);
             $val->calerror = 100 * round($val->calerror, 2);
@@ -508,10 +508,10 @@ class catalgo {
     public function compute_right_answers($quba) {
         $correctanswers = 0;
 
-        // Get question slots for the attempt
+        // Get question slots for the attempt.
         $slots = $quba->get_slots();
 
-        // Iterate over slots and count correct answers
+        // Iterate over slots and count correct answers.
         foreach ($slots as $slot) {
             $mark = $this->get_question_mark($quba, $slot);
 
@@ -532,10 +532,10 @@ class catalgo {
     public function compute_wrong_answers($quba) {
         $incorrectanswers = 0;
 
-        // Get question slots for the attempt
+        // Get question slots for the attempt.
         $slots = $quba->get_slots();
 
-        // Iterate over slots and count correct answers
+        // Iterate over slots and count correct answers.
         foreach ($slots as $slot) {
             $mark = $this->get_question_mark($quba, $slot);
 
@@ -557,22 +557,22 @@ class catalgo {
      * @return int the current level of difficulty
      */
     public function get_current_diff_level($quba, $level, $attemptobj) {
-        // Check if level is a positive integer
+        // Check if level is a positive integer.
         if (!is_int($level) || 0 >= $level) {
             throw new coding_exception('get_current_diff_level: Arg 2 needs to be a positive integer',
                 'Invalid level of :'.$level.' was passed');
         }
-        // Check if quba is a valid instance of question_usage_by_activity
+        // Check if quba is a valid instance of question_usage_by_activity.
         if (!$quba instanceof question_usage_by_activity) {
             throw new coding_exception('get_current_diff_level: Arg 1 needs to be an instance of question_usage_by_activity',
                 'Invalid quba of :'.get_class($quba));
         }
-        // Check if attempt object has required properties defined
+        // Check if attempt object has required properties defined.
         if (!isset($attemptobj->lowestlevel) || !isset($attemptobj->highestlevel)) {
             throw new coding_exception('get_current_diff_level: Arg 3 needs to have lowestlevel and highestlevel properties',
                 'Invalid attemptobj of :'.print_r($attemptobj, true));
         }
-        // Check if attempt object has required property value types
+        // Check if attempt object has required property value types.
         $conditions = !is_int($attemptobj->lowestlevel) || 0 >= $attemptobj->lowestlevel || !is_int($attemptobj->highestlevel)
                 || 0 >= $attemptobj->highestlevel || $attemptobj->lowestlevel >= $attemptobj->highestlevel;
         if ($conditions) {
@@ -593,17 +593,17 @@ class catalgo {
     protected function return_current_diff_level($quba, $level, $attemptobj) {
         $questattempted = 0;
         $correct = false;
-        // Set current difficulty to the starting level
+        // Set current difficulty to the starting level.
         $currdiff = $level;
 
-        // Get question slots for the attempt
+        // Get question slots for the attempt.
         $slots = $quba->get_slots();
 
         if (empty($slots)) {
             return 0;
         }
 
-        // Get the last question's state
+        // Get the last question's state.
         $state = $quba->get_question_state(end($slots));
         // If the state of the last question in the attempt is 'todo' remove it from the array, as the user never submitted their
         // answer.
@@ -611,10 +611,10 @@ class catalgo {
             array_pop($slots);
         }
 
-        // Reset the array pointer back to the beginning
+        // Reset the array pointer back to the beginning.
         reset($slots);
 
-        // Iterate over slots and count correct answers
+        // Iterate over slots and count correct answers.
         foreach ($slots as $slot) {
             $mark = $this->get_question_mark($quba, $slot);
 
@@ -642,21 +642,21 @@ class catalgo {
     public function compute_next_difficulty($level, $questattempted, $correct, $attempt) {
         $nextdifficulty = 0;
 
-        // Map the linear scale to a logrithmic logit scale
+        // Map the linear scale to a logrithmic logit scale.
         $ls = self::convert_linear_to_logit($level, $attempt->lowestlevel, $attempt->highestlevel);
 
-        // Set the logit value of the previously attempted question's difficulty level
+        // Set the logit value of the previously attempted question's difficulty level.
         $this->levellogit = $ls;
         $this->difficultysum = $this->difficultysum + $this->levellogit;
 
-        // Check if the last question was marked correctly
+        // Check if the last question was marked correctly.
         if ($correct) {
             $nextdifficulty = $ls + 2 / $questattempted;
         } else {
             $nextdifficulty = $ls - 2 / $questattempted;
         }
 
-        // Calculate the inverse to translate the value into a difficulty level
+        // Calculate the inverse to translate the value into a difficulty level.
         $invps = 1 / ( 1 + exp( (-1 * $nextdifficulty) ) );
         $invps = round($invps, 2);
         $difflevel = $attempt->lowestlevel + ( $invps * ($attempt->highestlevel - $attempt->lowestlevel) );
@@ -675,12 +675,12 @@ class catalgo {
      * @return float
      */
     public static function convert_linear_to_logit($level, $min, $max) {
-        // Map the level on a linear percentage scale
+        // Map the level on a linear percentage scale.
         $percent = ($level - $min) / ($max - $min);
 
         // We will use a limit that is 1/2th the granularity of the question levels as our base.
         // For example, for levels 1-100, we will use a base of 0.5% (5.3 logits),
-        // for levels 1-1000 we will use a base of 0.05% (7.6 logits)
+        // for levels 1-1000 we will use a base of 0.05% (7.6 logits).
         //
         // Note that the choice of 1/2 the granularity is somewhat arbitrary.
         // The floor value for the ends of the scale is being chosen so that answers
@@ -701,15 +701,15 @@ class catalgo {
         $granularity = 1 / ($max - $min);
         $percentfloor = $granularity / 2;
 
-        // Avoid a division by zero error
+        // Avoid a division by zero error.
         if ($percent == 1) {
             $percent = 1 - $percentfloor;
         }
 
-        // Map the percentage scale to a logrithmic logit scale
+        // Map the percentage scale to a logrithmic logit scale.
         $logit = log( $percent / (1 - $percent) );
 
-        // Check if result is inifinite
+        // Check if result is inifinite.
         if (is_infinite($logit)) {
             $logitfloor = log( $percentfloor / (1 - $percentfloor) );
             if ($logit > 0) {

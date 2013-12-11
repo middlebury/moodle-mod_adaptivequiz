@@ -86,7 +86,7 @@ class restore_adaptivequiz_activity_task extends restore_activity_task {
      */
     public static function define_restore_log_rules() {
         $rules = array();
-        // TODO update this method when logging statemtns have been added to the code
+        // TODO update this method when logging statemtns have been added to the code.
         return $rules;
     }
 

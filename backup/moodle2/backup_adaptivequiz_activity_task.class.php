@@ -50,7 +50,7 @@ class backup_adaptivequiz_activity_task extends backup_activity_task {
         $this->add_step(new backup_adaptivequiz_activity_structure_step('adaptivequiz_structure', 'adaptivequiz.xml'));
 
         // Note: Following  steps must be present
-        // in all the activities using question banks
+        // in all the activities using question banks.
 
         // Process all the annotated questions to calculate the question
         // categories needing to be included in backup for this activity

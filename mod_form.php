@@ -41,10 +41,10 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
     public function definition() {
         $mform = $this->_form;
 
-        // Adding the "general" fieldset, where all the common settings are showed
+        // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        // Adding the standard "name" field
+        // Adding the standard "name" field.
         $mform->addElement('text', 'name', get_string('adaptivequizname', 'adaptivequiz'), array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
@@ -55,7 +55,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('name', 'adaptivequizname', 'adaptivequiz');
 
-        // Adding the standard "intro" and "introformat" fields
+        // Adding the standard "intro" and "introformat" fields.
         $this->add_intro_editor();
 
         // Number of attempts.
@@ -78,7 +78,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('browsersecurity', 'browsersecurity', 'adaptivequiz');
         $mform->setDefault('browsersecurity', 0);
 
-        // Retireve a list of available course categories
+        // Retireve a list of available course categories.
         adaptivequiz_make_default_categories($this->context);
         $options = adaptivequiz_get_question_categories($this->context);
         $selquestcat = adaptivequiz_get_selected_question_cateogires($this->_instance);
@@ -139,10 +139,10 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->setDefault('standarderror', 5.0);
         $mform->setType('standarderror', PARAM_NUMBER);
 
-        // add standard elements, common to all modules
+        // add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
-        // add standard buttons, common to all modules
+        // add standard buttons, common to all modules.
         $this->add_action_buttons();
     }
 
@@ -159,7 +159,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
             $errors['questionpool'] = get_string('formquestionpool', 'adaptivequiz');
         }
 
-        // Validate for positivity
+        // Validate for positivity.
         if (0 >= $data['minimumquestions']) {
             $errors['minimumquestions'] = get_string('formelementnegative', 'adaptivequiz');
         }
@@ -184,7 +184,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
             $errors['standarderror'] = get_string('formstderror', 'adaptivequiz');
         }
 
-        // Validate higher and lower values
+        // Validate higher and lower values.
         if ($data['minimumquestions'] >= $data['maximumquestions']) {
             $errors['minimumquestions'] = get_string('formminquestgreaterthan', 'adaptivequiz');
         }

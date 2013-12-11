@@ -53,7 +53,7 @@ $sql = "SELECT aa.id, aa.userid, aa.uniqueid, aa.attemptstopcriteria, aa.measure
       ORDER BY aa.timemodified DESC";
 $records = $DB->get_records_sql($sql, $param);
 
-// Check if recordset contains records
+// Check if recordset contains records.
 if (empty($records)) {
     $url = new moodle_url('/mod/adaptivequiz/viewreport.php', array('cmid' => $cm->id));
     notice(get_string('noattemptrecords', 'adaptivequiz'), $url);

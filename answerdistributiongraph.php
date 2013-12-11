@@ -92,12 +92,11 @@ $g->parameter['zero_axis'] = 'black';
 $g->parameter['inner_border_type'] = 'y-left'; // only draw left y axis as zero axis already selected above.
 
 
-// Set up our data arrays
+// Set up our data arrays.
 $difficulties = array();
 $rightanswers = array();
 $wronganswers = array();
 
-// for ($i = $adaptivequiz->lowestlevel; $i <= 102; $i++) {
 for ($i = $adaptivequiz->lowestlevel; $i <= $adaptivequiz->highestlevel; $i++) {
     $difficulties[] = intval($i);
     $rightanswers[] = 0;
@@ -139,7 +138,7 @@ $g->parameter['y_axis_text_left'] = ceil($max / 10);
 // Space out the bars so that their width slowly decreases as the number of ticks increases.
 $g->parameter['bar_spacing'] = max(4, round(700 / count($difficulties)) - 11 + round(8 * count($difficulties) / 100));
 
-// Skip some x-axis labels for legibility
+// Skip some x-axis labels for legibility.
 $g->parameter['x_axis_text'] = ceil(count($difficulties) / 50);
 
 $g->y_order = array('right_answers', 'wrong_answers');

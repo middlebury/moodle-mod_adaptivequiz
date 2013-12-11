@@ -105,7 +105,7 @@ class fetchquestion {
 
         $this->level = $level;
 
-        // initialize $tagquestsum property
+        // initialize $tagquestsum property.
         if (!isset($SESSION->adpqtagquestsum)) {
             $SESSION->adpqtagquestsum = array();
             $this->tagquestsum = $SESSION->adpqtagquestsum;
@@ -235,21 +235,21 @@ class fetchquestion {
     public function initalize_tags_with_quest_count($tagquestsum, $tags, $min, $max, $rebuild = false) {
         global $SESSION;
 
-        // Check to see if the tagquestsum argument is initialized
+        // Check to see if the tagquestsum argument is initialized.
         $count = count($tagquestsum);
         if (empty($count) || !empty($rebuild)) {
             $tagquestsum = array();
-            // Retrieve the question categories set for this activity
+            // Retrieve the question categories set for this activity.
             $questcat = $this->retrieve_question_categories();
-            // Traverse through the array of configured tags used by the activity
+            // Traverse through the array of configured tags used by the activity.
             foreach ($tags as $tag) {
-                // Retrieve all of id for the configured tag
+                // Retrieve all of id for the configured tag.
                 $tagids = $this->retrieve_all_tag_ids($min, $max, $tag);
-                // Retrieve a count of all of the questions associated with each tag
+                // Retrieve a count of all of the questions associated with each tag.
                 $tagidquestsum = $this->retrieve_tags_with_question_count($tagids, $questcat, $tag);
-                // Traverse the tagidquestsum array and add the values with the values current in the tagquestsum argument
+                // Traverse the tagidquestsum array and add the values with the values current in the tagquestsum argument.
                 foreach ($tagidquestsum as $difflevel => $totalquestindiff) {
-                    // If the array key exists, then add the sum to what is already in the array
+                    // If the array key exists, then add the sum to what is already in the array.
                     if (array_key_exists($difflevel, $tagquestsum)) {
                         $tagquestsum[$difflevel] += $totalquestindiff;
                     } else {
@@ -273,16 +273,16 @@ class fetchquestion {
     public function fetch_questions($excquestids = array()) {
         $questids = array();
 
-        // Initialize the difficulty tag question sum property for searching
+        // Initialize the difficulty tag question sum property for searching.
         $this->tagquestsum = $this->initalize_tags_with_quest_count($this->tagquestsum, $this->tags, $this->minimumlevel,
             $this->maximumlevel, $this->rebuild);
 
-        // If tagquestsum property ie empty then return with nothing
+        // If tagquestsum property ie empty then return with nothing.
         if (empty($this->tagquestsum)) {
             $this->print_debug('fetch_questions() - tagquestsum is empty');
             return array();
         }
-        // Check if the requested level has available questions
+        // Check if the requested level has available questions.
         if (array_key_exists($this->level, $this->tagquestsum) && 0 < $this->tagquestsum[$this->level]) {
             $tagids = $this->retrieve_tag($this->level);
             $questids = $this->find_questions_with_tags($tagids, $excquestids);
@@ -291,10 +291,10 @@ class fetchquestion {
             return $questids;
         }
 
-        // Look for a level that has avaialbe qustions
+        // Look for a level that has avaialbe qustions.
         $level = $this->level;
         for ($i = 1; $i <= self::MAXNUMTRY; $i++) {
-            // Check if the offset level is now out of bounds and stop the loop
+            // Check if the offset level is now out of bounds and stop the loop.
             if ($this->minimumlevel > $level - $i && $this->maximumlevel < $level + $i) {
                 $i += self::MAXNUMTRY + 1;
                 $this->print_debug('fetch_questions() - searching levels has gone out of bounds of the min and max levels. '.
@@ -302,7 +302,7 @@ class fetchquestion {
                 continue;
             }
 
-            // First check a level higher than the originally requested level
+            // First check a level higher than the originally requested level.
             $newlevel = $level + $i;
 
             /*
@@ -321,7 +321,7 @@ class fetchquestion {
                 continue;
             }
 
-            // Check a level lower than the originally requested level
+            // Check a level lower than the originally requested level.
             $newlevel = $level - $i;
 
             /*
@@ -408,10 +408,10 @@ class fetchquestion {
         try {
             $substr = $DB->sql_substr('t.name', $length);
 
-            // Create IN() clause for tag ids
+            // Create IN() clause for tag ids.
             list($includetags, $tempparam) = $DB->get_in_or_equal($tagids, SQL_PARAMS_NAMED, 'tagids');
             $params += $tempparam;
-            // Create IN() clause for question category ids
+            // Create IN() clause for question category ids.
             list($includeqcats, $tempparam) = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED, 'qcatids');
             $params += array('itemtype' => 'question') + $tempparam;
 
@@ -451,16 +451,16 @@ class fetchquestion {
             $thislevel = $level;
         }
 
-        // Format clause for tag name search
+        // Format clause for tag name search.
         foreach ($this->tags as $key => $tag) {
             $params[$tag.$key] = $tag.$level;
             $select .= ' name = :'.$tag.$key.' OR';
         }
 
-        // Remove the last 'OR'
+        // Remove the last 'OR'.
         $select = rtrim($select, 'OR');
 
-        // Query the tag table for all tags used by the activity
+        // Query the tag table for all tags used by the activity.
         $tagids = $DB->get_records_select_menu('tag', $select, $params, 'id ASC', 'id, id AS id2');
 
         if (empty($tagids)) {
@@ -488,7 +488,7 @@ class fetchquestion {
         $includetags = '';
         $includeqcats = '';
 
-        // Retrieve question categories used by this activity
+        // Retrieve question categories used by this activity.
         $questcat = $this->retrieve_question_categories();
 
         if (empty($questcat) || empty($tagids)) {
@@ -496,14 +496,14 @@ class fetchquestion {
             return array();
         }
 
-        // Create IN() clause for tag ids
+        // Create IN() clause for tag ids.
         list($includetags, $tempparam) = $DB->get_in_or_equal($tagids, SQL_PARAMS_NAMED, 'tagids');
         $params += $tempparam;
-        // Create IN() clause for question ids
+        // Create IN() clause for question ids.
         list($includeqcats, $tempparam) = $DB->get_in_or_equal($questcat, SQL_PARAMS_NAMED, 'qcatids');
         $params += $tempparam;
 
-        // Create IN() clause for question ids to exclude
+        // Create IN() clause for question ids to exclude.
         if (!empty($exclude)) {
             list($exclquestids, $tempparam) = $DB->get_in_or_equal($exclude, SQL_PARAMS_NAMED, 'excqids', false);
             $params += $tempparam;
@@ -512,7 +512,7 @@ class fetchquestion {
 
         $params += array('itemtype' => 'question');
 
-        // Query the question table for questions associated with a tag instance and within a question category
+        // Query the question table for questions associated with a tag instance and within a question category.
         $query = "SELECT q.id, q.name
                     FROM {question} q
               INNER JOIN {tag_instance} ti ON q.id = ti.itemid
@@ -536,7 +536,7 @@ class fetchquestion {
     protected function retrieve_question_categories() {
         global $DB;
 
-        // Check cached result
+        // Check cached result.
         if (!empty($this->questcatids)) {
             $this->print_debug('retrieve_question_categories() - question category ids (from cache): '.
                 print_r($this->questcatids, true));
@@ -547,7 +547,7 @@ class fetchquestion {
         $param = array('instance' => $this->adaptivequiz->id);
         $records = $DB->get_records_menu('adaptivequiz_question', $param, 'questioncategory ASC', 'id,questioncategory');
 
-        // Cache the results
+        // Cache the results.
         $this->questcatids = $records;
 
         $this->print_debug('retrieve_question_categories() - question category ids: '.print_r($records, true));

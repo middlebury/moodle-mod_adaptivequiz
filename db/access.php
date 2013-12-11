@@ -38,7 +38,7 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
-    // Ability to view adaptivequiz report
+    // Ability to view adaptivequiz report.
     'mod/adaptivequiz:viewreport' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'write',
@@ -48,7 +48,7 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         ),
     ),
-    // Ability to view review pervious attempts
+    // Ability to view review pervious attempts.
     'mod/adaptivequiz:reviewattempts' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'write',
@@ -58,7 +58,7 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         ),
     ),
-    // Ability to attempt the activity
+    // Ability to attempt the activity.
     'mod/adaptivequiz:attempt' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',

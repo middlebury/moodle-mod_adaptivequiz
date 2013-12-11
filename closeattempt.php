@@ -76,7 +76,7 @@ $PAGE->set_context($context);
 
 $renderer = $PAGE->get_renderer('mod_adaptivequiz');
 
-// Are you sure confirmation message
+// Are you sure confirmation message.
 global $USER;
 $a = new stdClass();
 $a->name = format_string($adaptivequiz->firstname.' '.$adaptivequiz->lastname);
@@ -94,7 +94,7 @@ $message = html_writer::tag('p', get_string('confirmcloseattempt', 'adaptivequiz
     .html_writer::tag('p', get_string('confirmcloseattemptscore', 'adaptivequiz', $a));
 
 if ($confirm) {
-    // Close the attempt record and redirect
+    // Close the attempt record and redirect.
     $statusmessage = get_string('attemptclosedstatus', 'adaptivequiz', $a);
 
     $closemessage = get_string('attemptclosed', 'adaptivequiz', $a);

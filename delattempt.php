@@ -68,14 +68,14 @@ $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-// Are you usre confirmation message
+// Are you usre confirmation message.
 $a = new stdClass();
 $a->name = format_string($adaptivequiz->firstname.' '.$adaptivequiz->lastname);
 $a->timecompleted = userdate($adaptivequiz->timemodified);
 $message = get_string('confirmdeleteattempt', 'adaptivequiz', $a);
 
 if ($confirm) {
-    // Remove attempt record and redirect
+    // Remove attempt record and redirect.
     question_engine::delete_questions_usage_by_activity($uniqueid);
     $DB->delete_records('adaptivequiz_attempt', array('instance' => $cm->instance, 'uniqueid' => $uniqueid, 'userid' => $userid));
     $message = get_string('attemptdeleted', 'adaptivequiz', $a);

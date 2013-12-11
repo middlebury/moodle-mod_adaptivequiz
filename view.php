@@ -49,25 +49,25 @@ $context = context_module::instance($cm->id);
 
 add_to_log($course->id, 'adaptivequiz', 'view', "view.php?id={$cm->id}", $adaptivequiz->name, $cm->id);
 
-// Print the page header
+// Print the page header.
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-// Output starts here
+// Output starts here.
 echo $OUTPUT->header();
 
-if ($adaptivequiz->intro) { // Conditions to show the intro can change to look for own settings or whatever
+if ($adaptivequiz->intro) { // Conditions to show the intro can change to look for own settings or whatever.
     echo $OUTPUT->box(format_module_intro('adaptivequiz', $adaptivequiz, $cm->id), 'generalbox mod_introbox', 'newmoduleintro');
 }
 
 $renderer = $PAGE->get_renderer('mod_adaptivequiz');
 
-// check if the instance exists
+// check if the instance exists.
 if (has_capability('mod/adaptivequiz:attempt', $context)) {
 
-    // Check if the user has any previous attempts at this activity
+    // Check if the user has any previous attempts at this activity.
     $count = adaptivequiz_count_user_previous_attempts($adaptivequiz->id, $USER->id);
 
     if (adaptivequiz_allowed_attempt($adaptivequiz->attempts, $count)) {
@@ -84,5 +84,5 @@ if (has_capability('mod/adaptivequiz:attempt', $context)) {
 if (has_capability('mod/adaptivequiz:viewreport', $context)) {
     echo $renderer->display_view_report_form($cm->id);
 }
-// Finish the page
+// Finish the page.
 echo $OUTPUT->footer();
