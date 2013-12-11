@@ -132,6 +132,16 @@ class adaptiveattempt {
     }
 
     /**
+     * Answer a string view of a variable for debugging purposes
+     * @param mixed $variable
+     */
+    protected function vardump($variable) {
+        ob_start();
+        var_dump($variable);
+        return ob_get_clean();
+    }
+
+    /**
      * This function returns the debug array
      * @return array array of debugging messages
      */
@@ -364,7 +374,7 @@ class adaptiveattempt {
         $questiontodisplay = 0;
 
         if (empty($questionids)) {
-            $this->print_debug('get_question_ready() - Unable to fetch a question $questionsids:'.print_r($questionids, true));
+            $this->print_debug('get_question_ready() - Unable to fetch a question $questionsids:'.$this->vardump($questionids));
             return false;
         }
         // Select one random question.
@@ -398,7 +408,7 @@ class adaptiveattempt {
 
         // Set class level property to the difficulty level of the question returned from fetchquestion class.
         $this->level = $fetchquestion->get_level();
-        $this->print_debug('get_question_ready() - Question: '.print_r($question, true).' loaded and attempt started. '.
+        $this->print_debug('get_question_ready() - Question: '.$this->vardump($question).' loaded and attempt started. '.
                 'Question_usage_by_activity saved.');
         return true;
     }
@@ -488,12 +498,12 @@ class adaptiveattempt {
             $attempt->id = $id;
             $this->adpqattempt = $attempt;
 
-            $this->print_debug('get_attempt() - new attempt created: '.print_r($attempt, true));
+            $this->print_debug('get_attempt() - new attempt created: '.$this->vardump($attempt));
         } else {
             $attempt = current($attempt);
             $this->adpqattempt = $attempt;
 
-            $this->print_debug('get_attempt() - previous attempt loaded: '.print_r($attempt, true));
+            $this->print_debug('get_attempt() - previous attempt loaded: '.$this->vardump($attempt));
         }
 
         return $attempt;
@@ -508,7 +518,7 @@ class adaptiveattempt {
     public function find_last_quest_used_by_attempt($quba) {
         if (!$quba instanceof question_usage_by_activity) {
             throw new coding_exception('find_last_quest_used_by_attempt() - Argument was not a question_usage_by_activity object',
-                print_r($quba, true));
+                $this->vardump($quba));
         }
 
         // The last slot in the array should be the last question that was attempted (meaning it was either shown to the user

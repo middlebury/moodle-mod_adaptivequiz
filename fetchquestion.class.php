@@ -179,6 +179,16 @@ class fetchquestion {
     }
 
     /**
+     * Answer a string view of a variable for debugging purposes
+     * @param mixed $variable
+     */
+    protected function vardump($variable) {
+        ob_start();
+        var_dump($variable);
+        return ob_get_clean();
+    }
+
+    /**
      * This function returns the debug array
      * @return array - array of debugging messages
      */
@@ -364,7 +374,7 @@ class fetchquestion {
         try {
             $substr = $DB->sql_substr('name', $length);
         } catch (coding_exception $e) {
-            $this->print_debug('retrieve_all_tag_ids() - Missing tag prefix '.print_r($tagprefix, true));
+            $this->print_debug('retrieve_all_tag_ids() - Missing tag prefix '.$this->vardump($tagprefix));
             print_error('missingtagprefix', 'adaptivequiz');
         }
 
@@ -427,7 +437,7 @@ class fetchquestion {
             $records = $DB->get_records_sql_menu($sql, $params);
             return $records;
         } catch (coding_exception $e) {
-            $this->print_debug('retrieve_tags_with_question_count() - Missing tag prefix '.print_r($tagprefix, true));
+            $this->print_debug('retrieve_tags_with_question_count() - Missing tag prefix '.$this->vardump($tagprefix));
             print_error('missingtagprefix', 'adaptivequiz');
         }
     }
@@ -524,7 +534,7 @@ class fetchquestion {
 
         $records = $DB->get_records_sql($query, $params);
 
-        $this->print_debug('find_questions() - question ids returned: '.print_r($records, true));
+        $this->print_debug('find_questions() - question ids returned: '.$this->vardump($records));
 
         return $records;
     }
@@ -539,7 +549,7 @@ class fetchquestion {
         // Check cached result.
         if (!empty($this->questcatids)) {
             $this->print_debug('retrieve_question_categories() - question category ids (from cache): '.
-                print_r($this->questcatids, true));
+                $this->vardump($this->questcatids));
             return $this->questcatids;
         }
 
@@ -550,7 +560,7 @@ class fetchquestion {
         // Cache the results.
         $this->questcatids = $records;
 
-        $this->print_debug('retrieve_question_categories() - question category ids: '.print_r($records, true));
+        $this->print_debug('retrieve_question_categories() - question category ids: '.$this->vardump($records));
 
         return $records;
     }

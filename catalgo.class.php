@@ -126,6 +126,16 @@ class catalgo {
     }
 
     /**
+     * Answer a string view of a variable for debugging purposes
+     * @param mixed $variable
+     */
+    protected function vardump($variable) {
+        ob_start();
+        var_dump($variable);
+        return ob_get_clean();
+    }
+
+    /**
      * This function returns the debug array
      * @return array array of debugging messages
      */
@@ -571,14 +581,14 @@ class catalgo {
         // Check if attempt object has required properties defined.
         if (!isset($attemptobj->lowestlevel) || !isset($attemptobj->highestlevel)) {
             throw new coding_exception('get_current_diff_level: Arg 3 needs to have lowestlevel and highestlevel properties',
-                'Invalid attemptobj of :'.print_r($attemptobj, true));
+                'Invalid attemptobj of :'.$this->vardump($attemptobj));
         }
         // Check if attempt object has required property value types.
         $conditions = !is_int($attemptobj->lowestlevel) || 0 >= $attemptobj->lowestlevel || !is_int($attemptobj->highestlevel)
                 || 0 >= $attemptobj->highestlevel || $attemptobj->lowestlevel >= $attemptobj->highestlevel;
         if ($conditions) {
             throw new coding_exception('get_current_diff_level: Arg 3 lowestlevel and highestlevel properties must be positive '.
-                'integers', 'Invalid attemptobj of :'.print_r($attemptobj, true));
+                'integers', 'Invalid attemptobj of :'.$this->vardump($attemptobj));
         }
 
         return $this->return_current_diff_level($quba, $level, $attemptobj);
