@@ -27,17 +27,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface adaptivequiz_question_statistic {
-    
+
     /**
      * Answer a display-name for this statistic.
-     * 
+     *
      * @return string
      */
     public function get_display_name ();
-    
+
     /**
      * Calculate this statistic for a question's results
-     * 
+     *
      * @param adaptivequiz_question_analyser $question_analyser
      * @return adaptivequiz_question_statistic_result
      */
@@ -57,17 +57,17 @@ interface adaptivequiz_question_statistic {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface adaptivequiz_question_statistic_result {
-    
+
     /**
      * A sortable version of the result.
-     * 
+     *
      * @return mixed string or numeric
      */
     public function sortable ();
-    
+
     /**
      * A printable version of the result.
-     * 
+     *
      * @param numeric $result
      * @return mixed string or numeric
      */

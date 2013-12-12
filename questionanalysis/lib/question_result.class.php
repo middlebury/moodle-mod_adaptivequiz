@@ -27,16 +27,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptivequiz_question_result {
-    
+
     /** @var float $_measured_ability The measured ability of the user who attempted this question */
     protected $_measured_ability = null;
-    
+
     /** @var boolean $_correct True if the user was correct in their answer */
     protected $_correct = null;
-    
+
     /**
      * Constructor - Create a new result.
-     * 
+     *
      * @param float $measured_ability The measured ability (0-1) of the user in this attempt.
      * @param boolean $correct
      * @return void
@@ -47,18 +47,18 @@ class adaptivequiz_question_result {
         $this->_measured_ability = measured_ability;
         $this->_correct = (bool)$correct;
     }
-    
+
     /**
      * Magic method to provide read-only access to our parameters
-     * 
+     *
      * @param $key
      * @return mixed
      */
     public function __get ($key) {
-    	$param = '$_'.$key;
-    	if (isset($this->$param))
-    		return $this->$param;
-    	else
-    		throw new Exception('Unknown property, '.get_class($this).'->'.$key.'.');
+        $param = '$_'.$key;
+        if (isset($this->$param))
+            return $this->$param;
+        else
+            throw new Exception('Unknown property, '.get_class($this).'->'.$key.'.');
     }
 }

@@ -29,24 +29,24 @@ require_once(dirname(__FILE__).'/question_statistic.interface.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptivequiz_times_used_statistic implements adaptivequiz_question_statistic {
-    
+
     /**
      * Answer a display-name for this statistic.
-     * 
+     *
      * @return string
      */
     public function get_display_name () {
-    	return get_string('times_used_display_name', 'adaptivequiz');
+        return get_string('times_used_display_name', 'adaptivequiz');
     }
-    
+
     /**
      * Calculate this statistic for a question's results
-     * 
+     *
      * @param adaptivequiz_question_analyser $question_analyser
      * @return adaptivequiz_question_statistic_result
      */
     public function calculate (adaptivequiz_question_analyser $question_analyser) {
-    	return new adaptivequiz_times_used_statistic_result (count($question_analyser->get_results()));
+        return new adaptivequiz_times_used_statistic_result (count($question_analyser->get_results()));
     }
 }
 
@@ -63,36 +63,36 @@ class adaptivequiz_times_used_statistic implements adaptivequiz_question_statist
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptivequiz_times_used_statistic_result implements adaptivequiz_question_statistic_result {
-    
+
     /** @var int $num_results  */
     protected $num_results = null;
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param int $num_results
      * @return void
      */
     public function __construct ($num_results) {
-    	$this->num_results = $num_results;
+        $this->num_results = $num_results;
     }
-    
+
     /**
      * A sortable version of the result.
-     * 
+     *
      * @return mixed string or numeric
      */
     public function sortable () {
-    	return $this->num_results;
+        return $this->num_results;
     }
-    
+
     /**
      * A printable version of the result.
-     * 
+     *
      * @param numeric $result
      * @return mixed string or numeric
      */
     public function printable () {
-    	return $this->num_results;
+        return $this->num_results;
     }
 }

@@ -29,19 +29,19 @@ require_once(dirname(__FILE__).'/question_statistic.interface.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptivequiz_discrimination_statistic implements adaptivequiz_question_statistic {
-    
+
     /**
      * Answer a display-name for this statistic.
-     * 
+     *
      * @return string
      */
     public function get_display_name () {
-    	return get_string('discrimination_display_name', 'adaptivequiz');
+        return get_string('discrimination_display_name', 'adaptivequiz');
     }
-    
+
     /**
      * Calculate this statistic for a question's results
-     * 
+     *
      * @param adaptivequiz_question_analyser $question_analyser
      * @return adaptivequiz_question_statistic_result
      */
@@ -50,18 +50,18 @@ class adaptivequiz_discrimination_statistic implements adaptivequiz_question_sta
         // the top 27% of test-takers (the upper group) and the bottom 27% of test-takers (the lower group),
         // assuming a normal distribution of scores).
         //
-        // Given that likely have a very sparse data-set we will instead categorize our 
+        // Given that likely have a very sparse data-set we will instead categorize our
         // responses into the upper group if the respondent's overall ability measure minus the measure's standard error
         // is greater than the question's level. Likewise, responses will be categorized into the lower group if the respondent's
         // ability measure plus the measure's standard error is less than the question's level.
         // Responses where the user's ability measure and error-range include the question level will be ignored.
-        
+
         $question_level = $question_analyser->get_question_level_in_logits();
         $upper_group_size = 0;
         $upper_group_correct = 0;
         $lower_group_size = 0;
         $lower_group_correct = 0;
-        
+
         foreach ($question_analyser->get_results() as $result) {
             // Upper group
             if ($result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits() > $question_level) {
@@ -78,13 +78,13 @@ class adaptivequiz_discrimination_statistic implements adaptivequiz_question_sta
                 }
             }
         }
-        
+
         // We need at least one result in the upper and lower groups
         if ($upper_group_size > 0 && $lower_group_size > 0) {
             $proportion_upper = $upper_group_correct / $upper_group_size;
             $proportion_lower = $lower_group_correct / $lower_group_size;
             $discrimination = $proportion_upper - $proportion_lower;
-            return new adaptivequiz_discrimination_statistic_result ($discrimination); 
+            return new adaptivequiz_discrimination_statistic_result ($discrimination);
         }
         // If we don't have any responses in the upper or lower group, then we don't have a meaningful result
         else {
@@ -106,36 +106,36 @@ class adaptivequiz_discrimination_statistic implements adaptivequiz_question_sta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptivequiz_discrimination_statistic_result implements adaptivequiz_question_statistic_result {
-    
+
     /** @var float $discrimination  */
     protected $discrimination = null;
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param float $discrimination
      * @return void
      */
     public function __construct ($discrimination) {
-    	$this->discrimination = $discrimination;
+        $this->discrimination = $discrimination;
     }
-    
+
     /**
      * A sortable version of the result.
-     * 
+     *
      * @return mixed string or numeric
      */
     public function sortable () {
         if (is_null($this->discrimination)) {
             return -2;
         } else {
-        	return $this->discrimination;
+            return $this->discrimination;
         }
     }
-    
+
     /**
      * A printable version of the result.
-     * 
+     *
      * @param numeric $result
      * @return mixed string or numeric
      */
@@ -143,7 +143,7 @@ class adaptivequiz_discrimination_statistic_result implements adaptivequiz_quest
         if (is_null($this->discrimination)) {
             return 'n/a';
         } else {
-        	return round($this->discrimination, 3);
+            return round($this->discrimination, 3);
         }
     }
 }

@@ -101,7 +101,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         return $html;
     }
-    
+
     /**
      * This function displays a form with a button to view the question analysis report
      * @param string $cmid: course module id

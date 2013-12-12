@@ -445,7 +445,7 @@ class catalgo {
         }
         return ( 1 / ( 1 + exp(0 - $logit) ) ) - 0.5;
     }
-    
+
     /**
      * Convert a logit value to a fraction between 0 and 1.
      * @param float $logit logit value

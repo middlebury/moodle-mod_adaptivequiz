@@ -28,31 +28,31 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptivequiz_question_analyser {
-    
+
     /** @var question_definition $question_definition The question  */
     protected $question_definition = null;
-    
+
     /** @var float $question_level The question level */
     protected $question_level = null;
-    
+
     /** @var float $lowest_level The lowest question-level in the adaptive quiz */
     protected $lowest_level = null;
-    
+
     /** @var float $highest_level The highest question-level in the adaptive quiz */
     protected $highest_level = null;
-    
+
     /** @var array $results An array of the re objects */
     protected $results = array();
-    
+
     /** @var array $statistics An array of the adaptivequiz_question_statistic added to this report */
     protected $statistics = array();
-    
+
     /** @var array $statistic_results An array of the adaptivequiz_question_statistic_result added to this report */
     protected $statistic_results = array();
-    
+
     /**
      * Constructor - Create a new analyser.
-     * 
+     *
      * @param question_definition $question
      * @param float $question_level The level (0-1) of the question.
      * @return void
@@ -63,10 +63,10 @@ class adaptivequiz_question_analyser {
         $this->lowest_level = $lowest_level;
         $this->highest_level = $highest_level;
     }
-    
+
     /**
      * Add an usage result for this question.
-     * 
+     *
      * @param adaptivequiz_attempt_score $score The user's score on this attempt.
      * @param boolean $correct True if the user answered correctly.
      * @return void
@@ -76,78 +76,78 @@ class adaptivequiz_question_analyser {
         $result->user = $user;
         $result->score = $score;
         $result->correct = $correct;
-    	$this->results[] = $result;
+        $this->results[] = $result;
     }
-    
+
     /**
      * Answer the question definition for this question.
-     * 
+     *
      * @return question_definition
      */
     public function get_question_definition () {
-    	return $this->question_definition;
+        return $this->question_definition;
     }
-    
+
     /**
      * Answer the question level for this question.
-     * 
+     *
      * @return int
      */
     public function get_question_level () {
-    	return $this->question_level;
+        return $this->question_level;
     }
-    
+
     /**
      * Answer the question level for this question in logits.
-     * 
+     *
      * @return int
      */
     public function get_question_level_in_logits () {
-    	return catalgo::convert_linear_to_logit($this->question_level, $this->lowest_level, $this->highest_level);
+        return catalgo::convert_linear_to_logit($this->question_level, $this->lowest_level, $this->highest_level);
     }
-    
+
     /**
      * Answer the results for this question
-     * 
+     *
      * @return array An array of stdClass objects.
      */
     public function get_results () {
-    	return $this->results;
+        return $this->results;
     }
-    
+
     /**
      * Add and calculate a statistic.
-     * 
+     *
      * @param string $key A key to identify this statistic for sorting and printing.
      * @param adaptivequiz_question_statistic $statistic
      * @return void
      */
     public function add_statistic ($key, adaptivequiz_question_statistic $statistic) {
-    	if (!empty($this->statistics[$key]))
-    	    throw new InvalidArgumentException("Statistic key '$key' is already in use.");
-    	$this->statistics[$key] = $statistic;
-    	$this->statistic_results[$key] = $statistic->calculate($this);
+        if (!empty($this->statistics[$key]))
+            throw new InvalidArgumentException("Statistic key '$key' is already in use.");
+        $this->statistics[$key] = $statistic;
+        $this->statistic_results[$key] = $statistic->calculate($this);
     }
-    
+
     /**
      * Answer a statistic result.
-     * 
+     *
      * @param string $key A key to identify this statistic.
      * @return adaptivequiz_question_statistic_result
      */
     public function get_statistic_result ($key) {
-    	if (empty($this->statistic_results[$key]))
-    	    throw new InvalidArgumentException("Unknown statistic key '$key'.");
+        if (empty($this->statistic_results[$key]))
+            throw new InvalidArgumentException("Unknown statistic key '$key'.");
         return $this->statistic_results[$key];
     }
-    
+
     /**
      * Utility function to map a logit value to this question's scale
-     * 
+     *
      * @param $logit
      * @return float Scaled value
      */
     public function map_logit_to_scale ($logit) {
-    	return catalgo::map_logit_to_scale($logit, $this->highest_level, $this->lowest_level);
+        return catalgo::map_logit_to_scale($logit, $this->highest_level, $this->lowest_level);
     }
 }

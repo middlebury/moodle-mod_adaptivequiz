@@ -29,19 +29,19 @@ require_once(dirname(__FILE__).'/question_statistic.interface.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic {
-    
+
     /**
      * Answer a display-name for this statistic.
-     * 
+     *
      * @return string
      */
     public function get_display_name () {
-    	return get_string('answers_display_name', 'adaptivequiz');
+        return get_string('answers_display_name', 'adaptivequiz');
     }
-    
+
     /**
      * Calculate this statistic for a question's results
-     * 
+     *
      * @param adaptivequiz_question_analyser $question_analyser
      * @return adaptivequiz_question_statistic_result
      */
@@ -49,11 +49,11 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         // Sort the results
         $results = $question_analyser->get_results();
         foreach ($results as $result) {
-    	    $sort_keys[] = $result->score->measured_ability_in_logits();
-    	}
-    	array_multisort($sort_keys, SORT_NUMERIC, SORT_DESC, $results);
-    	
-    	ob_start();
+            $sort_keys[] = $result->score->measured_ability_in_logits();
+        }
+        array_multisort($sort_keys, SORT_NUMERIC, SORT_DESC, $results);
+
+        ob_start();
 //         print "<pre>Question level (logit): ".round($question_analyser->get_question_level_in_logits(), 2)."</pre>";
         foreach ($results as $result) {
             if ($result->correct) {
@@ -72,8 +72,8 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
 //             print "STDERR (logit): ".round($result->score->standard_error_in_logits(), 2)."\n";
             print "</pre>";
         }
-    	
-    	return new adaptivequiz_answers_statistic_result (count($results), ob_get_clean());
+
+        return new adaptivequiz_answers_statistic_result (count($results), ob_get_clean());
     }
 }
 
@@ -90,40 +90,40 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptivequiz_answers_statistic_result implements adaptivequiz_question_statistic_result {
-    
+
     /** @var int $num_results  */
     protected $num_results = null;
-    
+
     /** @var string $printable  */
     protected $printable = null;
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param array $num_results
      * @return void
      */
     public function __construct ($num_results, $printable) {
-    	$this->num_results = $num_results;
-    	$this->printable = $printable;
+        $this->num_results = $num_results;
+        $this->printable = $printable;
     }
-    
+
     /**
      * A sortable version of the result.
-     * 
+     *
      * @return mixed string or numeric
      */
     public function sortable () {
-    	return $this->num_results;
+        return $this->num_results;
     }
-    
+
     /**
      * A printable version of the result.
-     * 
+     *
      * @param numeric $result
      * @return mixed string or numeric
      */
     public function printable () {
-     	return $this->printable;
+        return $this->printable;
     }
 }

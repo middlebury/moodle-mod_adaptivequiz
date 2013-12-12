@@ -64,7 +64,7 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
     public function print_footer() {
         return $this->footer();
     }
-    
+
     /**
      * This function generates the HTML required to display the initial reports table
      * @param array $records attempt records from adaptivequiz_attempt table
@@ -93,7 +93,7 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
      */
     public function format_report_table_headers($headers, $cm, $baseurl, $sort, $sortdir) {
         global $OUTPUT;
-        
+
         /* Create header links */
         $header_contents = array();
         foreach ($headers as $col_key => $col_name) {
@@ -113,9 +113,9 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
                 $col_seperator = '';
                 $col_icon = '';
             }
-            
+
             $url = new moodle_url($baseurl, array('cmid' => $cm->id, 'sort' => $col_key, 'sortdir' => $col_sortdir));
-            
+
             $header_contents[] = html_writer::link($url, $col_name.$col_seperator.$col_icon);
         }
         return $header_contents;
@@ -137,7 +137,7 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
         $output .= $OUTPUT->paging_bar($totalrecords, $page, $perpage, $url);
         return $output;
     }
-    
+
     /**
      * This function generates the HTML required to display the single-question report
      * @param array $headers The labels for the report
@@ -151,23 +151,23 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
         $table->align = array('left', 'left');
         $table->size = array('200px', '');
         $table->width = '100%';
-        
+
         while ($stat_name = array_shift($headers)) {
             $stat_value = array_shift($record);
             $table->data[] = array($stat_name, $stat_value);
         }
-        
+
         return html_writer::table($table);
     }
-    
+
     /**
      * Generate an HTML view of a single question.
-     * 
+     *
      * @param  $question_analyzer
      * @return string HTML markup
      */
     public function get_question_details (adaptivequiz_question_analyser $question_analyzer, $context) {
-    	// Setup display options
+        // Setup display options
         $options = new question_display_options();
         $options->readonly = true;
         $options->flags = question_display_options::HIDDEN;
@@ -175,14 +175,14 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
         $options->rightanswer = question_display_options::VISIBLE;
         $options->correctness = question_display_options::VISIBLE;
         $options->numpartscorrect = question_display_options::VISIBLE;
-        
+
         // Init question usage and set default behaviour of usage
         $quba = question_engine::make_questions_usage_by_activity('mod_adaptivequiz', $context);
         $quba->set_preferred_behaviour('deferredfeedback');
         $quba->add_question($question_analyzer->get_question_definition());
         $quba->start_question(1);
         $quba->process_action(1, $quba->get_correct_response(1));
-        
+
         return $quba->render_question(1, $options);
     }
 }
