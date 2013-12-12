@@ -29,28 +29,28 @@
  */
 class adaptivequiz_attempt_score {
 
-    /** @var float $measured_ability_logits The measured ability of the attempt in logits. */
-    protected $measured_ability_logits = null;
+    /** @var float $measuredabilitylogits The measured ability of the attempt in logits. */
+    protected $measuredabilitylogits = null;
 
-    /** @var float $standard_error_logits The standard error in the score in logits. */
-    protected $standard_error_logits = null;
+    /** @var float $standarderrorlogits The standard error in the score in logits. */
+    protected $standarderrorlogits = null;
 
-    /** @var float $lowest_level The lowest level of question in the adaptive quiz. */
-    protected $lowest_level = null;
+    /** @var float $lowestlevel The lowest level of question in the adaptive quiz. */
+    protected $lowestlevel = null;
 
-    /** @var float $highest_level The highest level of question in the adaptive quiz. */
-    protected $highest_level = null;
+    /** @var float $highestlevel The highest level of question in the adaptive quiz. */
+    protected $highestlevel = null;
 
     /**
      * Constructor
      *
      * @return void
      */
-    public function __construct ($measured_ability_logits, $standard_error_logits, $lowest_level, $highest_level) {
-        $this->measured_ability_logits = $measured_ability_logits;
-        $this->standard_error_logits = $standard_error_logits;
-        $this->lowest_level = $lowest_level;
-        $this->highest_level = $highest_level;
+    public function __construct ($measuredabilitylogits, $standarderrorlogits, $lowestlevel, $highestlevel) {
+        $this->measuredabilitylogits = $measuredabilitylogits;
+        $this->standarderrorlogits = $standarderrorlogits;
+        $this->lowestlevel = $lowestlevel;
+        $this->highestlevel = $highestlevel;
     }
 
     /**
@@ -59,7 +59,7 @@ class adaptivequiz_attempt_score {
      * @return float
      */
     public function measured_ability_in_logits () {
-        return $this->measured_ability_logits;
+        return $this->measuredabilitylogits;
     }
 
     /**
@@ -68,7 +68,7 @@ class adaptivequiz_attempt_score {
      * @return float
      */
     public function standard_error_in_logits () {
-        return $this->standard_error_logits;
+        return $this->standarderrorlogits;
     }
 
     /**
@@ -77,7 +77,7 @@ class adaptivequiz_attempt_score {
      * @return float
      */
     public function measured_ability_in_fraction () {
-        return catalgo::convert_logit_to_fraction($this->measured_ability_logits);
+        return catalgo::convert_logit_to_fraction($this->measuredabilitylogits);
     }
 
     /**
@@ -86,7 +86,7 @@ class adaptivequiz_attempt_score {
      * @return float
      */
     public function standard_error_in_fraction () {
-        return catalgo::convert_logit_to_percent($this->standard_error_logits);
+        return catalgo::convert_logit_to_percent($this->standarderrorlogits);
     }
 
     /**
@@ -95,7 +95,7 @@ class adaptivequiz_attempt_score {
      * @return float
      */
     public function measured_ability_in_scale () {
-        return catalgo::map_logit_to_scale($this->measured_ability_logits, $this->highest_level, $this->lowest_level);
+        return catalgo::map_logit_to_scale($this->measuredabilitylogits, $this->highestlevel, $this->lowestlevel);
     }
 
     /**
@@ -104,6 +104,6 @@ class adaptivequiz_attempt_score {
      * @return float
      */
     public function standard_error_in_scale () {
-        return catalgo::convert_logit_to_percent($this->standard_error_logits) * ($this->highest_level - $this->lowest_level);
+        return catalgo::convert_logit_to_percent($this->standarderrorlogits) * ($this->highestlevel - $this->lowestlevel);
     }
 }

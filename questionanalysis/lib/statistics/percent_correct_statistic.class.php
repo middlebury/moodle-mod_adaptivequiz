@@ -42,13 +42,13 @@ class adaptivequiz_percent_correct_statistic implements adaptivequiz_question_st
     /**
      * Calculate this statistic for a question's results
      *
-     * @param adaptivequiz_question_analyser $question_analyser
+     * @param adaptivequiz_question_analyser $analyser
      * @return adaptivequiz_question_statistic_result
      */
-    public function calculate (adaptivequiz_question_analyser $question_analyser) {
+    public function calculate (adaptivequiz_question_analyser $analyser) {
         $correct = 0;
         $total = 0;
-        foreach ($question_analyser->get_results() as $result) {
+        foreach ($analyser->get_results() as $result) {
             $total++;
             if ($result->correct) {
                 $correct++;
@@ -76,17 +76,17 @@ class adaptivequiz_percent_correct_statistic implements adaptivequiz_question_st
  */
 class adaptivequiz_percent_correct_statistic_result implements adaptivequiz_question_statistic_result {
 
-    /** @var float $percent_correct  */
-    protected $percent_correct = null;
+    /** @var float $fraction  */
+    protected $fraction = null;
 
     /**
      * Constructor
      *
-     * @param float $percent_correct
+     * @param float $fraction
      * @return void
      */
-    public function __construct ($percent_correct) {
-        $this->percent_correct = $percent_correct;
+    public function __construct ($fraction) {
+        $this->fraction = $fraction;
     }
 
     /**
@@ -95,7 +95,7 @@ class adaptivequiz_percent_correct_statistic_result implements adaptivequiz_ques
      * @return mixed string or numeric
      */
     public function sortable () {
-        return $this->percent_correct;
+        return $this->fraction;
     }
 
     /**
@@ -105,6 +105,6 @@ class adaptivequiz_percent_correct_statistic_result implements adaptivequiz_ques
      * @return mixed string or numeric
      */
     public function printable () {
-        return round($this->percent_correct * 100).'%';
+        return round($this->fraction * 100).'%';
     }
 }

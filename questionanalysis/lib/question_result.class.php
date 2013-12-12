@@ -28,8 +28,8 @@
  */
 class adaptivequiz_question_result {
 
-    /** @var float $_measured_ability The measured ability of the user who attempted this question */
-    protected $_measured_ability = null;
+    /** @var float $_measuredability The measured ability of the user who attempted this question */
+    protected $_measuredability = null;
 
     /** @var boolean $_correct True if the user was correct in their answer */
     protected $_correct = null;
@@ -37,14 +37,14 @@ class adaptivequiz_question_result {
     /**
      * Constructor - Create a new result.
      *
-     * @param float $measured_ability The measured ability (0-1) of the user in this attempt.
+     * @param float $measuredability The measured ability (0-1) of the user in this attempt.
      * @param boolean $correct
      * @return void
      */
-    public function __construct ($measured_ability, $correct) {
-        if (!is_numeric($measured_ability) || $measured_ability < 0 || $measured_ability > 1)
-            throw new InvalidArgumentException('$measured_ability must be a float between 0 and 1.');
-        $this->_measured_ability = measured_ability;
+    public function __construct ($measuredability, $correct) {
+        if (!is_numeric($measuredability) || $measuredability < 0 || $measuredability > 1)
+            throw new InvalidArgumentException('$measuredability must be a float between 0 and 1.');
+        $this->_measuredability = $measuredability;
         $this->_correct = (bool)$correct;
     }
 

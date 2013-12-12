@@ -84,13 +84,13 @@ class adaptivequiz_quiz_analyser {
                 // Create a question-analyser for the question
                 if (empty($this->questions[$question->id])) {
                     $tags = tag_get_tags_array('question', $question->id);
-                    $question_difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-                    $this->questions[$question->id] = new adaptivequiz_question_analyser($question, $question_difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+                    $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
+                    $this->questions[$question->id] = new adaptivequiz_question_analyser($question, $difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
                 }
 
                 // Record the attempt score and the individual question result
-                $question_correct = ($quba->get_question_mark($slot) > 0);
-                $this->questions[$question->id]->add_result($user, $score, $question_correct);
+                $correct = ($quba->get_question_mark($slot) > 0);
+                $this->questions[$question->id]->add_result($user, $score, $correct);
             }
         }
     }
@@ -130,11 +130,11 @@ class adaptivequiz_quiz_analyser {
     /**
      * Return an array of table records, sorted by the statisic given
      *
-     * @param optional string $sort_statistic Which statistic to sort on.
-     * @param optional string $sort_direction ASC or DESC.
+     * @param optional string $sort Which statistic to sort on.
+     * @param optional string $direction ASC or DESC.
      * @return array
      */
-    public function get_records ($sort_statistic = null, $sort_direction = 'ASC') {
+    public function get_records ($sort = null, $direction = 'ASC') {
         $records = array();
 
         foreach ($this->questions as $question) {
@@ -148,30 +148,30 @@ class adaptivequiz_quiz_analyser {
             $records[] = $record;
         }
 
-        if ($sort_direction != 'ASC' && $sort_direction != 'DESC') {
-            throw new InvalidArgumentException('Invalid sort direction. Must be SORT_ASC or SORT_DESC, \''.$sort_direction.'\' given.');
+        if ($direction != 'ASC' && $direction != 'DESC') {
+            throw new InvalidArgumentException('Invalid sort direction. Must be SORT_ASC or SORT_DESC, \''.$direction.'\' given.');
         }
-        if ($sort_direction == 'DESC') {
+        if ($direction == 'DESC') {
             $direction = SORT_DESC;
         } else {
             $direction = SORT_ASC;
         }
 
-        if (!is_null($sort_statistic)) {
-            $sort_keys = array();
+        if (!is_null($sort)) {
+            $sortkeys = array();
             foreach ($this->questions as $question) {
-                if ($sort_statistic == 'name') {
-                    $sort_keys[] = $question->get_question_definition()->name;
-                    $sort_type = SORT_REGULAR;
-                } else if ($sort_statistic == 'level') {
-                    $sort_keys[] = $question->get_question_level();
-                    $sort_type = SORT_NUMERIC;
+                if ($sort == 'name') {
+                    $sortkeys[] = $question->get_question_definition()->name;
+                    $sorttype = SORT_REGULAR;
+                } else if ($sort == 'level') {
+                    $sortkeys[] = $question->get_question_level();
+                    $sorttype = SORT_NUMERIC;
                 } else {
-                    $sort_keys[] = $question->get_statistic_result($sort_statistic)->sortable();
-                    $sort_type = SORT_NUMERIC;
+                    $sortkeys[] = $question->get_statistic_result($sort)->sortable();
+                    $sorttype = SORT_NUMERIC;
                 }
             }
-            array_multisort($sort_keys, $direction, $sort_type, $records);
+            array_multisort($sortkeys, $direction, $sorttype, $records);
         }
 
         return $records;

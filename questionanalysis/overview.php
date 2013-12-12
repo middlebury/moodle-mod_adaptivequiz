@@ -60,14 +60,14 @@ $PAGE->set_context($context);
 $output = $PAGE->get_renderer('mod_adaptivequiz_questions');
 
 
-$quiz_analyser = new adaptivequiz_quiz_analyser();
-$quiz_analyser->load_attempts($cm->instance);
-$quiz_analyser->add_statistic('times_used', new adaptivequiz_times_used_statistic());
-$quiz_analyser->add_statistic('percent_correct', new adaptivequiz_percent_correct_statistic());
-$quiz_analyser->add_statistic('discrimination', new adaptivequiz_discrimination_statistic());
+$quizanalyzer = new adaptivequiz_quiz_analyser();
+$quizanalyzer->load_attempts($cm->instance);
+$quizanalyzer->add_statistic('times_used', new adaptivequiz_times_used_statistic());
+$quizanalyzer->add_statistic('percent_correct', new adaptivequiz_percent_correct_statistic());
+$quizanalyzer->add_statistic('discrimination', new adaptivequiz_discrimination_statistic());
 
-$headers = $quiz_analyser->get_header();
-$records = $quiz_analyser->get_records($sort, $sortdir);
+$headers = $quizanalyzer->get_header();
+$records = $quizanalyzer->get_records($sort, $sortdir);
 $recordscount = count($records);
 $records = array_slice($records, $page * ADAPTIVEQUIZ_REC_PER_PAGE, ADAPTIVEQUIZ_REC_PER_PAGE);
 

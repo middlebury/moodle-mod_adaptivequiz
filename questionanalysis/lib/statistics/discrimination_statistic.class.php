@@ -42,10 +42,10 @@ class adaptivequiz_discrimination_statistic implements adaptivequiz_question_sta
     /**
      * Calculate this statistic for a question's results
      *
-     * @param adaptivequiz_question_analyser $question_analyser
+     * @param adaptivequiz_question_analyser $analyser
      * @return adaptivequiz_question_statistic_result
      */
-    public function calculate (adaptivequiz_question_analyser $question_analyser) {
+    public function calculate (adaptivequiz_question_analyser $analyser) {
         // Discrimination is generally defined as comparing the results of two sub-groups,
         // the top 27% of test-takers (the upper group) and the bottom 27% of test-takers (the lower group),
         // assuming a normal distribution of scores).
@@ -56,34 +56,34 @@ class adaptivequiz_discrimination_statistic implements adaptivequiz_question_sta
         // ability measure plus the measure's standard error is less than the question's level.
         // Responses where the user's ability measure and error-range include the question level will be ignored.
 
-        $question_level = $question_analyser->get_question_level_in_logits();
-        $upper_group_size = 0;
-        $upper_group_correct = 0;
-        $lower_group_size = 0;
-        $lower_group_correct = 0;
+        $level = $analyser->get_question_level_in_logits();
+        $uppergroupsize = 0;
+        $uppergroupcorrect = 0;
+        $lowergroupsize = 0;
+        $lowergroupcorrect = 0;
 
-        foreach ($question_analyser->get_results() as $result) {
+        foreach ($analyser->get_results() as $result) {
             // Upper group
-            if ($result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits() > $question_level) {
-                $upper_group_size++;
+            if ($result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits() > $level) {
+                $uppergroupsize++;
                 if ($result->correct) {
-                    $upper_group_correct++;
+                    $uppergroupcorrect++;
                 }
             }
             // Lower Group
-            else if ($result->score->measured_ability_in_logits() + $result->score->standard_error_in_logits() < $question_level) {
-                $lower_group_size++;
+            else if ($result->score->measured_ability_in_logits() + $result->score->standard_error_in_logits() < $level) {
+                $lowergroupsize++;
                 if ($result->correct) {
-                    $lower_group_correct++;
+                    $lowergroupcorrect++;
                 }
             }
         }
 
         // We need at least one result in the upper and lower groups
-        if ($upper_group_size > 0 && $lower_group_size > 0) {
-            $proportion_upper = $upper_group_correct / $upper_group_size;
-            $proportion_lower = $lower_group_correct / $lower_group_size;
-            $discrimination = $proportion_upper - $proportion_lower;
+        if ($uppergroupsize > 0 && $lowergroupsize > 0) {
+            $upperproportion = $uppergroupcorrect / $uppergroupsize;
+            $lowerproportion = $lowergroupcorrect / $lowergroupsize;
+            $discrimination = $upperproportion - $lowerproportion;
             return new adaptivequiz_discrimination_statistic_result ($discrimination);
         }
         // If we don't have any responses in the upper or lower group, then we don't have a meaningful result

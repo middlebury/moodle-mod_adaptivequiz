@@ -57,25 +57,25 @@ require_capability('mod/adaptivequiz:viewreport', $context);
 
 $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*');
 
-$quiz_analyzer = new adaptivequiz_quiz_analyser();
-$quiz_analyzer->load_attempts($cm->instance);
-$question_analyzer = $quiz_analyzer->get_question_analyzer($qid);
-$question_definition = $question_analyzer->get_question_definition();
+$quizanalyzer = new adaptivequiz_quiz_analyser();
+$quizanalyzer->load_attempts($cm->instance);
+$questionanalyzer = $quizanalyzer->get_question_analyzer($qid);
+$definition = $questionanalyzer->get_question_definition();
 
 $PAGE->set_url('/mod/adaptivequiz/questionanalysis/single.php', array('cmid' => $cm->id, 'qid' => $qid));
-$PAGE->set_title(format_string($question_definition->name));
+$PAGE->set_title(format_string($definition->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 $output = $PAGE->get_renderer('mod_adaptivequiz_questions');
 
 
-$quiz_analyzer->add_statistic('times_used', new adaptivequiz_times_used_statistic());
-$quiz_analyzer->add_statistic('percent_correct', new adaptivequiz_percent_correct_statistic());
-$quiz_analyzer->add_statistic('discrimination', new adaptivequiz_discrimination_statistic());
-$quiz_analyzer->add_statistic('answers', new adaptivequiz_answers_statistic());
+$quizanalyzer->add_statistic('times_used', new adaptivequiz_times_used_statistic());
+$quizanalyzer->add_statistic('percent_correct', new adaptivequiz_percent_correct_statistic());
+$quizanalyzer->add_statistic('discrimination', new adaptivequiz_discrimination_statistic());
+$quizanalyzer->add_statistic('answers', new adaptivequiz_answers_statistic());
 
-$headers = $quiz_analyzer->get_header();
-$record = $quiz_analyzer->get_record($qid);
+$headers = $quizanalyzer->get_header();
+$record = $quizanalyzer->get_record($qid);
 
 // Get rid of the question id and name columns:
 unset($headers['id'], $headers['name']);
@@ -87,17 +87,17 @@ $header = $output->print_header();
 $title = $output->heading(get_string('question_report', 'adaptivequiz'));
 /* return link */
 $url = new moodle_url('/mod/adaptivequiz/questionanalysis/overview.php', array('cmid' => $cm->id, 'sort' => $sort, 'sortdir' => $sortdir, 'page' => $page));
-$return_link = html_writer::link($url, get_string('back_to_all_questions', 'adaptivequiz'));
+$returnlink = html_writer::link($url, get_string('back_to_all_questions', 'adaptivequiz'));
 
 /* Output attempts table */
-$question_details = $output->get_question_details($question_analyzer, $context);
+$details = $output->get_question_details($questionanalyzer, $context);
 $reporttable = $output->get_single_question_report($headers, $record, $cm, '/mod/adaptivequiz/questionanalysis/overview.php', $sort, $sortdir);
 /* Output footer information */
 $footer = $output->print_footer();
 
 echo $header;
-echo $return_link;
+echo $returnlink;
 echo $title;
-echo $question_details;
+echo $details;
 echo $reporttable;
 echo $footer;

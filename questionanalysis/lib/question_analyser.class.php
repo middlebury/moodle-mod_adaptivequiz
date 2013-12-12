@@ -29,17 +29,17 @@
  */
 class adaptivequiz_question_analyser {
 
-    /** @var question_definition $question_definition The question  */
-    protected $question_definition = null;
+    /** @var question_definition $definition The question  */
+    protected $definition = null;
 
-    /** @var float $question_level The question level */
-    protected $question_level = null;
+    /** @var float $level The question level */
+    protected $level = null;
 
-    /** @var float $lowest_level The lowest question-level in the adaptive quiz */
-    protected $lowest_level = null;
+    /** @var float $lowestlevel The lowest question-level in the adaptive quiz */
+    protected $lowestlevel = null;
 
-    /** @var float $highest_level The highest question-level in the adaptive quiz */
-    protected $highest_level = null;
+    /** @var float $highestlevel The highest question-level in the adaptive quiz */
+    protected $highestlevel = null;
 
     /** @var array $results An array of the re objects */
     protected $results = array();
@@ -47,21 +47,21 @@ class adaptivequiz_question_analyser {
     /** @var array $statistics An array of the adaptivequiz_question_statistic added to this report */
     protected $statistics = array();
 
-    /** @var array $statistic_results An array of the adaptivequiz_question_statistic_result added to this report */
-    protected $statistic_results = array();
+    /** @var array $statisticresults An array of the adaptivequiz_question_statistic_result added to this report */
+    protected $statisticresults = array();
 
     /**
      * Constructor - Create a new analyser.
      *
-     * @param question_definition $question
-     * @param float $question_level The level (0-1) of the question.
+     * @param question_definition $definition
+     * @param float $level The level (0-1) of the question.
      * @return void
      */
-    public function __construct (question_definition $question_definition, $question_level, $lowest_level, $highest_level) {
-        $this->question_definition = $question_definition;
-        $this->question_level = $question_level;
-        $this->lowest_level = $lowest_level;
-        $this->highest_level = $highest_level;
+    public function __construct (question_definition $definition, $level, $lowestlevel, $highestlevel) {
+        $this->definition = $definition;
+        $this->level = $level;
+        $this->lowestlevel = $lowestlevel;
+        $this->highestlevel = $highestlevel;
     }
 
     /**
@@ -85,7 +85,7 @@ class adaptivequiz_question_analyser {
      * @return question_definition
      */
     public function get_question_definition () {
-        return $this->question_definition;
+        return $this->definition;
     }
 
     /**
@@ -94,7 +94,7 @@ class adaptivequiz_question_analyser {
      * @return int
      */
     public function get_question_level () {
-        return $this->question_level;
+        return $this->level;
     }
 
     /**
@@ -103,7 +103,7 @@ class adaptivequiz_question_analyser {
      * @return int
      */
     public function get_question_level_in_logits () {
-        return catalgo::convert_linear_to_logit($this->question_level, $this->lowest_level, $this->highest_level);
+        return catalgo::convert_linear_to_logit($this->level, $this->lowestlevel, $this->highestlevel);
     }
 
     /**
@@ -126,7 +126,7 @@ class adaptivequiz_question_analyser {
         if (!empty($this->statistics[$key]))
             throw new InvalidArgumentException("Statistic key '$key' is already in use.");
         $this->statistics[$key] = $statistic;
-        $this->statistic_results[$key] = $statistic->calculate($this);
+        $this->statisticresults[$key] = $statistic->calculate($this);
     }
 
     /**
@@ -136,9 +136,9 @@ class adaptivequiz_question_analyser {
      * @return adaptivequiz_question_statistic_result
      */
     public function get_statistic_result ($key) {
-        if (empty($this->statistic_results[$key]))
+        if (empty($this->statisticresults[$key]))
             throw new InvalidArgumentException("Unknown statistic key '$key'.");
-        return $this->statistic_results[$key];
+        return $this->statisticresults[$key];
     }
 
     /**
@@ -148,6 +148,6 @@ class adaptivequiz_question_analyser {
      * @return float Scaled value
      */
     public function map_logit_to_scale ($logit) {
-        return catalgo::map_logit_to_scale($logit, $this->highest_level, $this->lowest_level);
+        return catalgo::map_logit_to_scale($logit, $this->highestlevel, $this->lowestlevel);
     }
 }

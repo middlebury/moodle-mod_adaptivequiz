@@ -38,10 +38,10 @@ interface adaptivequiz_question_statistic {
     /**
      * Calculate this statistic for a question's results
      *
-     * @param adaptivequiz_question_analyser $question_analyser
+     * @param adaptivequiz_question_analyser $analyser
      * @return adaptivequiz_question_statistic_result
      */
-    public function calculate (adaptivequiz_question_analyser $question_analyser);
+    public function calculate (adaptivequiz_question_analyser $analyser);
 }
 
 /**

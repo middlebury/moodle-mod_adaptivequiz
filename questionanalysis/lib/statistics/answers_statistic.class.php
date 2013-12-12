@@ -42,28 +42,28 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
     /**
      * Calculate this statistic for a question's results
      *
-     * @param adaptivequiz_question_analyser $question_analyser
+     * @param adaptivequiz_question_analyser $analyser
      * @return adaptivequiz_question_statistic_result
      */
-    public function calculate (adaptivequiz_question_analyser $question_analyser) {
+    public function calculate (adaptivequiz_question_analyser $analyser) {
         // Sort the results
-        $results = $question_analyser->get_results();
+        $results = $analyser->get_results();
         foreach ($results as $result) {
-            $sort_keys[] = $result->score->measured_ability_in_logits();
+            $sortkeys[] = $result->score->measured_ability_in_logits();
         }
-        array_multisort($sort_keys, SORT_NUMERIC, SORT_DESC, $results);
+        array_multisort($sortkeys, SORT_NUMERIC, SORT_DESC, $results);
 
         ob_start();
-//         print "<pre>Question level (logit): ".round($question_analyser->get_question_level_in_logits(), 2)."</pre>";
+//         print "<pre>Question level (logit): ".round($analyser->get_question_level_in_logits(), 2)."</pre>";
         foreach ($results as $result) {
             if ($result->correct) {
                 // If the user answered correctly, the result is in-range if their measured ability + stderr is >= the question level.
-                $in_range = ($result->score->measured_ability_in_logits() + $result->score->standard_error_in_logits() >= $question_analyser->get_question_level_in_logits());
+                $inrange = ($result->score->measured_ability_in_logits() + $result->score->standard_error_in_logits() >= $analyser->get_question_level_in_logits());
             } else {
                 // If the user answered incorrectly, the result is in-range if their measured ability - stderr is <= the question level.
-                $in_range = ($result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits() <= $question_analyser->get_question_level_in_logits());
+                $inrange = ($result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits() <= $analyser->get_question_level_in_logits());
             }
-            print "<pre style=\"color: ".(($result->correct)?"green":"red")."; ".(($in_range)?"":"font-weight: bold;")."\">";
+            print "<pre style=\"color: ".(($result->correct)?"green":"red")."; ".(($inrange)?"":"font-weight: bold;")."\">";
             print "User: ".$result->user->firstname." ".$result->user->lastname."\n";
             print "Result: ".(($result->correct)?"correct":"incorrect")."\n";
             print "Person ability (scaled): ".round($result->score->measured_ability_in_scale(), 2)."\n";
@@ -91,8 +91,8 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
  */
 class adaptivequiz_answers_statistic_result implements adaptivequiz_question_statistic_result {
 
-    /** @var int $num_results  */
-    protected $num_results = null;
+    /** @var int $count  */
+    protected $count = null;
 
     /** @var string $printable  */
     protected $printable = null;
@@ -100,11 +100,11 @@ class adaptivequiz_answers_statistic_result implements adaptivequiz_question_sta
     /**
      * Constructor
      *
-     * @param array $num_results
+     * @param int $count
      * @return void
      */
-    public function __construct ($num_results, $printable) {
-        $this->num_results = $num_results;
+    public function __construct ($count, $printable) {
+        $this->count = $count;
         $this->printable = $printable;
     }
 
@@ -114,7 +114,7 @@ class adaptivequiz_answers_statistic_result implements adaptivequiz_question_sta
      * @return mixed string or numeric
      */
     public function sortable () {
-        return $this->num_results;
+        return $this->count;
     }
 
     /**

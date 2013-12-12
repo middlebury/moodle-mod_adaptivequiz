@@ -42,11 +42,11 @@ class adaptivequiz_times_used_statistic implements adaptivequiz_question_statist
     /**
      * Calculate this statistic for a question's results
      *
-     * @param adaptivequiz_question_analyser $question_analyser
+     * @param adaptivequiz_question_analyser $analyser
      * @return adaptivequiz_question_statistic_result
      */
-    public function calculate (adaptivequiz_question_analyser $question_analyser) {
-        return new adaptivequiz_times_used_statistic_result (count($question_analyser->get_results()));
+    public function calculate (adaptivequiz_question_analyser $analyser) {
+        return new adaptivequiz_times_used_statistic_result (count($analyser->get_results()));
     }
 }
 
@@ -64,17 +64,17 @@ class adaptivequiz_times_used_statistic implements adaptivequiz_question_statist
  */
 class adaptivequiz_times_used_statistic_result implements adaptivequiz_question_statistic_result {
 
-    /** @var int $num_results  */
-    protected $num_results = null;
+    /** @var int $count  */
+    protected $count = null;
 
     /**
      * Constructor
      *
-     * @param int $num_results
+     * @param int $count
      * @return void
      */
-    public function __construct ($num_results) {
-        $this->num_results = $num_results;
+    public function __construct ($count) {
+        $this->count = $count;
     }
 
     /**
@@ -83,7 +83,7 @@ class adaptivequiz_times_used_statistic_result implements adaptivequiz_question_
      * @return mixed string or numeric
      */
     public function sortable () {
-        return $this->num_results;
+        return $this->count;
     }
 
     /**
@@ -93,6 +93,6 @@ class adaptivequiz_times_used_statistic_result implements adaptivequiz_question_
      * @return mixed string or numeric
      */
     public function printable () {
-        return $this->num_results;
+        return $this->count;
     }
 }
