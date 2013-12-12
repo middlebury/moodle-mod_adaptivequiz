@@ -52,7 +52,8 @@ class mod_adaptivequiz_locallib_testcase extends advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_adaptivequiz');
         $adaptivequiz = $generator->create_instance(array('course' => $course->id));
 
-        $this->activitycontext = context_module::instance($adaptivequiz->id);
+        $cm = get_coursemodule_from_instance('adaptivequiz', $adaptivequiz->id);
+        $this->activitycontext = context_module::instance($cm->id);
 
     }
 
