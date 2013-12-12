@@ -84,7 +84,7 @@ function adaptivequiz_add_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_
 
     $instance = $DB->insert_record('adaptivequiz', $adaptivequiz);
 
-    // Save question tag association data
+    // Save question tag association data.
     if (!empty($instance) && is_int($instance)) {
         adaptivequiz_add_questcat_association($instance, $adaptivequiz);
     }
@@ -122,12 +122,12 @@ function adaptivequiz_add_questcat_association($instance = 0, stdClass $adaptive
 function adaptivequiz_update_questcat_association($instance = 0, stdClass $adaptivequiz) {
     global $DB;
 
-    // Remove old references
+    // Remove old references.
     if (!empty($instance)) {
         $DB->delete_records('adaptivequiz_question', array('instance' => $instance));
     }
 
-    // Insert new references
+    // Insert new references.
     adaptivequiz_add_questcat_association($instance, $adaptivequiz);
 }
 
@@ -174,12 +174,12 @@ function adaptivequiz_delete_instance($id) {
 
     $DB->delete_records('adaptivequiz', array('id' => $id));
 
-    // Remove association table data
+    // Remove association table data.
     if ($DB->get_record('adaptivequiz_question', array('instance' => $id))) {
         $DB->delete_records('adaptivequiz_question', array('instance' => $id));
     }
 
-    // Remove question_usage_by_activity records
+    // Remove question_usage_by_activity records.
     $attempts = $DB->get_records('adaptivequiz_attempt', array('instance' => $id));
 
     if (!empty($attempts)) {
@@ -187,7 +187,7 @@ function adaptivequiz_delete_instance($id) {
             question_engine::delete_questions_usage_by_activity($attempt->uniqueid);
         }
 
-        // Remove attempts data
+        // Remove attempts data.
         $DB->delete_records('adaptivequiz_attempt', array('instance' => $id));
     }
 
@@ -231,7 +231,7 @@ function adaptivequiz_user_complete($course, $user, $mod, $adaptivequiz) {
  * @return boolean
  */
 function adaptivequiz_print_recent_activity($course, $viewfullnames, $timestart) {
-    return false;  //  True if anything was printed, otherwise false
+    return false;  //  True if anything was printed, otherwise false.
 }
 
 /**
@@ -294,7 +294,7 @@ function adaptivequiz_get_recent_mod_activity(&$activities, &$index, $timestart,
           ORDER BY aa.timemodified ASC";
     $rs = $DB->get_recordset_sql($sql, $params);
 
-    // Check if recordset contains records
+    // Check if recordset contains records.
     if (!$rs->valid()) {
         return;
     }
@@ -316,7 +316,7 @@ function adaptivequiz_get_recent_mod_activity(&$activities, &$index, $timestart,
     foreach ($rs as $attempt) {
         if ($attempt->userid != $USER->id) {
             if (!$viewreport) {
-                // View report permission required to view activity other user attempts
+                // View report permission required to view activity other user attempts.
                 continue;
             }
 
@@ -381,11 +381,11 @@ function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $
     $cols = '';
     $contect = '';
 
-    // Define table
-    $attr = array('border'=> '0', 'cellpadding' => '3', 'cellspacing' => '0', 'class' => 'adaptivequiz-recent');
+    // Define table.
+    $attr = array('border' => '0', 'cellpadding' => '3', 'cellspacing' => '0', 'class' => 'adaptivequiz-recent');
     $output .= html_writer::start_tag('table', $attr);
 
-    // Define table columns
+    // Define table columns.
     $attr = array('class' => 'userpicture', 'valign' => 'top');
     $content = $OUTPUT->user_picture($activity->user, array('courseid' => $courseid));
     $cols .= html_writer::tag('td', $content, $attr);
@@ -394,51 +394,52 @@ function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $
 
     if ($detail) {
         $modname = $modnames[$activity->type];
-        // Start div
+        // Start div.
         $attr = array('class' => 'title');
         $content .= html_writer::start_tag('div', $attr);
-        // Create img markup
+        // Create img markup.
         $attr = array('src' => $OUTPUT->pix_url('icon', $activity->type), 'class' => 'icon', 'alt' => $modname);
         $content .= html_writer::empty_tag('img', $attr);
-        // Create anchor markup
-        $attr = array('href' => "{$CFG->wwwroot}/mod/adaptivequiz/view.php?id={$activity->cmid}", 'class' => 'icon', 'alt' => $modname);
+        // Create anchor markup.
+        $attr = array('href' => "{$CFG->wwwroot}/mod/adaptivequiz/view.php?id={$activity->cmid}",
+            'class' => 'icon', 'alt' => $modname);
         $content .= html_writer::tag('a', $activity->name, $attr);
-        // End div
+        // End div.
         $content .= html_writer::end_tag('div');
     }
 
-    // Create div with the state of the attempt
+    // Create div with the state of the attempt.
     $attr = array('class' => 'attemptstate');
     $string = get_string('recentattemptstate', 'adaptivequiz');
     $content .= html_writer::tag('div', $string.'&nbsp;'.$activity->content->attemptstate, $attr);
-    // Create div with the number of questions attempted
+    // Create div with the number of questions attempted.
     $attr = array('class' => 'questionsattempted');
     $string = get_string('recentactquestionsattempted', 'adaptivequiz', $activity->content->questionsattempted);
     $content .= html_writer::tag('div', $string, $attr);
 
-    // Start div
+    // Start div.
     $attr = array('class' => 'user');
     $content .= html_writer::start_tag('div', $attr);
-    // Create anchor for link to user's profile
+    // Create anchor for link to user's profile.
     $attr = array('href' => $CFG->wwwroot.'/user/view.php?id='.$activity->user->id.'&amp;course='.$courseid);
     $fullname = fullname($activity->user, $viewfullnames);
     $content .= html_writer::tag('a', $fullname, $attr);
 
-    // Add timestamp
+    // Add timestamp.
     $content .= '&nbsp'.userdate($activity->timestamp);
-    // End div
+    // End div.
     $content .= html_writer::end_tag('div');
-    // Add all of the data for the columns to the table row
+    // Add all of the data for the columns to the table row.
     $cols .= html_writer::tag('td', $content);
     $output .= html_writer::tag('tr', $cols);
-    // End table
+    // End table.
     $output .= html_writer::end_tag('table');
 
     if (!empty($return)) {
-        // The return statemtn is not required, but it here so that this function can be PHPUnit testsed
+        // The return statemtn is not required, but it here so that this function can be PHPUnit testsed.
         return $output;
     } else {
-        // Echo output to the page
+        // Echo output to the page.
         echo $output;
     }
 }

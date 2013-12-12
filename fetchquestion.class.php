@@ -42,7 +42,9 @@ class fetchquestion {
     /** @var stdClass $adaptivequiz object, properties come from the adaptivequiz table */
     protected $adaptivequiz;
 
-    /** @var bool $debugenabled flag to denote developer debugging is enabled and this class should write message to the debug array */
+    /**
+     * @var bool $debugenabled flag to denote developer debugging is enabled and this class should write message to the debug array
+     */
     protected $debugenabled = false;
 
     /** @var array $debug array containing debugging information */
@@ -63,7 +65,10 @@ class fetchquestion {
     /** @var int $maximumlevel the maximum level achievable in the attempt */
     protected $maximumlevel;
 
-    /** @var array $tagquestsum an array whose keys are difficulty numbers and values are the sum of questions associated with the difficulty level */
+    /**
+     * @var array $tagquestsum an array whose keys are difficulty numbers and values are the sum of questions associated with the
+     *      difficulty level
+     */
     protected $tagquestsum = array();
 
     /** @var bool $rebuild a flag used to force the rebuilding of the $tagquestsum property */
@@ -72,7 +77,8 @@ class fetchquestion {
     /**
      * Constructor initializes data required to retrieve questions associated with tag
      * and within question categories
-     * @throws coding_exception throws a coding exception if $level is not a positive integer and if $maximumlevEl is greater than $minimumlevel
+     * @throws coding_exception throws a coding exception if $level is not a positive integer and if $maximumlevEl is greater
+     *      than $minimumlevel
      * @param stdClass $adaptivequiz: adaptivequiz record object from adaptivequiz table
      * @param int $level level of difficuty to look for when fetching a question
      * @param int $minimumlevel the minimum level the student can achieve
@@ -93,12 +99,13 @@ class fetchquestion {
         }
 
         if ($minimumlevel >= $maximumlevel) {
-            throw new coding_exception('Minimum level is greater than maximum level', 'Invalid minimum and maximum parameters passed');
+            throw new coding_exception('Minimum level is greater than maximum level',
+                'Invalid minimum and maximum parameters passed');
         }
 
         $this->level = $level;
 
-        // initialize $tagquestsum property
+        // Initialize $tagquestsum property.
         if (!isset($SESSION->adpqtagquestsum)) {
             $SESSION->adpqtagquestsum = array();
             $this->tagquestsum = $SESSION->adpqtagquestsum;
@@ -172,6 +179,16 @@ class fetchquestion {
     }
 
     /**
+     * Answer a string view of a variable for debugging purposes
+     * @param mixed $variable
+     */
+    protected function vardump($variable) {
+        ob_start();
+        var_dump($variable);
+        return ob_get_clean();
+    }
+
+    /**
      * This function returns the debug array
      * @return array - array of debugging messages
      */
@@ -197,7 +214,8 @@ class fetchquestion {
 
     /**
      * This function decrements 1 from the sum of questions in a difficulty level
-     * @param array $tagquestsum an array equal to the $tagquestsum property, where the key is the difficulty level and the value is the total number of
+     * @param array $tagquestsum an array equal to the $tagquestsum property, where the key is the difficulty level and the value
+     *      is the total number of
      * questions associated with it.  This parameter will be modified.
      * @param int $level the difficulty level
      * @return array an array whose keys are difficulty levels and values are the sum of questions associated with the difficulty
@@ -211,34 +229,37 @@ class fetchquestion {
     }
 
     /**
-     * This function first checks if the session variable already contains a mapping of difficulty levels and the number of questions associated with each level.
-     * Otherwise it constructos a mapping of difficulty levels and the number of questions in each difficulty level
-     * @param array $tagquestsum an array equal to the $tagquestsum property, where the key is the difficulty level and the value is the total number of
+     * This function first checks if the session variable already contains a mapping of difficulty levels and the number of
+     * questions associated with each level. Otherwise it constructos a mapping of difficulty levels and the number of questions
+     * in each difficulty level.
+     * @param array $tagquestsum an array equal to the $tagquestsum property, where the key is the difficulty level and the value
+     *      is the total number of
      * questions associated with it. This parameter will be modified.
      * @param array $tags an array of tags used by the activity
      * @param int $min the minimum difficulty allowed for the attempt
      * @param int $max the maximum difficulty allowed for the attempt
-     * @param bool $rebuild true to force the rebuilding the difficulty question count array, otherwise false.  Set to "true" only for brand new attempts
+     * @param bool $rebuild true to force the rebuilding the difficulty question count array, otherwise false.  Set to "true" only
+     *      for brand new attempts
      * @return array an array whose keys are difficulty levels and values are the sum of questions associated with the difficulty
      */
     public function initalize_tags_with_quest_count($tagquestsum, $tags, $min, $max, $rebuild = false) {
         global $SESSION;
 
-        // Check to see if the tagquestsum argument is initialized
+        // Check to see if the tagquestsum argument is initialized.
         $count = count($tagquestsum);
         if (empty($count) || !empty($rebuild)) {
             $tagquestsum = array();
-            // Retrieve the question categories set for this activity
+            // Retrieve the question categories set for this activity.
             $questcat = $this->retrieve_question_categories();
-            // Traverse through the array of configured tags used by the activity
+            // Traverse through the array of configured tags used by the activity.
             foreach ($tags as $tag) {
-                // Retrieve all of id for the configured tag
+                // Retrieve all of id for the configured tag.
                 $tagids = $this->retrieve_all_tag_ids($min, $max, $tag);
-                // Retrieve a count of all of the questions associated with each tag
+                // Retrieve a count of all of the questions associated with each tag.
                 $tagidquestsum = $this->retrieve_tags_with_question_count($tagids, $questcat, $tag);
-                // Traverse the tagidquestsum array and add the values with the values current in the tagquestsum argument
+                // Traverse the tagidquestsum array and add the values with the values current in the tagquestsum argument.
                 foreach ($tagidquestsum as $difflevel => $totalquestindiff) {
-                    // If the array key exists, then add the sum to what is already in the array
+                    // If the array key exists, then add the sum to what is already in the array.
                     if (array_key_exists($difflevel, $tagquestsum)) {
                         $tagquestsum[$difflevel] += $totalquestindiff;
                     } else {
@@ -254,71 +275,78 @@ class fetchquestion {
     }
 
     /**
-     * This function retrieves a question associated with a Moodle tag level of difficulty.  If the search for the tag turns up empty
-     * the function tries to find another tag whose difficulty level is either higher or lower
+     * This function retrieves a question associated with a Moodle tag level of difficulty.  If the search for the tag turns up
+     * empty the function tries to find another tag whose difficulty level is either higher or lower
      * @param array $excquestids an array of question ids to exclude from the search
      * @return array an array of question ids
      */
     public function fetch_questions($excquestids = array()) {
         $questids = array();
 
-        // Initialize the difficulty tag question sum property for searching
-        $this->tagquestsum = $this->initalize_tags_with_quest_count($this->tagquestsum, $this->tags, $this->minimumlevel, $this->maximumlevel, $this->rebuild);
+        // Initialize the difficulty tag question sum property for searching.
+        $this->tagquestsum = $this->initalize_tags_with_quest_count($this->tagquestsum, $this->tags, $this->minimumlevel,
+            $this->maximumlevel, $this->rebuild);
 
-        // If tagquestsum property ie empty then return with nothing
+        // If tagquestsum property ie empty then return with nothing.
         if (empty($this->tagquestsum)) {
             $this->print_debug('fetch_questions() - tagquestsum is empty');
             return array();
         }
-        // Check if the requested level has available questions
+        // Check if the requested level has available questions.
         if (array_key_exists($this->level, $this->tagquestsum) && 0 < $this->tagquestsum[$this->level]) {
             $tagids = $this->retrieve_tag($this->level);
             $questids = $this->find_questions_with_tags($tagids, $excquestids);
-            $this->print_debug('fetch_questions() - Requested level '.$this->level.' has available questions. '.$this->tagquestsum[$this->level].' question remaining.');
+            $this->print_debug('fetch_questions() - Requested level '.$this->level.' has available questions. '.
+                $this->tagquestsum[$this->level].' question remaining.');
             return $questids;
         }
 
-        // Look for a level that has avaialbe qustions
+        // Look for a level that has avaialbe qustions.
         $level = $this->level;
         for ($i = 1; $i <= self::MAXNUMTRY; $i++) {
-            // Check if the offset level is now out of bounds and stop the loop
+            // Check if the offset level is now out of bounds and stop the loop.
             if ($this->minimumlevel > $level - $i && $this->maximumlevel < $level + $i) {
                 $i += self::MAXNUMTRY + 1;
-                $this->print_debug('fetch_questions() - searching levels has gone out of bounds of the min and max levels.  No questions returned');
+                $this->print_debug('fetch_questions() - searching levels has gone out of bounds of the min and max levels. '.
+                    'No questions returned');
                 continue;
             }
 
-            // First check a level higher than the originally requested level
+            // First check a level higher than the originally requested level.
             $newlevel = $level + $i;
 
             /*
-             * If the level is within the boundries set for the attempt and the level exists and the count of question is greater than zero, retrieve the tag id and the
-             * questions available
+             * If the level is within the boundries set for the attempt and the level exists and the count of question is greater
+             * than zero, retrieve the tag id and the questions available
              */
-            $condition = $newlevel <= $this->maximumlevel && array_key_exists($newlevel, $this->tagquestsum) && 0 < $this->tagquestsum[$newlevel];
+            $condition = $newlevel <= $this->maximumlevel && array_key_exists($newlevel, $this->tagquestsum)
+                && 0 < $this->tagquestsum[$newlevel];
             if ($condition) {
                 $tagids = $this->retrieve_tag($newlevel);
                 $questids = $this->find_questions_with_tags($tagids, $excquestids);
                 $this->level = $newlevel;
                 $i += self::MAXNUMTRY + 1;
-                $this->print_debug('fetch_questions() - original level could not be found.  Returned a question from level '.$newlevel.' instead');
+                $this->print_debug('fetch_questions() - original level could not be found.  Returned a question from level '.
+                    $newlevel.' instead');
                 continue;
             }
 
-            // Check a level lower than the originally requested level
+            // Check a level lower than the originally requested level.
             $newlevel = $level - $i;
 
             /*
-             * If the level is within the boundries set for the attempt and the level exists and the count of question is greater than zero, retrieve the tag id and the
-             * questions available
+             * If the level is within the boundries set for the attempt and the level exists and the count of question is greater
+             *  than zero, retrieve the tag id and thequestions available
              */
-            $condition = $newlevel >= $this->minimumlevel && array_key_exists($newlevel, $this->tagquestsum) && 0 < $this->tagquestsum[$newlevel];
+            $condition = $newlevel >= $this->minimumlevel && array_key_exists($newlevel, $this->tagquestsum)
+                && 0 < $this->tagquestsum[$newlevel];
             if ($condition) {
                 $tagids = $this->retrieve_tag($newlevel);
                 $questids = $this->find_questions_with_tags($tagids, $excquestids);
                 $this->level = $newlevel;
                 $i += self::MAXNUMTRY + 1;
-                $this->print_debug('fetch_questions() - original level could not be found.  Returned a question from level '.$newlevel.' instead');
+                $this->print_debug('fetch_questions() - original level could not be found.  Returned a question from level '
+                    .$newlevel.' instead');
                 continue;
             }
         }
@@ -346,7 +374,7 @@ class fetchquestion {
         try {
             $substr = $DB->sql_substr('name', $length);
         } catch (coding_exception $e) {
-            $this->print_debug('retrieve_all_tag_ids() - Missing tag prefix '.print_r($tagprefix, true));
+            $this->print_debug('retrieve_all_tag_ids() - Missing tag prefix '.$this->vardump($tagprefix));
             print_error('missingtagprefix', 'adaptivequiz');
         }
 
@@ -368,7 +396,8 @@ class fetchquestion {
     }
 
     /**
-     * This function determines how many questions are associated with a tag, for questions contained in the category used by the activity
+     * This function determines how many questions are associated with a tag, for questions contained in the category used by the
+     * activity.
      * @throws coding_exception|dml_read_exception if the $tagprefix argument is empty
      * @param array $tagids an array whose key is the difficulty level and value is the tag id representing the difficulty level
      * @param array $categories an array whose key and value is the question category id
@@ -389,10 +418,10 @@ class fetchquestion {
         try {
             $substr = $DB->sql_substr('t.name', $length);
 
-            // Create IN() clause for tag ids
+            // Create IN() clause for tag ids.
             list($includetags, $tempparam) = $DB->get_in_or_equal($tagids, SQL_PARAMS_NAMED, 'tagids');
             $params += $tempparam;
-            // Create IN() clause for question category ids
+            // Create IN() clause for question category ids.
             list($includeqcats, $tempparam) = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED, 'qcatids');
             $params += array('itemtype' => 'question') + $tempparam;
 
@@ -408,14 +437,15 @@ class fetchquestion {
             $records = $DB->get_records_sql_menu($sql, $params);
             return $records;
         } catch (coding_exception $e) {
-            $this->print_debug('retrieve_tags_with_question_count() - Missing tag prefix '.print_r($tagprefix, true));
+            $this->print_debug('retrieve_tags_with_question_count() - Missing tag prefix '.$this->vardump($tagprefix));
             print_error('missingtagprefix', 'adaptivequiz');
         }
     }
 
     /**
      * This function retrieves all tag ids, used by this activity and associated with a particular level of difficulty
-     * @param int $level: the level of difficulty (optional).  If 0 is passed then the function will use the level class property, otherwise the argument value will be used.
+     * @param int $level: the level of difficulty (optional).  If 0 is passed then the function will use the level class property,
+     *      otherwise the argument value will be used.
      * @return array - the tag id or false if no tag could be found
      */
     public function retrieve_tag($level = 0) {
@@ -431,16 +461,16 @@ class fetchquestion {
             $thislevel = $level;
         }
 
-        // Format clause for tag name search
+        // Format clause for tag name search.
         foreach ($this->tags as $key => $tag) {
             $params[$tag.$key] = $tag.$level;
             $select .= ' name = :'.$tag.$key.' OR';
         }
 
-        // Remove the last 'OR'
+        // Remove the last 'OR'.
         $select = rtrim($select, 'OR');
 
-        // Query the tag table for all tags used by the activity
+        // Query the tag table for all tags used by the activity.
         $tagids = $DB->get_records_select_menu('tag', $select, $params, 'id ASC', 'id, id AS id2');
 
         if (empty($tagids)) {
@@ -468,7 +498,7 @@ class fetchquestion {
         $includetags = '';
         $includeqcats = '';
 
-        // Retrieve question categories used by this activity
+        // Retrieve question categories used by this activity.
         $questcat = $this->retrieve_question_categories();
 
         if (empty($questcat) || empty($tagids)) {
@@ -476,14 +506,14 @@ class fetchquestion {
             return array();
         }
 
-        // Create IN() clause for tag ids
+        // Create IN() clause for tag ids.
         list($includetags, $tempparam) = $DB->get_in_or_equal($tagids, SQL_PARAMS_NAMED, 'tagids');
         $params += $tempparam;
-        // Create IN() clause for question ids
+        // Create IN() clause for question ids.
         list($includeqcats, $tempparam) = $DB->get_in_or_equal($questcat, SQL_PARAMS_NAMED, 'qcatids');
         $params += $tempparam;
 
-        // Create IN() clause for question ids to exclude
+        // Create IN() clause for question ids to exclude.
         if (!empty($exclude)) {
             list($exclquestids, $tempparam) = $DB->get_in_or_equal($exclude, SQL_PARAMS_NAMED, 'excqids', false);
             $params += $tempparam;
@@ -492,7 +522,7 @@ class fetchquestion {
 
         $params += array('itemtype' => 'question');
 
-        // Query the question table for questions associated with a tag instance and within a question category
+        // Query the question table for questions associated with a tag instance and within a question category.
         $query = "SELECT q.id, q.name
                     FROM {question} q
               INNER JOIN {tag_instance} ti ON q.id = ti.itemid
@@ -504,7 +534,7 @@ class fetchquestion {
 
         $records = $DB->get_records_sql($query, $params);
 
-        $this->print_debug('find_questions() - question ids returned: '.print_r($records, true));
+        $this->print_debug('find_questions() - question ids returned: '.$this->vardump($records));
 
         return $records;
     }
@@ -516,9 +546,10 @@ class fetchquestion {
     protected function retrieve_question_categories() {
         global $DB;
 
-        // Check cached result
+        // Check cached result.
         if (!empty($this->questcatids)) {
-            $this->print_debug('retrieve_question_categories() - question category ids (from cache): '.print_r($this->questcatids, true));
+            $this->print_debug('retrieve_question_categories() - question category ids (from cache): '.
+                $this->vardump($this->questcatids));
             return $this->questcatids;
         }
 
@@ -526,10 +557,10 @@ class fetchquestion {
         $param = array('instance' => $this->adaptivequiz->id);
         $records = $DB->get_records_menu('adaptivequiz_question', $param, 'questioncategory ASC', 'id,questioncategory');
 
-        // Cache the results
+        // Cache the results.
         $this->questcatids = $records;
 
-        $this->print_debug('retrieve_question_categories() - question category ids: '.print_r($records, true));
+        $this->print_debug('retrieve_question_categories() - question category ids: '.$this->vardump($records));
 
         return $records;
     }

@@ -29,7 +29,7 @@ class mod_adaptivequiz_generator extends phpunit_module_generator {
      * @param array $options (mostly course_module properties)
      * @return stdClass activity record with extra cmid field
      */
-     public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, array $options = null) {
         global $CFG;
         require_once("$CFG->dirroot/mod/adaptivequiz/locallib.php");
 
@@ -78,5 +78,5 @@ class mod_adaptivequiz_generator extends phpunit_module_generator {
         $id = adaptivequiz_add_instance($record);
         return $this->post_add_instance($id, $record->coursemodule);
 
-     }
+    }
 }

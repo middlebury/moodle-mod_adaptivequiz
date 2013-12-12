@@ -68,21 +68,22 @@ $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-// Are you usre confirmation message
+// Are you usre confirmation message.
 $a = new stdClass();
 $a->name = format_string($adaptivequiz->firstname.' '.$adaptivequiz->lastname);
 $a->timecompleted = userdate($adaptivequiz->timemodified);
 $message = get_string('confirmdeleteattempt', 'adaptivequiz', $a);
 
 if ($confirm) {
-    // Remove attempt record and redirect
+    // Remove attempt record and redirect.
     question_engine::delete_questions_usage_by_activity($uniqueid);
     $DB->delete_records('adaptivequiz_attempt', array('instance' => $cm->instance, 'uniqueid' => $uniqueid, 'userid' => $userid));
     $message = get_string('attemptdeleted', 'adaptivequiz', $a);
     redirect($returnurl, $message, 4);
 }
 
-$confirm = new moodle_url('/mod/adaptivequiz/delattempt.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id, 'userid' => $userid, 'confirm' => 1));
+$confirm = new moodle_url('/mod/adaptivequiz/delattempt.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id,
+    'userid' => $userid, 'confirm' => 1));
 echo $OUTPUT->header();
 echo $OUTPUT->confirm($message, $confirm, $returnurl);
 echo $OUTPUT->footer();

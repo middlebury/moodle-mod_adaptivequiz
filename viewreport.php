@@ -55,7 +55,12 @@ $PAGE->set_context($context);
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 /* Initialized parameter array for sql query */
-$param = array('attemptstate1' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'attemptstate2' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'attemptstate3' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'attemptstate4' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'instance' => $cm->instance);
+$param = array(
+    'attemptstate1' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    'attemptstate2' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    'attemptstate3' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    'attemptstate4' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    'instance' => $cm->instance);
 
 /* Constructo order by clause */
 $orderby = adaptivequiz_construct_view_report_orderby($sort, $sortdir);
@@ -79,7 +84,7 @@ if (0 != $groupid) {
     $param['groupid'] = $groupid;
 }
 
-/* Retreive a list of attempts made by each use, displaying the sum of attempts and showing the highest score of the user's attempts */
+/* Retreive a list of attempts made by each user, displaying the sum of attempts and the highest score for each user */
 $sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
                (SELECT COUNT(*)
                   FROM {adaptivequiz_attempt} caa

@@ -27,28 +27,28 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Default tagging used
+// Default tagging used.
 define('ADAPTIVEQUIZ_QUESTION_TAG', 'adpq_');
 
-// Attempt was completed
+// Attempt was completed.
 define('ADAPTIVEQUIZ_ATTEMPT_COMPLETED', 'complete');
-// Attempt is still in progress
+// Attempt is still in progress.
 define('ADAPTIVEQUIZ_ATTEMPT_INPROGRESS', 'inprogress');
-// Number of attempts to display on the reporting page
+// Number of attempts to display on the reporting page.
 define('ADAPTIVEQUIZ_REC_PER_PAGE', 30);
-// Number of questions to display for review on the page at one time
+// Number of questions to display for review on the page at one time.
 define('ADAPTIVEQUIZ_REV_QUEST_PER_PAGE', 10);
 
-// Attempt stopping criteria
-// The maximum number of question, defined by the adaptive parameters was achieved
+// Attempt stopping criteria.
+// The maximum number of question, defined by the adaptive parameters was achieved.
 define('ADAPTIVEQUIZ_STOPCRI_MAXQUEST', 'maxqest');
-// The standard error value, defined by the adaptive parameters, was achieved
+// The standard error value, defined by the adaptive parameters, was achieved.
 define('ADAPTIVEQUIZ_STOPCRI_STANDERR', 'stderr');
-// Unable to retrieve a question, because the user either answered all of the questions in the level or no questions were found
+// Unable to retrieve a question, because the user either answered all of the questions in the level or no questions were found.
 define('ADAPTIVEQUIZ_STOPCRI_NOQUESTFOUND', 'noqest');
-// The user achieved the maximum difficulty level defined by the adaptive parameters, unable to retrieve another question
+// The user achieved the maximum difficulty level defined by the adaptive parameters, unable to retrieve another question.
 define('ADAPTIVEQUIZ_STOPCRI_MAXLEVEL', 'maxlevel');
-// The user achieved the minimum difficulty level defined by the adaptive parameters, unable to retrieve another question
+// The user achieved the minimum difficulty level defined by the adaptive parameters, unable to retrieve another question.
 define('ADAPTIVEQUIZ_STOPCRI_MINLEVEL', 'minlevel');
 
 require_once($CFG->dirroot.'/mod/adaptivequiz/lib.php');
@@ -97,7 +97,7 @@ function adaptivequiz_make_default_categories($context) {
         return false;
     }
 
-    // Create default question categories
+    // Create default question categories.
     $defaultcategoryobj = question_make_default_categories(array($context));
 
     return $defaultcategoryobj;
@@ -193,7 +193,7 @@ function adaptivequiz_uniqueid_part_of_attempt($uniqueid, $instance, $userid) {
 function adaptivequiz_update_attempt_data($uniqueid, $instance, $userid, $level, $standarderror, $measure) {
     global $DB;
 
-    // Check if the is an infinity
+    // Check if the is an infinity.
     if (is_infinite($level)) {
         return false;
     }

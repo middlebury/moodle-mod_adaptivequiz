@@ -28,9 +28,9 @@
 require_once(dirname(__FILE__).'/../../config.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 
-$cmid = required_param('cmid', PARAM_INT); // Course module id
-$instance = required_param('id', PARAM_INT); // activity instance id
-$uniqueid = required_param('uattid', PARAM_INT); // attempt unique id
+$cmid = required_param('cmid', PARAM_INT); // Course module id.
+$instance = required_param('id', PARAM_INT); // activity instance id.
+$uniqueid = required_param('uattid', PARAM_INT); // attempt unique id.
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
@@ -44,12 +44,12 @@ $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-// TODO - check if user has capability to attempt
+// TODO - check if user has capability to attempt.
 
-// Check if this is the owner of the attempt
+// Check if this is the owner of the attempt.
 $validattempt = adaptivequiz_uniqueid_part_of_attempt($uniqueid, $instance, $USER->id);
 
-// Displayan error message if this is not the owner of the attempt
+// Displayan error message if this is not the owner of the attempt.
 if (!$validattempt) {
     $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $cm->id));
     print_error('notyourattempt', 'adaptivequiz', $url);
@@ -61,7 +61,7 @@ $PAGE->set_context($context);
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
-// Init secure window if enabled
+// Init secure window if enabled.
 $popup = false;
 if (!empty($adaptivequiz->browsersecurity)) {
     $PAGE->blocks->show_only_fake_blocks();
