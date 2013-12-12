@@ -75,7 +75,8 @@ $records = array_slice($records, $page * ADAPTIVEQUIZ_REC_PER_PAGE, ADAPTIVEQUIZ
 unset($headers['id']);
 foreach ($records as &$record) {
     $id = array_shift($record);
-    $url = new moodle_url('/mod/adaptivequiz/questionanalysis/single.php', array('cmid' => $cm->id, 'qid' => $id, 'sort' => $sort, 'sortdir' => $sortdir, 'page' => $page));
+    $url = new moodle_url('/mod/adaptivequiz/questionanalysis/single.php',
+        array('cmid' => $cm->id, 'qid' => $id, 'sort' => $sort, 'sortdir' => $sortdir, 'page' => $page));
     $record[0] = html_writer::link($url, $record[0]);
 }
 
@@ -84,9 +85,11 @@ foreach ($records as &$record) {
 $header = $output->print_header();
 $title = $output->heading(get_string('questions_report', 'adaptivequiz'));
 /* Output attempts table */
-$reporttable = $output->get_report_table($headers, $records, $cm, '/mod/adaptivequiz/questionanalysis/overview.php', $sort, $sortdir);
+$reporttable = $output->get_report_table($headers, $records, $cm, '/mod/adaptivequiz/questionanalysis/overview.php', $sort,
+    $sortdir);
 /* Output paging bar */
-$pagingbar = $output->print_paging_bar($recordscount, $page, ADAPTIVEQUIZ_REC_PER_PAGE, $cm, '/mod/adaptivequiz/questionanalysis/overview.php', $sort, $sortdir);
+$pagingbar = $output->print_paging_bar($recordscount, $page, ADAPTIVEQUIZ_REC_PER_PAGE, $cm,
+    '/mod/adaptivequiz/questionanalysis/overview.php', $sort, $sortdir);
 /* Output footer information */
 $footer = $output->print_footer();
 

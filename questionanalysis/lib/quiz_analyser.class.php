@@ -62,7 +62,8 @@ class adaptivequiz_quiz_analyser {
         $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $instance), '*');
 
         // Get all of the completed attempts for this adaptive quiz instance.
-        $attempts  = $DB->get_records('adaptivequiz_attempt', array('instance' => $instance, 'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED));
+        $attempts  = $DB->get_records('adaptivequiz_attempt',
+            array('instance' => $instance, 'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED));
 
         foreach ($attempts as $attempt) {
             $user = $DB->get_record('user', array('id' => $attempt->userid));
@@ -73,7 +74,8 @@ class adaptivequiz_quiz_analyser {
             }
 
             // For each attempt, get the attempt's final score.
-            $score = new adaptivequiz_attempt_score($attempt->measure, $attempt->standarderror, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+            $score = new adaptivequiz_attempt_score($attempt->measure, $attempt->standarderror, $adaptivequiz->lowestlevel,
+                $adaptivequiz->highestlevel);
 
             // For each attempt, loop through all questions asked and add that usage
             // to the question.
@@ -85,7 +87,8 @@ class adaptivequiz_quiz_analyser {
                 if (empty($this->questions[$question->id])) {
                     $tags = tag_get_tags_array('question', $question->id);
                     $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-                    $this->questions[$question->id] = new adaptivequiz_question_analyser($question, $difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+                    $this->questions[$question->id] = new adaptivequiz_question_analyser($question, $difficulty,
+                        $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
                 }
 
                 // Record the attempt score and the individual question result.

@@ -54,22 +54,26 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         array_multisort($sortkeys, SORT_NUMERIC, SORT_DESC, $results);
 
         ob_start();
-//         print "<pre>Question level (logit): ".round($analyser->get_question_level_in_logits(), 2)."</pre>";
+        // print "<pre>Question level (logit): ".round($analyser->get_question_level_in_logits(), 2)."</pre>";
         foreach ($results as $result) {
             if ($result->correct) {
-                // If the user answered correctly, the result is in-range if their measured ability + stderr is >= the question level.
-                $inrange = ($result->score->measured_ability_in_logits() + $result->score->standard_error_in_logits() >= $analyser->get_question_level_in_logits());
+                // If the user answered correctly,
+                // the result is in-range if their measured ability + stderr is >= the question level.
+                $ceiling = $result->score->measured_ability_in_logits() + $result->score->standard_error_in_logits();
+                $inrange = ($ceiling >= $analyser->get_question_level_in_logits());
             } else {
-                // If the user answered incorrectly, the result is in-range if their measured ability - stderr is <= the question level.
-                $inrange = ($result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits() <= $analyser->get_question_level_in_logits());
+                // If the user answered incorrectly,
+                // the result is in-range if their measured ability - stderr is <= the question level.
+                $floor = $result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits();
+                $inrange = ($floor <= $analyser->get_question_level_in_logits());
             }
             print "<pre style=\"color: ".(($result->correct)?"green":"red")."; ".(($inrange)?"":"font-weight: bold;")."\">";
             print "User: ".$result->user->firstname." ".$result->user->lastname."\n";
             print "Result: ".(($result->correct)?"correct":"incorrect")."\n";
             print "Person ability (scaled): ".round($result->score->measured_ability_in_scale(), 2)."\n";
             print "STDERR (scaled): ".round($result->score->standard_error_in_scale(), 2)."\n";
-//             print "Person ability (logit): ".round($result->score->measured_ability_in_logits(), 2)."\n";
-//             print "STDERR (logit): ".round($result->score->standard_error_in_logits(), 2)."\n";
+            // print "Person ability (logit): ".round($result->score->measured_ability_in_logits(), 2)."\n";
+            // print "STDERR (logit): ".round($result->score->standard_error_in_logits(), 2)."\n";
             print "</pre>";
         }
 

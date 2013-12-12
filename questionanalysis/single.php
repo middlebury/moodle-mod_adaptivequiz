@@ -86,12 +86,14 @@ array_shift($record);
 $header = $output->print_header();
 $title = $output->heading(get_string('question_report', 'adaptivequiz'));
 /* return link */
-$url = new moodle_url('/mod/adaptivequiz/questionanalysis/overview.php', array('cmid' => $cm->id, 'sort' => $sort, 'sortdir' => $sortdir, 'page' => $page));
+$url = new moodle_url('/mod/adaptivequiz/questionanalysis/overview.php',
+    array('cmid' => $cm->id, 'sort' => $sort, 'sortdir' => $sortdir, 'page' => $page));
 $returnlink = html_writer::link($url, get_string('back_to_all_questions', 'adaptivequiz'));
 
 /* Output attempts table */
 $details = $output->get_question_details($questionanalyzer, $context);
-$reporttable = $output->get_single_question_report($headers, $record, $cm, '/mod/adaptivequiz/questionanalysis/overview.php', $sort, $sortdir);
+$reporttable = $output->get_single_question_report($headers, $record, $cm, '/mod/adaptivequiz/questionanalysis/overview.php',
+    $sort, $sortdir);
 /* Output footer information */
 $footer = $output->print_footer();
 
