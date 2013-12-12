@@ -54,7 +54,6 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         array_multisort($sortkeys, SORT_NUMERIC, SORT_DESC, $results);
 
         ob_start();
-        // print "<pre>Question level (logit): ".round($analyser->get_question_level_in_logits(), 2)."</pre>";
         foreach ($results as $result) {
             if ($result->correct) {
                 // If the user answered correctly,
@@ -72,8 +71,6 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
             print "Result: ".(($result->correct)?"correct":"incorrect")."\n";
             print "Person ability (scaled): ".round($result->score->measured_ability_in_scale(), 2)."\n";
             print "STDERR (scaled): ".round($result->score->standard_error_in_scale(), 2)."\n";
-            // print "Person ability (logit): ".round($result->score->measured_ability_in_logits(), 2)."\n";
-            // print "STDERR (logit): ".round($result->score->standard_error_in_logits(), 2)."\n";
             print "</pre>";
         }
 
