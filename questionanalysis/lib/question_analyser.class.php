@@ -123,8 +123,9 @@ class adaptivequiz_question_analyser {
      * @return void
      */
     public function add_statistic ($key, adaptivequiz_question_statistic $statistic) {
-        if (!empty($this->statistics[$key]))
+        if (!empty($this->statistics[$key])) {
             throw new InvalidArgumentException("Statistic key '$key' is already in use.");
+        }
         $this->statistics[$key] = $statistic;
         $this->statisticresults[$key] = $statistic->calculate($this);
     }
@@ -136,8 +137,9 @@ class adaptivequiz_question_analyser {
      * @return adaptivequiz_question_statistic_result
      */
     public function get_statistic_result ($key) {
-        if (empty($this->statisticresults[$key]))
+        if (empty($this->statisticresults[$key])) {
             throw new InvalidArgumentException("Unknown statistic key '$key'.");
+        }
         return $this->statisticresults[$key];
     }
 

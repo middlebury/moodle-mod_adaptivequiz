@@ -103,8 +103,9 @@ class adaptivequiz_quiz_analyser {
      * @return void
      */
     public function add_statistic ($key, adaptivequiz_question_statistic $statistic) {
-        if (!empty($this->statistics[$key]))
+        if (!empty($this->statistics[$key])) {
             throw new InvalidArgumentException("Statistic key '$key' is already in use.");
+        }
         $this->statistics[$key] = $statistic;
         foreach ($this->questions as $question) {
             $question->add_statistic($key, $statistic);

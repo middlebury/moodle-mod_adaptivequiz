@@ -42,8 +42,9 @@ class adaptivequiz_question_result {
      * @return void
      */
     public function __construct ($measuredability, $correct) {
-        if (!is_numeric($measuredability) || $measuredability < 0 || $measuredability > 1)
+        if (!is_numeric($measuredability) || $measuredability < 0 || $measuredability > 1) {
             throw new InvalidArgumentException('$measuredability must be a float between 0 and 1.');
+        }
         $this->_measuredability = $measuredability;
         $this->_correct = (bool)$correct;
     }
@@ -56,9 +57,10 @@ class adaptivequiz_question_result {
      */
     public function __get ($key) {
         $param = '$_'.$key;
-        if (isset($this->$param))
+        if (isset($this->$param)) {
             return $this->$param;
-        else
+        } else {
             throw new Exception('Unknown property, '.get_class($this).'->'.$key.'.');
+        }
     }
 }
