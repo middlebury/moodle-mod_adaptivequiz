@@ -66,9 +66,9 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
                 $floor = $result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits();
                 $inrange = ($floor <= $analyser->get_question_level_in_logits());
             }
-            print "<pre style=\"color: ".(($result->correct)?"green":"red")."; ".(($inrange)?"":"font-weight: bold;")."\">";
+            print "<pre style=\"color: ".(($result->correct) ? "green" : "red")."; ".(($inrange) ? "" : "font-weight: bold;")."\">";
             print "User: ".$result->user->firstname." ".$result->user->lastname."\n";
-            print "Result: ".(($result->correct)?"correct":"incorrect")."\n";
+            print "Result: ".(($result->correct) ? "correct" : "incorrect")."\n";
             print "Person ability (scaled): ".round($result->score->measured_ability_in_scale(), 2)."\n";
             print "STDERR (scaled): ".round($result->score->standard_error_in_scale(), 2)."\n";
             print "</pre>";
