@@ -76,7 +76,7 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
     public function get_report_table($headers, $records, $cm, $baseurl, $sort, $sortdir) {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable quizsummaryofattempt boxaligncenter';
-        $table->head =  $this->format_report_table_headers($headers, $cm, $baseurl, $sort, $sortdir);
+        $table->head = $this->format_report_table_headers($headers, $cm, $baseurl, $sort, $sortdir);
         $table->align = array('center', 'center', 'center');
         $table->size = array('', '', '');
 
@@ -147,7 +147,7 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
     public function get_single_question_report($headers, $record) {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable quizsummaryofattempt boxaligncenter';
-        $table->head =  array(get_string('statistic', 'adaptivequiz'), get_string('value', 'adaptivequiz'));
+        $table->head = array(get_string('statistic', 'adaptivequiz'), get_string('value', 'adaptivequiz'));
         $table->align = array('left', 'left');
         $table->size = array('200px', '');
         $table->width = '100%';
