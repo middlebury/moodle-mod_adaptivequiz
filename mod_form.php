@@ -41,10 +41,10 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
     public function definition() {
         $mform = $this->_form;
 
-        // Adding the "general" fieldset, where all the common settings are showed
+        // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        // Adding the standard "name" field
+        // Adding the standard "name" field.
         $mform->addElement('text', 'name', get_string('adaptivequizname', 'adaptivequiz'), array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
@@ -55,7 +55,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('name', 'adaptivequizname', 'adaptivequiz');
 
-        // Adding the standard "intro" and "introformat" fields
+        // Adding the standard "intro" and "introformat" fields.
         $this->add_intro_editor();
 
         // Number of attempts.
@@ -78,7 +78,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('browsersecurity', 'browsersecurity', 'adaptivequiz');
         $mform->setDefault('browsersecurity', 0);
 
-        // Retireve a list of available course categories
+        // Retireve a list of available course categories.
         adaptivequiz_make_default_categories($this->context);
         $options = adaptivequiz_get_question_categories($this->context);
         $selquestcat = adaptivequiz_get_selected_question_cateogires($this->_instance);
@@ -89,53 +89,60 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addRule('questionpool', null, 'required', null, 'client');
         $mform->getElement('questionpool')->setSelected($selquestcat);
 
-        $mform->addElement('text', 'startinglevel', get_string('startinglevel', 'adaptivequiz'), array('size'=>'3', 'maxlength' => '3'));
+        $mform->addElement('text', 'startinglevel', get_string('startinglevel', 'adaptivequiz'),
+            array('size' => '3', 'maxlength' => '3'));
         $mform->addHelpButton('startinglevel', 'startinglevel', 'adaptivequiz');
         $mform->addRule('startinglevel', get_string('formelementempty', 'adaptivequiz'), 'required', null, 'client');
         $mform->addRule('startinglevel', get_string('formelementnumeric', 'adaptivequiz'), 'numeric', null, 'client');
         $mform->setType('startinglevel', PARAM_INT);
 
-        $mform->addElement('text', 'lowestlevel', get_string('lowestlevel', 'adaptivequiz'), array('size'=>'3', 'maxlength' => '3'));
+        $mform->addElement('text', 'lowestlevel', get_string('lowestlevel', 'adaptivequiz'),
+            array('size' => '3', 'maxlength' => '3'));
         $mform->addHelpButton('lowestlevel', 'lowestlevel', 'adaptivequiz');
         $mform->addRule('lowestlevel', get_string('formelementempty', 'adaptivequiz'), 'required', null, 'client');
         $mform->addRule('lowestlevel', get_string('formelementnumeric', 'adaptivequiz'), 'numeric', null, 'client');
         $mform->setType('lowestlevel', PARAM_INT);
 
-        $mform->addElement('text', 'highestlevel', get_string('highestlevel', 'adaptivequiz'), array('size'=>'3', 'maxlength' => '3'));
+        $mform->addElement('text', 'highestlevel', get_string('highestlevel', 'adaptivequiz'),
+            array('size' => '3', 'maxlength' => '3'));
         $mform->addHelpButton('highestlevel', 'highestlevel', 'adaptivequiz');
         $mform->addRule('highestlevel', get_string('formelementempty', 'adaptivequiz'), 'required', null, 'client');
         $mform->addRule('highestlevel', get_string('formelementnumeric', 'adaptivequiz'), 'numeric', null, 'client');
         $mform->setType('highestlevel', PARAM_INT);
 
-        $mform->addElement('textarea', 'attemptfeedback', get_string('attemptfeedback', 'adaptivequiz'), 'wrap="virtual" rows="10" cols="50"');
+        $mform->addElement('textarea', 'attemptfeedback', get_string('attemptfeedback', 'adaptivequiz'),
+            'wrap="virtual" rows="10" cols="50"');
         $mform->addHelpButton('attemptfeedback', 'attemptfeedback', 'adaptivequiz');
         $mform->setType('attemptfeedback', PARAM_NOTAGS);
 
         $mform->addElement('header', 'stopingconditionshdr', get_string('stopingconditionshdr', 'adaptivequiz'));
 
-        $mform->addElement('text', 'minimumquestions', get_string('minimumquestions', 'adaptivequiz'), array('size'=>'3', 'maxlength' => '3'));
+        $mform->addElement('text', 'minimumquestions', get_string('minimumquestions', 'adaptivequiz'),
+            array('size' => '3', 'maxlength' => '3'));
         $mform->addHelpButton('minimumquestions', 'minimumquestions', 'adaptivequiz');
         $mform->addRule('minimumquestions', get_string('formelementempty', 'adaptivequiz'), 'required', null, 'client');
         $mform->addRule('minimumquestions', get_string('formelementnumeric', 'adaptivequiz'), 'numeric', null, 'client');
         $mform->setType('minimumquestions', PARAM_INT);
 
-        $mform->addElement('text', 'maximumquestions', get_string('maximumquestions', 'adaptivequiz'), array('size'=>'3', 'maxlength' => '3'));
+        $mform->addElement('text', 'maximumquestions', get_string('maximumquestions', 'adaptivequiz'),
+            array('size' => '3', 'maxlength' => '3'));
         $mform->addHelpButton('maximumquestions', 'maximumquestions', 'adaptivequiz');
         $mform->addRule('maximumquestions', get_string('formelementempty', 'adaptivequiz'), 'required', null, 'client');
         $mform->addRule('maximumquestions', get_string('formelementnumeric', 'adaptivequiz'), 'numeric', null, 'client');
         $mform->setType('maximumquestions', PARAM_INT);
 
-        $mform->addElement('text', 'standarderror', get_string('standarderror', 'adaptivequiz'), array('size'=>'10', 'maxlength' => '10'));
+        $mform->addElement('text', 'standarderror', get_string('standarderror', 'adaptivequiz'),
+            array('size' => '10', 'maxlength' => '10'));
         $mform->addHelpButton('standarderror', 'standarderror', 'adaptivequiz');
         $mform->addRule('standarderror', get_string('formelementempty', 'adaptivequiz'), 'required', null, 'client');
         $mform->addRule('standarderror', get_string('formelementdecimal', 'adaptivequiz'), 'numeric', null, 'client');
         $mform->setDefault('standarderror', 5.0);
         $mform->setType('standarderror', PARAM_NUMBER);
 
-        // add standard elements, common to all modules
+        // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
-        // add standard buttons, common to all modules
+        // Add standard buttons, common to all modules.
         $this->add_action_buttons();
     }
 
@@ -152,7 +159,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
             $errors['questionpool'] = get_string('formquestionpool', 'adaptivequiz');
         }
 
-        // Validate for positivity
+        // Validate for positivity.
         if (0 >= $data['minimumquestions']) {
             $errors['minimumquestions'] = get_string('formelementnegative', 'adaptivequiz');
         }
@@ -177,7 +184,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
             $errors['standarderror'] = get_string('formstderror', 'adaptivequiz');
         }
 
-        // Validate higher and lower values
+        // Validate higher and lower values.
         if ($data['minimumquestions'] >= $data['maximumquestions']) {
             $errors['minimumquestions'] = get_string('formminquestgreaterthan', 'adaptivequiz');
         }

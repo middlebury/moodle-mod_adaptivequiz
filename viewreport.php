@@ -55,7 +55,12 @@ $PAGE->set_context($context);
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 /* Initialized parameter array for sql query */
-$param = array('attemptstate1' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'attemptstate2' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED, 'instance' => $cm->instance);
+$param = array(
+    'attemptstate1' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    'attemptstate2' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    'attemptstate3' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    'attemptstate4' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    'instance' => $cm->instance);
 
 /* Constructo order by clause */
 $orderby = adaptivequiz_construct_view_report_orderby($sort, $sortdir);
@@ -79,7 +84,7 @@ if (0 != $groupid) {
     $param['groupid'] = $groupid;
 }
 
-/* Retreive a list of attempts made by each use, displaying the sum of attempts and showing the lowest standard error calculated of the user's attempts */
+/* Retreive a list of attempts made by each user, displaying the sum of attempts and the highest score for each user */
 $sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
                (SELECT COUNT(*)
                   FROM {adaptivequiz_attempt} caa
@@ -101,7 +106,23 @@ $sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
                        AND saa.attemptstate = :attemptstate2
                        AND saa.standarderror > 0.0
               ORDER BY measure DESC
-                 LIMIT 1) AS stderror
+                 LIMIT 1) AS stderror,
+               (SELECT taa.timemodified
+                  FROM {adaptivequiz_attempt} taa
+                 WHERE taa.instance = a.id
+                       AND taa.userid = u.id
+                       AND taa.attemptstate = :attemptstate3
+                       AND taa.standarderror > 0.0
+              ORDER BY measure DESC
+                 LIMIT 1) AS timemodified,
+               (SELECT iaa.uniqueid
+                  FROM mdl_adaptivequiz_attempt iaa
+                 WHERE iaa.instance = a.id
+                       AND iaa.userid = u.id
+                       AND iaa.attemptstate = :attemptstate4
+                       AND iaa.standarderror > 0.0
+              ORDER BY measure DESC
+                 LIMIT 1) AS uniqueid
           FROM {adaptivequiz_attempt} aa
           JOIN {user} u ON u.id = aa.userid
           JOIN {adaptivequiz} a ON a.id = aa.instance

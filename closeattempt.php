@@ -15,17 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Confirmation page to remove student attempts
+ * Confirmation page to close a student attempt
  *
  * This module was created as a collaborative effort between Middlebury College
  * and Remote Learner.
  *
  * @package    mod_adaptivequiz
- * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2013 Remote-Learner {@link http://www.remote-learner.ca/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(__FILE__).'/../../config.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 
 $id = required_param('cmid', PARAM_INT);
 $uniqueid = required_param('uniqueid', PARAM_INT);
@@ -47,7 +48,8 @@ $context = context_module::instance($cm->id);
 require_capability('mod/adaptivequiz:viewreport', $context);
 
 $param = array('uniqueid' => $uniqueid, 'userid' => $userid, 'activityid' => $cm->instance);
-$sql = 'SELECT a.name, aa.timemodified, aa.id, u.firstname, u.lastname
+$sql = 'SELECT a.name, aa.attemptstate, aa.timecreated, aa.timemodified, aa.id, u.firstname, u.lastname, aa.attemptstate,
+               aa.questionsattempted, aa.measure, aa.standarderror AS stderror, a.highestlevel, a.lowestlevel
           FROM {adaptivequiz} a
           JOIN {adaptivequiz_attempt} aa ON a.id = aa.instance
           JOIN {user} u ON u.id = aa.userid
@@ -60,7 +62,11 @@ $adaptivequiz  = $DB->get_record_sql($sql, $param);
 $returnurl = new moodle_url('/mod/adaptivequiz/viewattemptreport.php', array('cmid' => $cm->id, 'userid' => $userid));
 
 if (empty($adaptivequiz)) {
-    print_error('errordeletingattempt', 'adaptivequiz', $returnurl);
+    print_error('errorclosingattempt', 'adaptivequiz', $returnurl);
+}
+
+if ($adaptivequiz->attemptstate == ADAPTIVEQUIZ_ATTEMPT_COMPLETED) {
+    print_error('errorclosingattempt_alreadycomplete', 'adaptivequiz', $returnurl);
 }
 
 $PAGE->set_url('/mod/adaptivequiz/reviewattempt.php', array('cmid' => $cm->id));
@@ -68,21 +74,36 @@ $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-// Are you usre confirmation message.
+$renderer = $PAGE->get_renderer('mod_adaptivequiz');
+
+// Are you sure confirmation message.
+global $USER;
 $a = new stdClass();
 $a->name = format_string($adaptivequiz->firstname.' '.$adaptivequiz->lastname);
-$a->timecompleted = userdate($adaptivequiz->timemodified);
-$message = get_string('confirmdeleteattempt', 'adaptivequiz', $a);
+$a->started = userdate($adaptivequiz->timecreated);
+$a->modified = userdate($adaptivequiz->timemodified);
+$a->num_questions = format_string($adaptivequiz->questionsattempted);
+$a->measure = $renderer->format_measure($adaptivequiz);
+$a->standarderror = $renderer->format_standard_error($adaptivequiz);
+$a->current_user_name = format_string($USER->firstname.' '.$USER->lastname);
+$a->current_user_id = format_string($USER->id);
+$a->now = userdate(time());
+
+$message = html_writer::tag('p', get_string('confirmcloseattempt', 'adaptivequiz', $a))
+    .html_writer::tag('p', get_string('confirmcloseattemptstats', 'adaptivequiz', $a))
+    .html_writer::tag('p', get_string('confirmcloseattemptscore', 'adaptivequiz', $a));
 
 if ($confirm) {
-    // Remove attempt record and redirect.
-    question_engine::delete_questions_usage_by_activity($uniqueid);
-    $DB->delete_records('adaptivequiz_attempt', array('instance' => $cm->instance, 'uniqueid' => $uniqueid, 'userid' => $userid));
-    $message = get_string('attemptdeleted', 'adaptivequiz', $a);
-    redirect($returnurl, $message, 4);
+    // Close the attempt record and redirect.
+    $statusmessage = get_string('attemptclosedstatus', 'adaptivequiz', $a);
+
+    $closemessage = get_string('attemptclosed', 'adaptivequiz', $a);
+
+    adaptivequiz_complete_attempt($uniqueid, $cm->instance, $userid, $adaptivequiz->stderror, $statusmessage);
+    redirect($returnurl, $closemessage, 4);
 }
 
-$confirm = new moodle_url('/mod/adaptivequiz/delattempt.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id,
+$confirm = new moodle_url('/mod/adaptivequiz/closeattempt.php', array('uniqueid' => $uniqueid, 'cmid' => $cm->id,
     'userid' => $userid, 'confirm' => 1));
 echo $OUTPUT->header();
 echo $OUTPUT->confirm($message, $confirm, $returnurl);

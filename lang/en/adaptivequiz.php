@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 $string['modulenameplural'] = 'Adaptive Test';
 $string['modulename'] = 'Adaptive Test';
 $string['modulename_help'] = 'The adaptive test activity enables a teacher to create tests that efficiently measure the takers\' abilities. Adaptive tests are comprised  of questions selected from the question bank that are tagged with a score of their difficulty. The questions are chosen to match the estimated ability level of the  current test-taker. If the test-taker succeeds on a question, a more challenging question is presented next. If the test-taker answers a question incorrectly, a less-challenging question is presented next. This technique will develop into a sequence of questions converging on the test-taker\'s effective ability level. The test stops when the test-taker\'s ability is determined to the required accuracy.
@@ -100,13 +115,23 @@ $string['deleteattemp'] = 'Delete attempt';
 $string['confirmdeleteattempt'] = 'Confirming the deletion of attempt from {$a->name} submitted on {$a->timecompleted}';
 $string['attemptdeleted'] = 'Attempt deleted for {$a->name} submitted on {$a->timecompleted}';
 $string['errordeletingattempt'] = 'Attempt record was not found';
+$string['closeattempt'] = 'Close attempt';
+$string['confirmcloseattempt'] = 'Are you sure that you wish to close and finalize this attempt of {$a->name}?';
+$string['confirmcloseattemptstats'] = 'This attempt was started on {$a->started} and last updated on {$a->modified}.';
+$string['confirmcloseattemptscore'] = '{$a->num_questions} questions were answered and the score so far is {$a->measure} {$a->standarderror}.';
+$string['attemptclosedstatus'] = 'Manually closed by {$a->current_user_name} (user-id: {$a->current_user_id}) on {$a->now}.';
+$string['attemptclosed'] = 'The attempt has been manually closed.';
+$string['errorclosingattempt'] = 'Attempt record was not found';
+$string['errorclosingattempt_alreadycomplete'] = 'This attempt is already complete, it cannot be manually closed.';
 $string['formstderror'] = 'Must enter a percent less than 50 and greater than or equal to 0';
 $string['backtoviewattemptreport'] = 'Back to view attempt report';
 $string['backtoviewreport'] = 'Back to main reports';
 $string['reviewattemptreport'] = 'Reviewing attempt by {$a->fullname} submitted on {$a->finished}';
 $string['score'] = 'Score';
 $string['bestscore'] = 'Best Score';
+$string['bestscorestderror'] = 'Standard Error';
 $string['attempt_summary'] = 'Attempt Summary';
+$string['scoring_table'] = 'Scoring Tables';
 $string['attempt_questiondetails'] = 'Question Details';
 $string['attemptstarttime'] = 'Attempt start time';
 $string['attempttotaltime'] = 'Total time (hh:mm:ss)';
@@ -124,6 +149,13 @@ $string['attemptquestion_stderr'] = 'Standard Error (&plusmn;&nbsp;logits)';
 $string['graphlegend_target'] = 'Target Level';
 $string['graphlegend_error'] = 'Standard Error';
 $string['unknownuser'] = 'Unknown user';
+$string['answerdistgraph_title'] = 'Answer distribution for {$a->firstname} {$a->lastname}';
+$string['answerdistgraph_questiondifficulty'] = 'Question level';
+$string['answerdistgraph_numrightwrong'] = 'Num wrong (-)  /  Num right (+)';
+$string['numright'] = 'Num right';
+$string['numwrong'] = 'Num wrong';
+$string['questionnumber'] = 'Question #';
+$string['na'] = 'n/a';
 $string['questionanalysisbtn'] = 'Question Analysis';
 $string['id'] = 'ID';
 $string['name'] = 'Name';

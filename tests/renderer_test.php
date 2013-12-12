@@ -170,6 +170,8 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $records[1]->lastname = 'test lastname';
         $records[1]->measure = -0.6;
         $records[1]->stderror = 0.17;
+        $records[1]->timemodified = 12345678;
+        $records[1]->uniqueid = 1111;
         $records[1]->highestlevel = 16;
         $records[1]->lowestlevel = 1;
         $records[1]->attempts = 5;
@@ -187,7 +189,8 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $this->assertContains('test firstname', $output);
         $this->assertContains('test lastname', $output);
         $this->assertContains('/user/profile.php?id=1', $output);
-        $this->assertContains('6.3 &plusmn; 4%', $output);
+        $this->assertContains('6.3', $output);
+        $this->assertContains('&plusmn; 4%', $output);
         $this->assertContains('5', $output);
         /* Check table column headers */
         $this->assertContains('sort=firstname', $output);
@@ -430,13 +433,17 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $dummycm->id = 99;
 
         $output = $renderer->format_report_table_headers($dummycm, 'stderror', 'ASC');
-        $this->assertEquals(3, count($output));
+        $this->assertEquals(5, count($output));
         $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[0]);
         $this->assertContains('sort=firstname&amp;sortdir=ASC', $output[0]);
         $this->assertContains('sort=lastname&amp;sortdir=ASC', $output[0]);
         $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[1]);
         $this->assertContains('sort=attempts&amp;sortdir=ASC', $output[1]);
         $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[2]);
-        $this->assertContains('sort=stderror&amp;sortdir=DESC', $output[2]);
+        $this->assertContains('sort=measure&amp;sortdir=ASC', $output[2]);
+        $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[3]);
+        $this->assertContains('sort=stderror&amp;sortdir=DESC', $output[3]);
+        $this->assertContains('/mod/adaptivequiz/viewreport.php', $output[4]);
+        $this->assertContains('sort=timemodified&amp;sortdir=ASC', $output[4]);
     }
 }

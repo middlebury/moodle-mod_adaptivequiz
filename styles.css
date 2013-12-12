@@ -7,3 +7,12 @@
 .adaptivequiz-attemptgraph {
     clear: both;
 }
+
+#adpq_scoring_table table {
+    float: left;
+    margin-right: 20px;
+}
+
+#adpq_scoring_table {
+    clear: both;
+}

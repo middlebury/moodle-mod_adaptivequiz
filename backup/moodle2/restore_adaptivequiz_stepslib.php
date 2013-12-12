@@ -44,7 +44,8 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         $adaptivequiz = new restore_path_element('adaptivequiz', '/activity/adaptivequiz');
         $paths[] = $adaptivequiz;
 
-        $paths[] = new restore_path_element('adaptivequiz_question', '/activity/adaptivequiz/adatpivequestioncats/adatpivequestioncat');
+        $paths[] = new restore_path_element('adaptivequiz_question',
+            '/activity/adaptivequiz/adatpivequestioncats/adatpivequestioncat');
 
         if ($userinfo) {
             $attempt = new restore_path_element('adaptivequiz_attempt', '/activity/adaptivequiz/adaptiveattempts/adaptiveattempt');
@@ -88,7 +89,7 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         $oldid = $data->id;
 
         $data->instance = $this->get_new_parentid('adaptivequiz');
-        // Check if catid is not empty and update the record with the new category id
+        // Check if catid is not empty and update the record with the new category id.
         $catid = $this->get_mappingid('question_category', $data->questioncategory);
         if (!empty($catid)) {
             $data->questioncategory = $catid;
@@ -126,7 +127,7 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
 
         $newitemid = $DB->insert_record('adaptivequiz_attempt', $data);
 
-        // Save quiz_attempt->id mapping, because logs use it. (logs will be implemented latter)
+        // Save quiz_attempt->id mapping, because logs use it. (logs will be implemented latter).
         $this->set_mapping('adaptivequiz_attempt', $oldid, $newitemid, false);
     }
 
