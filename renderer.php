@@ -414,7 +414,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
             $row = array($attemptstate, format_string($record->attemptstopcriteria), $record->questionsattempted, $measure,
                     userdate($record->timecreated), userdate($record->timemodified),
-                    $link.($closelink?'&nbsp;&nbsp;'.$closelink:'').'&nbsp;&nbsp;'.$dellink);
+                    $link.($closelink ? '&nbsp;&nbsp;'.$closelink : '').'&nbsp;&nbsp;'.$dellink);
             $table->data[] = $row;
             $table->rowclasses[] = 'studentattempt';
         }
@@ -912,7 +912,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $stderrorlogits = catalgo::estimate_standard_error($numattempted, $sumcorrect, $sumincorrect);
             $stderror = catalgo::convert_logit_to_percent($stderrorlogits);
 
-            $table->data[] = array($slot, $qdifficulty, ($correct?'r':'w'), round($ability, 2),
+            $table->data[] = array($slot, $qdifficulty, ($correct ? 'r' : 'w'), round($ability, 2),
                     round($stderror * 100, 1)."%");
         }
         return html_writer::table($table);
