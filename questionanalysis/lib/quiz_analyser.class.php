@@ -61,7 +61,7 @@ class adaptivequiz_quiz_analyser {
 
         $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $instance), '*');
 
-        // Get all of the completed attempts for this adaptive quiz instance
+        // Get all of the completed attempts for this adaptive quiz instance.
         $attempts  = $DB->get_records('adaptivequiz_attempt', array('instance' => $instance, 'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED));
 
         foreach ($attempts as $attempt) {
@@ -81,14 +81,14 @@ class adaptivequiz_quiz_analyser {
             foreach ($quba->get_slots() as $i => $slot) {
                 $question = $quba->get_question($slot);
 
-                // Create a question-analyser for the question
+                // Create a question-analyser for the question.
                 if (empty($this->questions[$question->id])) {
                     $tags = tag_get_tags_array('question', $question->id);
                     $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
                     $this->questions[$question->id] = new adaptivequiz_question_analyser($question, $difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
                 }
 
-                // Record the attempt score and the individual question result
+                // Record the attempt score and the individual question result.
                 $correct = ($quba->get_question_mark($slot) > 0);
                 $this->questions[$question->id]->add_result($user, $score, $correct);
             }

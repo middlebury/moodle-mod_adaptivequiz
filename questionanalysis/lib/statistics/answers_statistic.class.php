@@ -46,7 +46,7 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
      * @return adaptivequiz_question_statistic_result
      */
     public function calculate (adaptivequiz_question_analyser $analyser) {
-        // Sort the results
+        // Sort the results.
         $results = $analyser->get_results();
         foreach ($results as $result) {
             $sortkeys[] = $result->score->measured_ability_in_logits();

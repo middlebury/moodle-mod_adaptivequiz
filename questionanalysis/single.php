@@ -77,7 +77,7 @@ $quizanalyzer->add_statistic('answers', new adaptivequiz_answers_statistic());
 $headers = $quizanalyzer->get_header();
 $record = $quizanalyzer->get_record($qid);
 
-// Get rid of the question id and name columns:
+// Get rid of the question id and name columns.
 unset($headers['id'], $headers['name']);
 array_shift($record);
 array_shift($record);

@@ -167,7 +167,7 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
      * @return string HTML markup
      */
     public function get_question_details (adaptivequiz_question_analyser $analyzer, $context) {
-        // Setup display options
+        // Setup display options.
         $options = new question_display_options();
         $options->readonly = true;
         $options->flags = question_display_options::HIDDEN;
@@ -176,7 +176,7 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
         $options->correctness = question_display_options::VISIBLE;
         $options->numpartscorrect = question_display_options::VISIBLE;
 
-        // Init question usage and set default behaviour of usage
+        // Init question usage and set default behaviour of usage.
         $quba = question_engine::make_questions_usage_by_activity('mod_adaptivequiz', $context);
         $quba->set_preferred_behaviour('deferredfeedback');
         $quba->add_question($analyzer->get_question_definition());
