@@ -346,7 +346,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable quizsummaryofattempt boxaligncenter';
         $table->head = $this->format_report_table_headers($cm, $sort, $sortdir);
-        $table->align = array('center', 'center', 'center', 'center', '');
+        $table->align = array('center', 'center', 'center', 'center', 'center', '');
         $table->size = array('', '', '', '', '');
 
         $table->data = array();
@@ -441,6 +441,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $columnicon = '';
         $firstname = '';
         $lastname = '';
+        $email = '';
         $numofattempts = '';
         $measure = '';
         $standarderror = '';
@@ -468,6 +469,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $firstnameurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
         $param['sort'] = 'lastname';
         $lastnameurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
+        $param['sort'] = 'email';
+        $emailurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
         $param['sort'] = 'attempts';
         $numofattemptsurl = new moodle_url('/mod/adaptivequiz/viewreport.php', $param);
         $param['sort'] = 'measure';
@@ -488,6 +491,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $lastnameurl->params(array('sortdir' => $newsortdir));
                 $this->sorturl = $lastnameurl;
                 $lastname .= '&nbsp;'.$columnicon;
+                break;
+            case 'email':
+                $emailurl->params(array('sortdir' => $newsortdir));
+                $this->sorturl = $emailurl;
+                $email .= '&nbsp;'.$columnicon;
                 break;
             case 'attempts':
                 $numofattemptsurl->params(array('sortdir' => $newsortdir));
@@ -514,12 +522,13 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         // Create header HTML markup.
         $firstname = html_writer::link($firstnameurl, get_string('firstname')).$firstname;
         $lastname = html_writer::link($lastnameurl, get_string('lastname')).$lastname;
+        $email = html_writer::link($emailurl, get_string('email')).$email;
         $numofattempts = html_writer::link($numofattemptsurl, get_string('numofattemptshdr', 'adaptivequiz')).$numofattempts;
         $measure = html_writer::link($measureurl, get_string('bestscore', 'adaptivequiz')).$measure;
         $standarderror = html_writer::link($standarderrorurl, get_string('bestscorestderror', 'adaptivequiz')).$standarderror;
         $timemodified = html_writer::link($timemodifiedurl, get_string('attemptfinishedtimestamp', 'adaptivequiz')).$timemodified;
 
-        return array($firstname.' / '.$lastname, $numofattempts, $measure, $standarderror, $timemodified);
+        return array($firstname.' / '.$lastname, $email, $numofattempts, $measure, $standarderror, $timemodified);
     }
 
     /**
@@ -550,7 +559,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $profileurl = new moodle_url('/user/profile.php', array('id' => $record->id));
             $name = $record->firstname.' '.$record->lastname;
             $namelink = html_writer::link($profileurl, $name);
-            $row = array($namelink, $link, $measure, $stderror, $timemodified);
+            $emaillink = html_writer::link('mailto:'.$record->email, $record->email);
+            $row = array($namelink, $emaillink, $link, $measure, $stderror, $timemodified);
             $table->data[] = $row;
             $table->rowclasses[] = 'studentattempt';
         }
@@ -1033,6 +1043,7 @@ class mod_adaptivequiz_csv_renderer extends mod_adaptivequiz_renderer {
         $headers = array(
             get_string('firstname'),
             get_string('lastname'),
+            get_string('email'),
             get_string('numofattemptshdr', 'adaptivequiz'),
             get_string('bestscore', 'adaptivequiz'),
             get_string('bestscorestderror', 'adaptivequiz'),
@@ -1050,6 +1061,7 @@ class mod_adaptivequiz_csv_renderer extends mod_adaptivequiz_renderer {
             $row = array(
                 $record->firstname,
                 $record->lastname,
+                $record->email,
                 $record->attempts,
                 $this->format_measure($record),
                 $this->format_standard_error($record),

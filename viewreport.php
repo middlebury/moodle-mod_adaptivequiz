@@ -91,7 +91,7 @@ if (0 != $groupid) {
 }
 
 /* Retreive a list of attempts made by each user, displaying the sum of attempts and the highest score for each user */
-$sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
+$sql = "SELECT u.id, u.firstname, u.lastname, u.email, a.highestlevel, a.lowestlevel,
                (SELECT COUNT(*)
                   FROM {adaptivequiz_attempt} caa
                  WHERE caa.userid = u.id
