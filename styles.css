@@ -16,3 +16,8 @@
 #adpq_scoring_table {
     clear: both;
 }
+
+.adpq_download {
+    text-align: center;
+    margin: 10px;
+}

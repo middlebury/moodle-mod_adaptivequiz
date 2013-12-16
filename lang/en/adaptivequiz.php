@@ -156,3 +156,4 @@ $string['numright'] = 'Num right';
 $string['numwrong'] = 'Num wrong';
 $string['questionnumber'] = 'Question #';
 $string['na'] = 'n/a';
+$string['downloadcsv'] = 'Download CSV';

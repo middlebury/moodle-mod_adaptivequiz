@@ -305,6 +305,13 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     public function print_report_table($records, $cm, $sort, $sortdir) {
         $output = $this->heading(get_string('activityreports', 'adaptivequiz'));
+
+        $output .= html_writer::start_tag('div', array('class' => 'adpq_download'));
+        $csvurl = new moodle_url('/mod/adaptivequiz/viewreport.php',
+            array('cmid' => $cm->id, 'download' => 'csv', 'sort' => $sort, 'sortdir' => $sortdir));
+        $output .= html_writer::link($csvurl, get_string('downloadcsv', 'adaptivequiz'));
+        $output .= html_writer::end_tag('div');
+
         $output .= $this->create_report_table($records, $cm, $sort, $sortdir);
         return $output;
     }
@@ -972,5 +979,116 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         }
 
         return html_writer::table($table);
+    }
+}
+
+/**
+ * A substitute renderer class that outputs CSV results instead of HTML.
+ */
+class mod_adaptivequiz_csv_renderer extends mod_adaptivequiz_renderer {
+    /**
+     * This function returns page header information to be printed to the page
+     * @return string HTML markup for header inforation
+     */
+    public function print_header() {
+        header('Content-type: text/csv');
+        $filename = $this->page->title;
+        $filename = preg_replace('/[^a-z0-9_-]/i', '_', $filename);
+        $filename = preg_replace('/_{2,}/', '_', $filename);
+        $filename = $filename.'.csv';
+        header("Content-Disposition: attachment; filename=$filename");
+    }
+
+    /**
+     * This function returns page footer information to be printed to the page
+     * @return string HTML markup for footer inforation
+     */
+    public function print_footer() {
+        // Do nothing.
+    }
+
+    /**
+     * This function prints paging information
+     * @param int $totalrecords the total number of records returned
+     * @param int $page the current page the user is on
+     * @param int $perpage the number of records displayed on one page
+     * @return string HTML markup
+     */
+    public function print_paging_bar($totalrecords, $page, $perpage) {
+        // Do nothing.
+    }
+
+    /**
+     * This function returns the HTML markup to display a table of the attempts taken at the activity
+     * @param stdClass $records attempt records from adaptivequiz_attempt table
+     * @param stdClass $cm course module object set to the instance of the activity
+     * @param string $sort the column the the table is to be sorted by
+     * @param string $sortdir the direction of the sort
+     * @return string HTML markup
+     */
+    public function print_report_table($records, $cm, $sort, $sortdir) {
+        ob_start();
+        $output = fopen('php://output', 'w');
+
+        $headers = array(
+            get_string('firstname'),
+            get_string('lastname'),
+            get_string('numofattemptshdr', 'adaptivequiz'),
+            get_string('bestscore', 'adaptivequiz'),
+            get_string('bestscorestderror', 'adaptivequiz'),
+            get_string('attemptfinishedtimestamp', 'adaptivequiz'),
+        );
+        fputcsv($output, $headers);
+
+        foreach ($records as $record) {
+            if (intval($record->timemodified)) {
+                $timemodified = date('c', intval($record->timemodified));
+            } else {
+                $timemodified = get_string('na', 'adaptivequiz');
+            }
+
+            $row = array(
+                $record->firstname,
+                $record->lastname,
+                $record->attempts,
+                $this->format_measure($record),
+                $this->format_standard_error($record),
+                $timemodified,
+            );
+
+            fputcsv($output, $row);
+        }
+
+        return ob_get_clean();
+    }
+
+    /**
+     * This function formats the ability measure into a user friendly format
+     * @param stdClass an object with the following properties: measure, highestlevel, lowestlevel and stderror.  The values must
+     *      come from the activty instance and the user's
+     * attempt record
+     * @return string a user friendly format of the ability measure.  Ability measure is rounded to the nearest decimal.
+     */
+    public function format_measure($record) {
+        if (is_null($record->measure)) {
+            return 'n/a';
+        }
+        return round(catalgo::map_logit_to_scale($record->measure, $record->highestlevel, $record->lowestlevel), 2);
+    }
+
+    /**
+     * This function formats the standard error into a user friendly format
+     * @param stdClass an object with the following properties: measure, highestlevel, lowestlevel and stderror.  The values must
+     *      come from the activty instance and the user's
+     * attempt record
+     * @return string a user friendly format of the standard error. Standard error is
+     * rounded to the nearest one hundredth then multiplied by 100
+     */
+    public function format_standard_error($record) {
+        if (is_null($record->stderror) || $record->stderror == 0.0) {
+            return 'n/a';
+        }
+        $percent = round(catalgo::convert_logit_to_percent($record->stderror), 2) * 100;
+        return $percent.'%';
     }
 }
