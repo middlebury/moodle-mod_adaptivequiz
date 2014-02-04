@@ -157,3 +157,13 @@ $string['numwrong'] = 'Num wrong';
 $string['questionnumber'] = 'Question #';
 $string['na'] = 'n/a';
 $string['downloadcsv'] = 'Download CSV';
+
+$string['grademethod'] = 'Grading method';
+$string['gradehighest'] = 'Highest grade';
+$string['attemptfirst'] = 'First attempt';
+$string['attemptlast'] = 'Last attempt';
+$string['grademethod_help'] = 'When multiple attempts are allowed, the following methods are available for calculating the final quiz grade:
+
+* Highest grade of all attempts
+* First attempt (all other attempts are ignored)
+* Last attempt (all other attempts are ignored)';

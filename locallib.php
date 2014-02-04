@@ -347,3 +347,16 @@ function adaptivequiz_get_difficulty_from_tags(array $tags) {
     }
     return null;
 }
+
+
+/**
+ * @return array int => lang string the options for calculating the quiz grade
+ *      from the individual attempt grades.
+ */
+function adaptivequiz_get_grading_options() {
+    return array(
+        ADAPTIVEQUIZ_GRADEHIGHEST => get_string('gradehighest', 'adaptivequiz'),
+        ADAPTIVEQUIZ_ATTEMPTFIRST => get_string('attemptfirst', 'adaptivequiz'),
+        ADAPTIVEQUIZ_ATTEMPTLAST  => get_string('attemptlast', 'adaptivequiz')
+    );
+}

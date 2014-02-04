@@ -31,6 +31,14 @@ defined('MOODLE_INTERNAL') || die();
 define('ADAPTIVEQUIZMAXATTEMPT', 10);
 define('ADAPTIVEQUIZNAME', 'adaptivequiz');
 
+/**
+ * Options determining how the grades from individual attempts are combined to give
+ * the overall grade for a user
+ */
+define('ADAPTIVEQUIZ_GRADEHIGHEST', '1');
+define('ADAPTIVEQUIZ_ATTEMPTFIRST', '3');
+define('ADAPTIVEQUIZ_ATTEMPTLAST',  '4');
+
 require_once($CFG->dirroot.'/question/engine/lib.php');
 
 
@@ -54,6 +62,8 @@ function adaptivequiz_supports($feature) {
         case FEATURE_BACKUP_MOODLE2:
             return true;
         case FEATURE_SHOW_DESCRIPTION:
+            return true;
+        case FEATURE_GRADE_HAS_GRADE:
             return true;
         case FEATURE_CONTROLS_GRADE_VISIBILITY:
             return true;
