@@ -360,3 +360,63 @@ function adaptivequiz_get_grading_options() {
         ADAPTIVEQUIZ_ATTEMPTLAST  => get_string('attemptlast', 'adaptivequiz')
     );
 }
+
+/**
+ * Return grade for given user or all users.
+ *
+ * @param stdClass $adaptivequiz The adaptivequiz
+ * @param int $userid optional user id, 0 means all users
+ * @return array array of grades, false if none. These are raw grades. They should
+ * be processed with adaptivequiz_format_grade for display.
+ */
+function adaptivequiz_get_user_grades($adaptivequiz, $userid = 0) {
+    global $CFG, $DB;
+    require_once($CFG->dirroot.'/mod/adaptivequiz/catalgo.class.php');
+
+    $params = array(
+        'instance' => $adaptivequiz->id,
+        'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    );
+    $userwhere = '';
+    if ($userid) {
+        $params['userid'] = $userid;
+        $userwhere = 'AND u.id = :userid';
+    }
+    $sql = "SELECT aa.userid, aa.measure, aa.timemodified, aa.timecreated, a.highestlevel,
+               a.lowestlevel
+          FROM {adaptivequiz_attempt} aa
+          JOIN {adaptivequiz} a ON aa.instance = a.id
+         WHERE aa.instance = :instance
+               AND aa.attemptstate = :attemptstate
+               $userwhere";
+    $records = $DB->get_records_sql($sql, $params);
+
+    $grades = array();
+    foreach ($records as $grade) {
+        $grade->rawgrade = catalgo::map_logit_to_scale($grade->measure,
+            $grade->highestlevel, $grade->lowestlevel);
+
+        if (empty($grades[$grade->userid])) {
+            // Store the first attempt.
+            $grades[$grade->userid] = $grade;
+        } else {
+            // If additional attempts are recorded, uses the settings to determine
+            // which one to report.
+            if ($adaptivequiz->grademethod == ADAPTIVEQUIZ_ATTEMPTFIRST) {
+                if ($grade->timemodified < $grades[$grade->userid]->timemodified) {
+                    $grades[$grade->userid] = $grade;
+                }
+            } else if ($adaptivequiz->grademethod == ADAPTIVEQUIZ_ATTEMPTLAST) {
+                if ($grade->timemodified > $grades[$grade->userid]->timemodified) {
+                    $grades[$grade->userid] = $grade;
+                }
+            } else {
+                // By default, use the highst grade.
+                if ($grade->rawgrade > $grades[$grade->userid]->rawgrade) {
+                    $grades[$grade->userid] = $grade;
+                }
+            }
+        }
+    }
+    return $grades;
+}

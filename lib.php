@@ -94,10 +94,16 @@ function adaptivequiz_add_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_
 
     $instance = $DB->insert_record('adaptivequiz', $adaptivequiz);
 
-    // Save question tag association data.
-    if (!empty($instance) && is_int($instance)) {
-        adaptivequiz_add_questcat_association($instance, $adaptivequiz);
+    if (empty($instance) && is_int($instance)) {
+        return $instance;
     }
+    $adaptivequiz->id = $instance;
+
+    // Save question tag association data.
+    adaptivequiz_add_questcat_association($adaptivequiz->id, $adaptivequiz);
+
+    // Update related grade item.
+    adaptivequiz_grade_item_update($adaptivequiz);
 
     return $instance;
 }
@@ -158,9 +164,20 @@ function adaptivequiz_update_instance(stdClass $adaptivequiz, mod_adaptivequiz_m
     $adaptivequiz->timemodified = time();
     $adaptivequiz->id = $adaptivequiz->instance;
 
+    // Get the current value, so we can see what changed.
+    $oldquiz = $DB->get_record('adaptivequiz', array('id' => $adaptivequiz->instance));
+
     $instanceid = $DB->update_record('adaptivequiz', $adaptivequiz);
 
+    // Save question tag association data.
     adaptivequiz_update_questcat_association($adaptivequiz->id, $adaptivequiz);
+
+    // Update related grade item.
+    if ($oldquiz->grademethod != $adaptivequiz->grademethod) {
+        adaptivequiz_update_grades($adaptivequiz);
+    } else {
+        adaptivequiz_grade_item_update($adaptivequiz);
+    }
 
     return $instanceid;
 }
@@ -497,4 +514,59 @@ function adaptivequiz_extend_navigation(navigation_node $navref, stdclass $cours
  * @param navigation_node $adaptivequiznode: {@link navigation_node}
  */
 function adaptivequiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $adaptivequiznode = null) {
+}
+
+/**
+ * Create or update the grade item for given quiz
+ *
+ * @category grade
+ * @param object $adaptivequiz object with extra cmidnumber
+ * @param mixed $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return int 0 if ok, error code otherwise
+ */
+function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $grades = null) {
+    global $CFG, $OUTPUT;
+    require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+    require_once($CFG->libdir . '/gradelib.php');
+
+    if (!empty($adaptivequiz->id)) { // May not be always present.
+        $params = array('itemname' => $adaptivequiz->name, 'idnumber' => $adaptivequiz->id);
+    } else {
+        $params = array('itemname' => $adaptivequiz->name);
+    }
+
+    if ($adaptivequiz->highestlevel > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax']  = $adaptivequiz->highestlevel;
+        $params['grademin']  = $adaptivequiz->lowestlevel;
+
+    } else {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+    }
+
+    if ($grades === 'reset') {
+        $params['reset'] = true;
+        $grades = null;
+    }
+
+    return grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz', $adaptivequiz->id, 0, $grades, $params);
+}
+
+function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid=0, $nullifnone = true) {
+    global $CFG, $DB;
+    require_once($CFG->libdir.'/gradelib.php');
+
+    if ($grades = adaptivequiz_get_user_grades($adaptivequiz, $userid)) {
+        // Set all user grades.
+        adaptivequiz_grade_item_update($adaptivequiz, $grades);
+    } else if ($userid and $nullifnone) {
+        // Reset all user grades.
+        $grade = new stdClass();
+        $grade->userid   = $userid;
+        $grade->rawgrade = null;
+        adaptivequiz_grade_item_update($adaptivequiz, $grade);
+    } else {
+        // Don't change user grades.
+        adaptivequiz_grade_item_update($adaptivequiz);
+    }
 }
