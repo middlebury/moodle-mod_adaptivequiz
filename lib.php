@@ -65,8 +65,6 @@ function adaptivequiz_supports($feature) {
             return true;
         case FEATURE_GRADE_HAS_GRADE:
             return true;
-        case FEATURE_CONTROLS_GRADE_VISIBILITY:
-            return true;
         default:
             return null;
     }
