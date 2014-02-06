@@ -256,6 +256,10 @@ function adaptivequiz_complete_attempt($uniqueid, $instance, $userid, $standarde
     $attempt->standarderror = $standarderror;
     $DB->update_record('adaptivequiz_attempt', $attempt);
 
+    // Update the gradebook entries.
+    $adaptivequiz = $DB->get_record('adaptivequiz', array('id' => $instance));
+    adaptivequiz_update_grades($adaptivequiz, $userid);
+
     return true;
 }
 
@@ -380,9 +384,9 @@ function adaptivequiz_get_user_grades($adaptivequiz, $userid = 0) {
     $userwhere = '';
     if ($userid) {
         $params['userid'] = $userid;
-        $userwhere = 'AND u.id = :userid';
+        $userwhere = 'AND aa.userid = :userid';
     }
-    $sql = "SELECT aa.userid, aa.measure, aa.timemodified, aa.timecreated, a.highestlevel,
+    $sql = "SELECT aa.uniqueid, aa.userid, aa.measure, aa.timemodified, aa.timecreated, a.highestlevel,
                a.lowestlevel
           FROM {adaptivequiz_attempt} aa
           JOIN {adaptivequiz} a ON aa.instance = a.id
