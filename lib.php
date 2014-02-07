@@ -193,15 +193,9 @@ function adaptivequiz_update_instance(stdClass $adaptivequiz, mod_adaptivequiz_m
 function adaptivequiz_delete_instance($id) {
     global $DB;
 
-    if (!$DB->get_record('adaptivequiz', array('id' => $id))) {
+    $adaptivequiz = $DB->get_record('adaptivequiz', array('id' => $id));
+    if (!$adaptivequiz) {
         return false;
-    }
-
-    $DB->delete_records('adaptivequiz', array('id' => $id));
-
-    // Remove association table data.
-    if ($DB->get_record('adaptivequiz_question', array('instance' => $id))) {
-        $DB->delete_records('adaptivequiz_question', array('instance' => $id));
     }
 
     // Remove question_usage_by_activity records.
@@ -215,6 +209,17 @@ function adaptivequiz_delete_instance($id) {
         // Remove attempts data.
         $DB->delete_records('adaptivequiz_attempt', array('instance' => $id));
     }
+
+    // Remove association table data.
+    if ($DB->get_record('adaptivequiz_question', array('instance' => $id))) {
+        $DB->delete_records('adaptivequiz_question', array('instance' => $id));
+    }
+
+    // Delete the quiz record itself.
+    $DB->delete_records('adaptivequiz', array('id' => $id));
+
+    // Delete the grade item.
+    adaptivequiz_grade_item_delete($adaptivequiz);
 
     return true;
 }
@@ -512,6 +517,21 @@ function adaptivequiz_extend_navigation(navigation_node $navref, stdclass $cours
  * @param navigation_node $adaptivequiznode: {@link navigation_node}
  */
 function adaptivequiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $adaptivequiznode = null) {
+}
+
+/**
+ * Delete the grade item for given quiz
+ *
+ * @category grade
+ * @param object $adaptivequiz object
+ * @return int 0 if ok, error code otherwise
+ */
+function adaptivequiz_grade_item_delete(stdClass $adaptivequiz) {
+    global $CFG;
+    require_once($CFG->libdir . '/gradelib.php');
+
+    $params = array('deleted' => 1);
+    return grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz', $adaptivequiz->id, 0, null, $params);
 }
 
 /**
