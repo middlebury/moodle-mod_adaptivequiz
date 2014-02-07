@@ -538,12 +538,12 @@ function adaptivequiz_grade_item_delete(stdClass $adaptivequiz) {
  * Create or update the grade item for given quiz
  *
  * @category grade
- * @param object $adaptivequiz object with extra cmidnumber
+ * @param object $adaptivequiz object
  * @param mixed $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
  * @return int 0 if ok, error code otherwise
  */
 function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $grades = null) {
-    global $CFG, $OUTPUT;
+    global $CFG;
     require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
     require_once($CFG->libdir . '/gradelib.php');
 
