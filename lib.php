@@ -552,6 +552,7 @@ function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $grades = null) 
 
 function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid=0, $nullifnone = true) {
     global $CFG, $DB;
+    require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
     require_once($CFG->libdir.'/gradelib.php');
 
     if ($grades = adaptivequiz_get_user_grades($adaptivequiz, $userid)) {
