@@ -569,3 +569,67 @@ function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid=0, $nullifno
         adaptivequiz_grade_item_update($adaptivequiz);
     }
 }
+
+/**
+ * Called by course/reset.php
+ */
+function adaptivequiz_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'apaptivequizheader', get_string('modulenameplural', 'adaptivequiz'));
+    $mform->addElement('checkbox', 'reset_adaptivequiz_all', get_string('resetadaptivequizsall', 'adaptivequiz'));
+}
+
+/**
+ * Course reset form defaults.
+ */
+function adaptivequiz_reset_course_form_defaults($course) {
+    return array('reset_adaptivequiz_all' => 0);
+}
+
+/**
+ * This function is used by the reset_course_userdata function in moodlelib.
+ * This function will remove all attempts from the specified adaptivequiz
+ * and clean up any related data.
+ * @param $data the data submitted from the reset course.
+ * @return array status array
+ */
+function adaptivequiz_reset_userdata($data) {
+    global $CFG, $DB;
+
+    // Delete our attempts.
+    if (!empty($data->reset_adaptivequiz_all)) {
+        $adaptivequizes = $DB->get_records('adaptivequiz', array('course' => $data->courseid));
+        foreach ($adaptivequizes as $adaptivequiz) {
+            $attempts = $DB->get_records('adaptivequiz_attempt', array('instance' => $adaptivequiz->id));
+            if (!empty($attempts)) {
+                // Remove question_usage_by_activity records.
+                foreach ($attempts as $attempt) {
+                    question_engine::delete_questions_usage_by_activity($attempt->uniqueid);
+                }
+
+                // Remove attempts data.
+                $DB->delete_records('adaptivequiz_attempt', array('instance' => $adaptivequiz->id));
+            }
+        }
+    }
+
+    // Delete our grades.
+    if (!empty($data->reset_gradebook_grades)) {
+        adaptivequiz_reset_gradebook($data->courseid);
+    }
+
+    return $status;
+}
+
+/**
+ * Removes all grades from gradebook
+ *
+ * @param int $courseid The ID of the course to reset
+ */
+function adaptivequiz_reset_gradebook($courseid) {
+    global $CFG, $DB;
+
+    $adaptivequizes = $DB->get_records('adaptivequiz', array('course' => $courseid));
+    foreach ($adaptivequizes as $adaptivequiz) {
+        adaptivequiz_grade_item_update($adaptivequiz, 'reset');
+    }
+}
