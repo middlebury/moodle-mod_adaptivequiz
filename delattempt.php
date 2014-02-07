@@ -78,6 +78,11 @@ if ($confirm) {
     // Remove attempt record and redirect.
     question_engine::delete_questions_usage_by_activity($uniqueid);
     $DB->delete_records('adaptivequiz_attempt', array('instance' => $cm->instance, 'uniqueid' => $uniqueid, 'userid' => $userid));
+
+    // Update the grade book with any changes.
+    $adaptivequiz = $DB->get_record('adaptivequiz', array('id' => $cm->instance));
+    adaptivequiz_update_grades($adaptivequiz, $userid);
+
     $message = get_string('attemptdeleted', 'adaptivequiz', $a);
     redirect($returnurl, $message, 4);
 }

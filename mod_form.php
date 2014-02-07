@@ -139,6 +139,17 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->setDefault('standarderror', 5.0);
         $mform->setType('standarderror', PARAM_NUMBER);
 
+        // Grade settings.
+        $this->standard_grading_coursemodule_elements();
+        $mform->removeElement('grade');
+
+        // Grading method.
+        $mform->addElement('select', 'grademethod', get_string('grademethod', 'adaptivequiz'),
+                adaptivequiz_get_grading_options());
+        $mform->addHelpButton('grademethod', 'grademethod', 'adaptivequiz');
+        $mform->setDefault('grademethod', ADAPTIVEQUIZ_GRADEHIGHEST);
+        $mform->disabledIf('grademethod', 'attempts', 'eq', 1);
+
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
