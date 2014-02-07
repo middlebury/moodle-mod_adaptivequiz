@@ -615,6 +615,9 @@ function adaptivequiz_reset_course_form_defaults($course) {
 function adaptivequiz_reset_userdata($data) {
     global $CFG, $DB;
 
+    $componentstr = get_string('modulenameplural', 'adaptivequiz');
+    $status = array();
+
     // Delete our attempts.
     if (!empty($data->reset_adaptivequiz_all)) {
         $adaptivequizes = $DB->get_records('adaptivequiz', array('course' => $data->courseid));
@@ -631,10 +634,20 @@ function adaptivequiz_reset_userdata($data) {
             }
         }
     }
+    $status[] = array(
+        'component' => $componentstr,
+        'item' => get_string('all_attempts_deleted', 'adaptivequiz'),
+        'error' => false,
+    );
 
     // Delete our grades.
     if (!empty($data->reset_gradebook_grades)) {
         adaptivequiz_reset_gradebook($data->courseid);
+        $status[] = array(
+            'component' => $componentstr,
+            'item' => get_string('all_grades_removed', 'adaptivequiz'),
+            'error' => false,
+        );
     }
 
     return $status;

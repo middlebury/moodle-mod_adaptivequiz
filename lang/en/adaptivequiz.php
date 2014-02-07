@@ -168,3 +168,5 @@ $string['grademethod_help'] = 'When multiple attempts are allowed, the following
 * First attempt (all other attempts are ignored)
 * Last attempt (all other attempts are ignored)';
 $string['resetadaptivequizsall'] = 'Delete all Adaptive Quiz attempts';
+$string['all_attempts_deleted'] = 'All Adaptive Quiz attempts were deleted';
+$string['all_grades_removed'] = 'All Adaptive Quiz grades were removed';
