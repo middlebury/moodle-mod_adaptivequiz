@@ -34,6 +34,7 @@ $sortdir = optional_param('sortdir', 'ASC', PARAM_ALPHA);
 $sort = optional_param('sort', 'lastname', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 $groupid = optional_param('group', 0, PARAM_INT);
+$download = optional_param('download', '', PARAM_ALPHA);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -52,7 +53,12 @@ $PAGE->set_url('/mod/adaptivequiz/viewreport.php', array('cmid' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
-$output = $PAGE->get_renderer('mod_adaptivequiz');
+
+if ($download == 'csv') {
+    $output = $PAGE->get_renderer('mod_adaptivequiz', 'csv');
+} else {
+    $output = $PAGE->get_renderer('mod_adaptivequiz');
+}
 
 /* Initialized parameter array for sql query */
 $param = array(
@@ -85,7 +91,7 @@ if (0 != $groupid) {
 }
 
 /* Retreive a list of attempts made by each user, displaying the sum of attempts and the highest score for each user */
-$sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
+$sql = "SELECT u.id, u.firstname, u.lastname, u.email, a.highestlevel, a.lowestlevel,
                (SELECT COUNT(*)
                   FROM {adaptivequiz_attempt} caa
                  WHERE caa.userid = u.id
@@ -132,7 +138,12 @@ $sql = "SELECT u.id, u.firstname, u.lastname, a.highestlevel, a.lowestlevel,
       GROUP BY aa.userid
         $orderby";
 $startfrom = $page * ADAPTIVEQUIZ_REC_PER_PAGE;
-$records = $DB->get_records_sql($sql, $param, $startfrom, ADAPTIVEQUIZ_REC_PER_PAGE);
+
+if ($download) {
+    $records = $DB->get_records_sql($sql, $param);
+} else {
+    $records = $DB->get_records_sql($sql, $param, $startfrom, ADAPTIVEQUIZ_REC_PER_PAGE);
+}
 /* Count the total number of records returned */
 $recordscount = $DB->get_records_sql($sql, $param);
 

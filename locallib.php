@@ -256,6 +256,10 @@ function adaptivequiz_complete_attempt($uniqueid, $instance, $userid, $standarde
     $attempt->standarderror = $standarderror;
     $DB->update_record('adaptivequiz_attempt', $attempt);
 
+    // Update the gradebook entries.
+    $adaptivequiz = $DB->get_record('adaptivequiz', array('id' => $instance));
+    adaptivequiz_update_grades($adaptivequiz, $userid);
+
     return true;
 }
 
@@ -346,4 +350,77 @@ function adaptivequiz_get_difficulty_from_tags(array $tags) {
         }
     }
     return null;
+}
+
+
+/**
+ * @return array int => lang string the options for calculating the quiz grade
+ *      from the individual attempt grades.
+ */
+function adaptivequiz_get_grading_options() {
+    return array(
+        ADAPTIVEQUIZ_GRADEHIGHEST => get_string('gradehighest', 'adaptivequiz'),
+        ADAPTIVEQUIZ_ATTEMPTFIRST => get_string('attemptfirst', 'adaptivequiz'),
+        ADAPTIVEQUIZ_ATTEMPTLAST  => get_string('attemptlast', 'adaptivequiz')
+    );
+}
+
+/**
+ * Return grade for given user or all users.
+ *
+ * @param stdClass $adaptivequiz The adaptivequiz
+ * @param int $userid optional user id, 0 means all users
+ * @return array array of grades, false if none. These are raw grades. They should
+ * be processed with adaptivequiz_format_grade for display.
+ */
+function adaptivequiz_get_user_grades($adaptivequiz, $userid = 0) {
+    global $CFG, $DB;
+    require_once($CFG->dirroot.'/mod/adaptivequiz/catalgo.class.php');
+
+    $params = array(
+        'instance' => $adaptivequiz->id,
+        'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED,
+    );
+    $userwhere = '';
+    if ($userid) {
+        $params['userid'] = $userid;
+        $userwhere = 'AND aa.userid = :userid';
+    }
+    $sql = "SELECT aa.uniqueid, aa.userid, aa.measure, aa.timemodified, aa.timecreated, a.highestlevel,
+               a.lowestlevel
+          FROM {adaptivequiz_attempt} aa
+          JOIN {adaptivequiz} a ON aa.instance = a.id
+         WHERE aa.instance = :instance
+               AND aa.attemptstate = :attemptstate
+               $userwhere";
+    $records = $DB->get_records_sql($sql, $params);
+
+    $grades = array();
+    foreach ($records as $grade) {
+        $grade->rawgrade = catalgo::map_logit_to_scale($grade->measure,
+            $grade->highestlevel, $grade->lowestlevel);
+
+        if (empty($grades[$grade->userid])) {
+            // Store the first attempt.
+            $grades[$grade->userid] = $grade;
+        } else {
+            // If additional attempts are recorded, uses the settings to determine
+            // which one to report.
+            if ($adaptivequiz->grademethod == ADAPTIVEQUIZ_ATTEMPTFIRST) {
+                if ($grade->timemodified < $grades[$grade->userid]->timemodified) {
+                    $grades[$grade->userid] = $grade;
+                }
+            } else if ($adaptivequiz->grademethod == ADAPTIVEQUIZ_ATTEMPTLAST) {
+                if ($grade->timemodified > $grades[$grade->userid]->timemodified) {
+                    $grades[$grade->userid] = $grade;
+                }
+            } else {
+                // By default, use the highst grade.
+                if ($grade->rawgrade > $grades[$grade->userid]->rawgrade) {
+                    $grades[$grade->userid] = $grade;
+                }
+            }
+        }
+    }
+    return $grades;
 }

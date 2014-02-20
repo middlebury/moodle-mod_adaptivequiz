@@ -22,3 +22,28 @@
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+
+/**
+ * Quiz module upgrade function.
+ * @param string $oldversion the version we are upgrading from.
+ */
+function xmldb_adaptivequiz_upgrade($oldversion) {
+    global $CFG, $DB;
+
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2014020400) {
+        // Define field grademethod.
+        $table = new xmldb_table('adaptivequiz');
+        $field = new xmldb_field('grademethod', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, 1, 'startinglevel');
+
+        // Conditionally add field grademethod.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Quiz savepoint reached.
+        upgrade_mod_savepoint(true, 2014020400, 'adaptivequiz');
+    }
+}

@@ -31,6 +31,14 @@ defined('MOODLE_INTERNAL') || die();
 define('ADAPTIVEQUIZMAXATTEMPT', 10);
 define('ADAPTIVEQUIZNAME', 'adaptivequiz');
 
+/**
+ * Options determining how the grades from individual attempts are combined to give
+ * the overall grade for a user
+ */
+define('ADAPTIVEQUIZ_GRADEHIGHEST', '1');
+define('ADAPTIVEQUIZ_ATTEMPTFIRST', '3');
+define('ADAPTIVEQUIZ_ATTEMPTLAST',  '4');
+
 require_once($CFG->dirroot.'/question/engine/lib.php');
 
 
@@ -55,7 +63,7 @@ function adaptivequiz_supports($feature) {
             return true;
         case FEATURE_SHOW_DESCRIPTION:
             return true;
-        case FEATURE_CONTROLS_GRADE_VISIBILITY:
+        case FEATURE_GRADE_HAS_GRADE:
             return true;
         default:
             return null;
@@ -84,10 +92,16 @@ function adaptivequiz_add_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_
 
     $instance = $DB->insert_record('adaptivequiz', $adaptivequiz);
 
-    // Save question tag association data.
-    if (!empty($instance) && is_int($instance)) {
-        adaptivequiz_add_questcat_association($instance, $adaptivequiz);
+    if (empty($instance) && is_int($instance)) {
+        return $instance;
     }
+    $adaptivequiz->id = $instance;
+
+    // Save question tag association data.
+    adaptivequiz_add_questcat_association($adaptivequiz->id, $adaptivequiz);
+
+    // Update related grade item.
+    adaptivequiz_grade_item_update($adaptivequiz);
 
     return $instance;
 }
@@ -148,9 +162,20 @@ function adaptivequiz_update_instance(stdClass $adaptivequiz, mod_adaptivequiz_m
     $adaptivequiz->timemodified = time();
     $adaptivequiz->id = $adaptivequiz->instance;
 
+    // Get the current value, so we can see what changed.
+    $oldquiz = $DB->get_record('adaptivequiz', array('id' => $adaptivequiz->instance));
+
     $instanceid = $DB->update_record('adaptivequiz', $adaptivequiz);
 
+    // Save question tag association data.
     adaptivequiz_update_questcat_association($adaptivequiz->id, $adaptivequiz);
+
+    // Update related grade item.
+    if ($oldquiz->grademethod != $adaptivequiz->grademethod) {
+        adaptivequiz_update_grades($adaptivequiz);
+    } else {
+        adaptivequiz_grade_item_update($adaptivequiz);
+    }
 
     return $instanceid;
 }
@@ -168,15 +193,9 @@ function adaptivequiz_update_instance(stdClass $adaptivequiz, mod_adaptivequiz_m
 function adaptivequiz_delete_instance($id) {
     global $DB;
 
-    if (!$DB->get_record('adaptivequiz', array('id' => $id))) {
+    $adaptivequiz = $DB->get_record('adaptivequiz', array('id' => $id));
+    if (!$adaptivequiz) {
         return false;
-    }
-
-    $DB->delete_records('adaptivequiz', array('id' => $id));
-
-    // Remove association table data.
-    if ($DB->get_record('adaptivequiz_question', array('instance' => $id))) {
-        $DB->delete_records('adaptivequiz_question', array('instance' => $id));
     }
 
     // Remove question_usage_by_activity records.
@@ -190,6 +209,17 @@ function adaptivequiz_delete_instance($id) {
         // Remove attempts data.
         $DB->delete_records('adaptivequiz_attempt', array('instance' => $id));
     }
+
+    // Remove association table data.
+    if ($DB->get_record('adaptivequiz_question', array('instance' => $id))) {
+        $DB->delete_records('adaptivequiz_question', array('instance' => $id));
+    }
+
+    // Delete the quiz record itself.
+    $DB->delete_records('adaptivequiz', array('id' => $id));
+
+    // Delete the grade item.
+    adaptivequiz_grade_item_delete($adaptivequiz);
 
     return true;
 }
@@ -487,4 +517,152 @@ function adaptivequiz_extend_navigation(navigation_node $navref, stdclass $cours
  * @param navigation_node $adaptivequiznode: {@link navigation_node}
  */
 function adaptivequiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $adaptivequiznode = null) {
+}
+
+/**
+ * Delete the grade item for given quiz
+ *
+ * @category grade
+ * @param object $adaptivequiz object
+ * @return int 0 if ok, error code otherwise
+ */
+function adaptivequiz_grade_item_delete(stdClass $adaptivequiz) {
+    global $CFG;
+    require_once($CFG->libdir . '/gradelib.php');
+
+    $params = array('deleted' => 1);
+    return grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz', $adaptivequiz->id, 0, null, $params);
+}
+
+/**
+ * Create or update the grade item for given quiz
+ *
+ * @category grade
+ * @param object $adaptivequiz object
+ * @param mixed $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return int 0 if ok, error code otherwise
+ */
+function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $grades = null) {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+    require_once($CFG->libdir . '/gradelib.php');
+
+    if (!empty($adaptivequiz->id)) { // May not be always present.
+        $params = array('itemname' => $adaptivequiz->name, 'idnumber' => $adaptivequiz->id);
+    } else {
+        $params = array('itemname' => $adaptivequiz->name);
+    }
+
+    if ($adaptivequiz->highestlevel > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax']  = $adaptivequiz->highestlevel;
+        $params['grademin']  = $adaptivequiz->lowestlevel;
+
+    } else {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+    }
+
+    if ($grades === 'reset') {
+        $params['reset'] = true;
+        $grades = null;
+    }
+
+    return grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz', $adaptivequiz->id, 0, $grades, $params);
+}
+
+function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid=0, $nullifnone = true) {
+    global $CFG, $DB;
+    require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+    require_once($CFG->libdir.'/gradelib.php');
+
+    if ($grades = adaptivequiz_get_user_grades($adaptivequiz, $userid)) {
+        // Set all user grades.
+        adaptivequiz_grade_item_update($adaptivequiz, $grades);
+    } else if ($userid and $nullifnone) {
+        // Reset all user grades.
+        $grade = new stdClass();
+        $grade->userid   = $userid;
+        $grade->rawgrade = null;
+        adaptivequiz_grade_item_update($adaptivequiz, $grade);
+    } else {
+        // Don't change user grades.
+        adaptivequiz_grade_item_update($adaptivequiz);
+    }
+}
+
+/**
+ * Called by course/reset.php
+ */
+function adaptivequiz_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'apaptivequizheader', get_string('modulenameplural', 'adaptivequiz'));
+    $mform->addElement('checkbox', 'reset_adaptivequiz_all', get_string('resetadaptivequizsall', 'adaptivequiz'));
+}
+
+/**
+ * Course reset form defaults.
+ */
+function adaptivequiz_reset_course_form_defaults($course) {
+    return array('reset_adaptivequiz_all' => 0);
+}
+
+/**
+ * This function is used by the reset_course_userdata function in moodlelib.
+ * This function will remove all attempts from the specified adaptivequiz
+ * and clean up any related data.
+ * @param $data the data submitted from the reset course.
+ * @return array status array
+ */
+function adaptivequiz_reset_userdata($data) {
+    global $CFG, $DB;
+
+    $componentstr = get_string('modulenameplural', 'adaptivequiz');
+    $status = array();
+
+    // Delete our attempts.
+    if (!empty($data->reset_adaptivequiz_all)) {
+        $adaptivequizes = $DB->get_records('adaptivequiz', array('course' => $data->courseid));
+        foreach ($adaptivequizes as $adaptivequiz) {
+            $attempts = $DB->get_records('adaptivequiz_attempt', array('instance' => $adaptivequiz->id));
+            if (!empty($attempts)) {
+                // Remove question_usage_by_activity records.
+                foreach ($attempts as $attempt) {
+                    question_engine::delete_questions_usage_by_activity($attempt->uniqueid);
+                }
+
+                // Remove attempts data.
+                $DB->delete_records('adaptivequiz_attempt', array('instance' => $adaptivequiz->id));
+            }
+        }
+    }
+    $status[] = array(
+        'component' => $componentstr,
+        'item' => get_string('all_attempts_deleted', 'adaptivequiz'),
+        'error' => false,
+    );
+
+    // Delete our grades.
+    if (!empty($data->reset_gradebook_grades)) {
+        adaptivequiz_reset_gradebook($data->courseid);
+        $status[] = array(
+            'component' => $componentstr,
+            'item' => get_string('all_grades_removed', 'adaptivequiz'),
+            'error' => false,
+        );
+    }
+
+    return $status;
+}
+
+/**
+ * Removes all grades from gradebook
+ *
+ * @param int $courseid The ID of the course to reset
+ */
+function adaptivequiz_reset_gradebook($courseid) {
+    global $CFG, $DB;
+
+    $adaptivequizes = $DB->get_records('adaptivequiz', array('course' => $courseid));
+    foreach ($adaptivequizes as $adaptivequiz) {
+        adaptivequiz_grade_item_update($adaptivequiz, 'reset');
+    }
 }
