@@ -53,28 +53,96 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         }
         array_multisort($sortkeys, SORT_NUMERIC, SORT_DESC, $results);
 
-        ob_start();
+        // Sort the results into three arrays based on how far above or below the question-level the users are.
+        $high = array();
+        $mid = array();
+        $low = array();
         foreach ($results as $result) {
-            if ($result->correct) {
-                // If the user answered correctly,
-                // the result is in-range if their measured ability + stderr is >= the question level.
-                $ceiling = $result->score->measured_ability_in_logits() + $result->score->standard_error_in_logits();
-                $inrange = ($ceiling >= $analyser->get_question_level_in_logits());
+            $ceiling = $result->score->measured_ability_in_logits() + $result->score->standard_error_in_logits();
+            $floor = $result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits();
+            if ($analyser->get_question_level_in_logits() < $floor) {
+                // User is significantly above the question-level.
+                $high[] = $result;
+            } else if ($analyser->get_question_level_in_logits() > $ceiling) {
+                // User is significantly below the question-level.
+                $low[] = $result;
             } else {
-                // If the user answered incorrectly,
-                // the result is in-range if their measured ability - stderr is <= the question level.
-                $floor = $result->score->measured_ability_in_logits() - $result->score->standard_error_in_logits();
-                $inrange = ($floor <= $analyser->get_question_level_in_logits());
+                // User's ability overlaps the question level.
+                $mid[] = $result;
             }
-            print "<pre style=\"color: ".(($result->correct) ? "green" : "red")."; ".(($inrange) ? "" : "font-weight: bold;")."\">";
-            print "User: ".$result->user->firstname." ".$result->user->lastname."\n";
-            print "Result: ".(($result->correct) ? "correct" : "incorrect")."\n";
-            print "Person ability (scaled): ".round($result->score->measured_ability_in_scale(), 2)."\n";
-            print "STDERR (scaled): ".round($result->score->standard_error_in_scale(), 2)."\n";
-            print "</pre>";
         }
 
+        ob_start();
+        print html_writer::end_tag('tr');
+        print html_writer::start_tag('tr');
+        print html_writer::tag('th', get_string('user', 'adaptivequiz'));
+        print html_writer::tag('th', get_string('result', 'adaptivequiz'));
+        print html_writer::tag('th', get_string('attemptquestion_ability', 'adaptivequiz'));
+        print html_writer::end_tag('tr');
+        $headings = ob_get_clean();
+
+        ob_start();
+        print html_writer::start_tag('table', array('class' => 'adpq_answers_table'));
+
+        print html_writer::start_tag('thead');
+        print html_writer::start_tag('tr');
+        print html_writer::tag('th', get_string('highlevelusers', 'adaptivequiz'), array('colspan' => '3', 'class' => 'section'));
+        print $headings;
+        print html_writer::end_tag('thead');
+
+        print html_writer::start_tag('tbody', array('class' => 'adpq_highlevel'));
+        foreach ($high as $result) {
+            $this->print_user_result($analyser, $result);
+        }
+        print html_writer::end_tag('tbody');
+
+        print html_writer::start_tag('thead');
+        print html_writer::start_tag('tr');
+        print html_writer::tag('th', get_string('midlevelusers', 'adaptivequiz'), array('colspan' => '3', 'class' => 'section'));
+        print $headings;
+        print html_writer::end_tag('thead');
+
+        print html_writer::start_tag('tbody', array('class' => 'adpq_midlevel'));
+        foreach ($mid as $result) {
+            $this->print_user_result($analyser, $result);
+        }
+        print html_writer::end_tag('tbody');
+
+        print html_writer::start_tag('thead');
+        print html_writer::start_tag('tr');
+        print html_writer::tag('th', get_string('lowlevelusers', 'adaptivequiz'), array('colspan' => '3', 'class' => 'section'));
+        print $headings;
+        print html_writer::end_tag('thead');
+
+        print html_writer::start_tag('tbody', array('class' => 'adpq_lowlevel'));
+        foreach ($low as $result) {
+            $this->print_user_result($analyser, $result);
+        }
+        print html_writer::end_tag('tbody');
+
+        print html_writer::end_tag('table');
+
         return new adaptivequiz_answers_statistic_result (count($results), ob_get_clean());
+    }
+
+    /**
+     * Print out a user result
+     *
+     * @param adaptivequiz_question_analyser $analyser
+     * @param stdClass $result
+     * @return void
+     */
+    public function print_user_result (adaptivequiz_question_analyser $analyser, $result) {
+        if ($result->correct) {
+            $class = 'adpq_correct';
+        } else {
+            $class = 'adpq_incorrect';
+        }
+        print html_writer::start_tag('tr', array('class' => $class));
+        print html_writer::tag('td', $result->user->firstname." ".$result->user->lastname);
+        print html_writer::tag('td', (($result->correct) ? "correct" : "incorrect"));
+        print html_writer::tag('td', round($result->score->measured_ability_in_scale(), 2));
+        print html_writer::end_tag('tr');
     }
 }
 

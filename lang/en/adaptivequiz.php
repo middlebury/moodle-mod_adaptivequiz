@@ -183,3 +183,9 @@ $string['back_to_all_questions'] = '&laquo; Back to all questions';
 $string['answers_display_name'] = 'Answers';
 $string['statistic'] = 'Statistic';
 $string['value'] = 'Value';
+$string['highlevelusers'] = 'Users above the question-level';
+$string['midlevelusers'] = 'Users near the question-level';
+$string['lowlevelusers'] = 'Users below the question-level';
+$string['user'] = 'User';
+$string['result'] = 'Result';
+
