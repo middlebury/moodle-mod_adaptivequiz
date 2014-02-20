@@ -78,6 +78,7 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         print html_writer::tag('th', get_string('user', 'adaptivequiz'));
         print html_writer::tag('th', get_string('result', 'adaptivequiz'));
         print html_writer::tag('th', get_string('attemptquestion_ability', 'adaptivequiz'));
+        print html_writer::tag('th', get_string('answer', 'adaptivequiz'));
         print html_writer::end_tag('tr');
         $headings = ob_get_clean();
 
@@ -86,7 +87,7 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
 
         print html_writer::start_tag('thead');
         print html_writer::start_tag('tr');
-        print html_writer::tag('th', get_string('highlevelusers', 'adaptivequiz'), array('colspan' => '3', 'class' => 'section'));
+        print html_writer::tag('th', get_string('highlevelusers', 'adaptivequiz'), array('colspan' => '4', 'class' => 'section'));
         print $headings;
         print html_writer::end_tag('thead');
 
@@ -98,7 +99,7 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
 
         print html_writer::start_tag('thead');
         print html_writer::start_tag('tr');
-        print html_writer::tag('th', get_string('midlevelusers', 'adaptivequiz'), array('colspan' => '3', 'class' => 'section'));
+        print html_writer::tag('th', get_string('midlevelusers', 'adaptivequiz'), array('colspan' => '4', 'class' => 'section'));
         print $headings;
         print html_writer::end_tag('thead');
 
@@ -110,7 +111,7 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
 
         print html_writer::start_tag('thead');
         print html_writer::start_tag('tr');
-        print html_writer::tag('th', get_string('lowlevelusers', 'adaptivequiz'), array('colspan' => '3', 'class' => 'section'));
+        print html_writer::tag('th', get_string('lowlevelusers', 'adaptivequiz'), array('colspan' => '4', 'class' => 'section'));
         print $headings;
         print html_writer::end_tag('thead');
 
@@ -142,6 +143,7 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         print html_writer::tag('td', $result->user->firstname." ".$result->user->lastname);
         print html_writer::tag('td', (($result->correct) ? "correct" : "incorrect"));
         print html_writer::tag('td', round($result->score->measured_ability_in_scale(), 2));
+        print html_writer::tag('td', $result->answer);
         print html_writer::end_tag('tr');
     }
 }

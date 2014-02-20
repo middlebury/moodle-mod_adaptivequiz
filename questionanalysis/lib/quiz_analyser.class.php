@@ -93,7 +93,8 @@ class adaptivequiz_quiz_analyser {
 
                 // Record the attempt score and the individual question result.
                 $correct = ($quba->get_question_mark($slot) > 0);
-                $this->questions[$question->id]->add_result($user, $score, $correct);
+                $answer = $quba->get_response_summary($slot);
+                $this->questions[$question->id]->add_result($user, $score, $correct, $answer);
             }
         }
     }

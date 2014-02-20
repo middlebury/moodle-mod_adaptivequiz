@@ -69,13 +69,15 @@ class adaptivequiz_question_analyser {
      *
      * @param adaptivequiz_attempt_score $score The user's score on this attempt.
      * @param boolean $correct True if the user answered correctly.
+     * @param string $answer
      * @return void
      */
-    public function add_result ($user, adaptivequiz_attempt_score $score, $correct) {
+    public function add_result ($user, adaptivequiz_attempt_score $score, $correct, $answer) {
         $result = new stdClass();
         $result->user = $user;
         $result->score = $score;
         $result->correct = $correct;
+        $result->answer = $answer;
         $this->results[] = $result;
     }
 

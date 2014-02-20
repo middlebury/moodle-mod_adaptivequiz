@@ -181,6 +181,7 @@ $string['percent_correct_display_name'] = '% Correct';
 $string['discrimination_display_name'] = 'Discrimination';
 $string['back_to_all_questions'] = '&laquo; Back to all questions';
 $string['answers_display_name'] = 'Answers';
+$string['answer'] = 'Answer';
 $string['statistic'] = 'Statistic';
 $string['value'] = 'Value';
 $string['highlevelusers'] = 'Users above the question-level';
