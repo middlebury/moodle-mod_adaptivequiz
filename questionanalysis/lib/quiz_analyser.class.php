@@ -87,14 +87,14 @@ class adaptivequiz_quiz_analyser {
                 if (empty($this->questions[$question->id])) {
                     $tags = tag_get_tags_array('question', $question->id);
                     $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-                    $this->questions[$question->id] = new adaptivequiz_question_analyser($question, $difficulty,
-                        $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+                    $this->questions[$question->id] = new adaptivequiz_question_analyser($quba->get_owning_context(), $question,
+                        $difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
                 }
 
                 // Record the attempt score and the individual question result.
                 $correct = ($quba->get_question_mark($slot) > 0);
                 $answer = $quba->get_response_summary($slot);
-                $this->questions[$question->id]->add_result($user, $score, $correct, $answer);
+                $this->questions[$question->id]->add_result($attempt->uniqueid, $user, $score, $correct, $answer);
             }
         }
     }

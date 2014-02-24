@@ -29,6 +29,9 @@
  */
 class adaptivequiz_question_analyser {
 
+    /** @var context the context this usage belongs to. */
+    protected $context;
+
     /** @var question_definition $definition The question  */
     protected $definition = null;
 
@@ -53,11 +56,13 @@ class adaptivequiz_question_analyser {
     /**
      * Constructor - Create a new analyser.
      *
+     * @param object $context
      * @param question_definition $definition
      * @param float $level The level (0-1) of the question.
      * @return void
      */
-    public function __construct (question_definition $definition, $level, $lowestlevel, $highestlevel) {
+    public function __construct ($context, question_definition $definition, $level, $lowestlevel, $highestlevel) {
+        $this->context = $context;
         $this->definition = $definition;
         $this->level = $level;
         $this->lowestlevel = $lowestlevel;
@@ -72,13 +77,21 @@ class adaptivequiz_question_analyser {
      * @param string $answer
      * @return void
      */
-    public function add_result ($user, adaptivequiz_attempt_score $score, $correct, $answer) {
+    public function add_result ($attemptid, $user, adaptivequiz_attempt_score $score, $correct, $answer) {
         $result = new stdClass();
+        $result->attemptid = $attemptid;
         $result->user = $user;
         $result->score = $score;
         $result->correct = $correct;
         $result->answer = $answer;
         $this->results[] = $result;
+    }
+
+    /**
+     * @return context the context this usage belongs to.
+     */
+    public function get_owning_context() {
+        return $this->context;
     }
 
     /**

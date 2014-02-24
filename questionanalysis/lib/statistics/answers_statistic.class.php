@@ -79,6 +79,7 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         print html_writer::tag('th', get_string('user', 'adaptivequiz'));
         print html_writer::tag('th', get_string('result', 'adaptivequiz'));
         print html_writer::tag('th', get_string('answer', 'adaptivequiz'));
+        print html_writer::tag('th', '');
         print html_writer::end_tag('tr');
         $headings = ob_get_clean();
 
@@ -88,39 +89,51 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         print html_writer::start_tag('thead');
         print html_writer::start_tag('tr');
         print html_writer::tag('th', get_string('highlevelusers', 'adaptivequiz').':',
-            array('colspan' => '4', 'class' => 'section'));
+            array('colspan' => '5', 'class' => 'section'));
         print $headings;
         print html_writer::end_tag('thead');
 
         print html_writer::start_tag('tbody', array('class' => 'adpq_highlevel'));
-        foreach ($high as $result) {
-            $this->print_user_result($analyser, $result);
+        if (count($high)) {
+            foreach ($high as $result) {
+                $this->print_user_result($analyser, $result);
+            }
+        } else {
+            $this->print_empty_user_result();
         }
         print html_writer::end_tag('tbody');
 
         print html_writer::start_tag('thead');
         print html_writer::start_tag('tr');
         print html_writer::tag('th', get_string('midlevelusers', 'adaptivequiz').':',
-            array('colspan' => '4', 'class' => 'section'));
+            array('colspan' => '5', 'class' => 'section'));
         print $headings;
         print html_writer::end_tag('thead');
 
         print html_writer::start_tag('tbody', array('class' => 'adpq_midlevel'));
-        foreach ($mid as $result) {
-            $this->print_user_result($analyser, $result);
+        if (count($mid)) {
+            foreach ($mid as $result) {
+                $this->print_user_result($analyser, $result);
+            }
+        } else {
+            $this->print_empty_user_result();
         }
         print html_writer::end_tag('tbody');
 
         print html_writer::start_tag('thead');
         print html_writer::start_tag('tr');
         print html_writer::tag('th', get_string('lowlevelusers', 'adaptivequiz').':',
-            array('colspan' => '4', 'class' => 'section'));
+            array('colspan' => '5', 'class' => 'section'));
         print $headings;
         print html_writer::end_tag('thead');
 
         print html_writer::start_tag('tbody', array('class' => 'adpq_lowlevel'));
-        foreach ($low as $result) {
-            $this->print_user_result($analyser, $result);
+        if (count($low)) {
+            foreach ($low as $result) {
+                $this->print_user_result($analyser, $result);
+            }
+        } else {
+            $this->print_empty_user_result();
         }
         print html_writer::end_tag('tbody');
 
@@ -142,11 +155,33 @@ class adaptivequiz_answers_statistic implements adaptivequiz_question_statistic 
         } else {
             $class = 'adpq_incorrect';
         }
+        $url = new moodle_url('/mod/adaptivequiz/reviewattempt.php', array(
+                    'cmid' => $analyser->get_owning_context()->instanceid,
+                    'uniqueid' => $result->attemptid,
+                    'userid' => $result->user->id));
         print html_writer::start_tag('tr', array('class' => $class));
         print html_writer::tag('td', round($result->score->measured_ability_in_scale(), 2));
         print html_writer::tag('td', $result->user->firstname." ".$result->user->lastname);
         print html_writer::tag('td', (($result->correct) ? "correct" : "incorrect"));
         print html_writer::tag('td', $result->answer);
+        print html_writer::tag('td', html_writer::link($url, get_string('reviewattempt', 'adaptivequiz')));
+        print html_writer::end_tag('tr');
+    }
+
+    /**
+     * Print out an empty user-result row.
+     *
+     * @param adaptivequiz_question_analyser $analyser
+     * @param stdClass $result
+     * @return void
+     */
+    public function print_empty_user_result () {
+        print html_writer::start_tag('tr');
+        print html_writer::tag('td', '');
+        print html_writer::tag('td', '');
+        print html_writer::tag('td', '');
+        print html_writer::tag('td', '');
+        print html_writer::tag('td', '');
         print html_writer::end_tag('tr');
     }
 }
