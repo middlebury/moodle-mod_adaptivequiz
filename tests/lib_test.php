@@ -155,11 +155,15 @@ class mod_adaptivequiz_lib_testcase extends advanced_testcase {
         $dummy->user = new stdClass();
         $dummy->user->id = 2;
         $dummy->user->fullname = 'user-phpunit';
+        $dummy->user->alternatename = 'user-phpunit';
         $dummy->user->picture = '';
-        $dummy->user->firstname = 'user-';
+        $dummy->user->firstname = 'user';
+        $dummy->user->middlename = '-';
         $dummy->user->lastname = 'phpunit';
         $dummy->user->imagealt = '';
         $dummy->user->email = 'a@a.com';
+        $dummy->user->firstnamephonetic = 'user';
+        $dummy->user->lastnamephonetic = 'phpunit';
         $dummy->content = new stdClass();
         $dummy->content->attemptstate = 'inprogress';
         $dummy->content->questionsattempted = '12';
@@ -175,7 +179,7 @@ class mod_adaptivequiz_lib_testcase extends advanced_testcase {
         $this->assertContains('<td', $output);
         $this->assertContains('mod/adaptivequiz/view.php?id=99', $output);
         $this->assertContains('/user/view.php?id=2', $output);
-        $this->assertContains('user- phpunit', $output);
+        $this->assertContains('user phpunit', $output);
         $this->assertContains('my-phpunit-test', $output);
     }
 
@@ -189,11 +193,15 @@ class mod_adaptivequiz_lib_testcase extends advanced_testcase {
         $dummy->user = new stdClass();
         $dummy->user->id = 2;
         $dummy->user->fullname = 'user-phpunit';
+        $dummy->user->alternatename = 'user-phpunit';
         $dummy->user->picture = '';
-        $dummy->user->firstname = 'user-';
+        $dummy->user->firstname = 'user';
+        $dummy->user->middlename = '-';
         $dummy->user->lastname = 'phpunit';
         $dummy->user->imagealt = '';
         $dummy->user->email = 'a@a.com';
+        $dummy->user->firstnamephonetic = 'user';
+        $dummy->user->lastnamephonetic = 'phpunit';
         $dummy->content = new stdClass();
         $dummy->content->attemptstate = 'inprogress';
         $dummy->content->questionsattempted = '12';
@@ -208,6 +216,6 @@ class mod_adaptivequiz_lib_testcase extends advanced_testcase {
         $this->assertContains('<tr>', $output);
         $this->assertContains('<td', $output);
         $this->assertContains('/user/view.php?id=2', $output);
-        $this->assertContains('user- phpunit', $output);
+        $this->assertContains('user phpunit', $output);
     }
 }

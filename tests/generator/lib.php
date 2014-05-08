@@ -22,7 +22,7 @@
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_adaptivequiz_generator extends phpunit_module_generator {
+class mod_adaptivequiz_generator extends testing_module_generator {
     /**
      * Create new quiz module instance.
      * @param array|stdClass $record
