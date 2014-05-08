@@ -170,3 +170,23 @@ $string['grademethod_help'] = 'When multiple attempts are allowed, the following
 $string['resetadaptivequizsall'] = 'Delete all Adaptive Quiz attempts';
 $string['all_attempts_deleted'] = 'All Adaptive Quiz attempts were deleted';
 $string['all_grades_removed'] = 'All Adaptive Quiz grades were removed';
+
+$string['questionanalysisbtn'] = 'Question Analysis';
+$string['id'] = 'ID';
+$string['name'] = 'Name';
+$string['questions_report'] = 'Questions Report';
+$string['question_report'] = 'Question Analysis';
+$string['times_used_display_name'] = 'Times Used';
+$string['percent_correct_display_name'] = '% Correct';
+$string['discrimination_display_name'] = 'Discrimination';
+$string['back_to_all_questions'] = '&laquo; Back to all questions';
+$string['answers_display_name'] = 'Answers';
+$string['answer'] = 'Answer';
+$string['statistic'] = 'Statistic';
+$string['value'] = 'Value';
+$string['highlevelusers'] = 'Users above the question-level';
+$string['midlevelusers'] = 'Users near the question-level';
+$string['lowlevelusers'] = 'Users below the question-level';
+$string['user'] = 'User';
+$string['result'] = 'Result';
+
