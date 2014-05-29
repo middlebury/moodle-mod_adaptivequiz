@@ -27,9 +27,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$module->version = 2014020400;
+$module->version = 2014050800;
+$module->release = '2.5-1.1 (Build 2014050800)';
 $module->requires = 2012062504.00;
 $module->cron = 0;
 $module->component = 'mod_adaptivequiz';
 $module->maturity = MATURITY_ALPHA;
-$module->release = '2.3.1.0 (Build 2013022800)';
