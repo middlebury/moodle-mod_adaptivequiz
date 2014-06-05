@@ -46,4 +46,6 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
         // Quiz savepoint reached.
         upgrade_mod_savepoint(true, 2014020400, 'adaptivequiz');
     }
+
+    return true;
 }
