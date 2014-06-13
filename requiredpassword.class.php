@@ -42,6 +42,9 @@ class mod_adaptivequiz_requiredpassword extends moodleform {
             if ($name === 'sesskey') {
                 continue;
             }
+            if ($name === 'cmid' || $name === 'uniqueid') {
+                $mform->setType($name, PARAM_INT);
+            }
             $mform->addElement('hidden', $name, $value);
         }
 
