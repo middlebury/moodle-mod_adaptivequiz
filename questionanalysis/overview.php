@@ -57,7 +57,7 @@ $PAGE->set_url('/mod/adaptivequiz/questionanalysis/overview.php', array('cmid' =
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
-$output = $PAGE->get_renderer('mod_adaptivequiz_questions');
+$output = $PAGE->get_renderer('mod_adaptivequiz', 'questions');
 
 
 $quizanalyzer = new adaptivequiz_quiz_analyser();

@@ -66,7 +66,7 @@ $PAGE->set_url('/mod/adaptivequiz/questionanalysis/single.php', array('cmid' => 
 $PAGE->set_title(format_string($definition->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
-$output = $PAGE->get_renderer('mod_adaptivequiz_questions');
+$output = $PAGE->get_renderer('mod_adaptivequiz', 'questions');
 
 
 $quizanalyzer->add_statistic('times_used', new adaptivequiz_times_used_statistic());
