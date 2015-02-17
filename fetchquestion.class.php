@@ -388,7 +388,7 @@ class fetchquestion {
         $tagids = $DB->get_records_select_menu('tag', $select, $params, 'id ASC', $substr.', id AS id2');
 
         if (empty($tagids)) {
-            $this->print_debug('retrieve_tag() - no tags found with level: '.$level);
+            $this->print_debug('retrieve_tag() - no tags found matching minimum level '.$minimumlevel.' and maximum level '.$maximumlevel);
             return array();
         }
 
