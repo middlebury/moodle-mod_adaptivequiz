@@ -29,8 +29,7 @@ require_once(dirname(__FILE__).'/../../config.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT);
-
-global $USER;
+$n  = optional_param('n', 0, PARAM_INT);
 
 if ($id) {
     $cm         = get_coursemodule_from_id('adaptivequiz', $id, 0, false, MUST_EXIST);
