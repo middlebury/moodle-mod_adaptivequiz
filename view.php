@@ -40,7 +40,7 @@ if ($id) {
     $course     = $DB->get_record('course', array('id' => $adaptivequiz->course), '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('adaptivequiz', $adaptivequiz->id, $course->id, false, MUST_EXIST);
 } else {
-    error('You must specify a course_module ID or an instance ID');
+    print_error('invalidarguments');
 }
 
 require_login($course, true, $cm);
