@@ -64,12 +64,12 @@ if ($course->format == 'weeks') {
 foreach ($adaptivequizinstances as $adaptivequizinstance) {
     if (!$adaptivequizinstance->visible) {
         $link = html_writer::link(
-            new moodle_url('/mod/adaptivequiz.php', array('id' => $adaptivequizinstance->coursemodule)),
+            new moodle_url('/mod/adaptivequiz/view.php', array('id' => $adaptivequizinstance->coursemodule)),
             format_string($adaptivequizinstance->name, true),
             array('class' => 'dimmed'));
     } else {
         $link = html_writer::link(
-            new moodle_url('/mod/adaptivequiz.php', array('id' => $adaptivequizinstance->coursemodule)),
+            new moodle_url('/mod/adaptivequiz/view.php', array('id' => $adaptivequizinstance->coursemodule)),
             format_string($adaptivequizinstance->name, true));
     }
 
