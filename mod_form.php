@@ -49,14 +49,20 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
-            $mform->setType('name', PARAM_CLEAN);
+            $mform->setType('name', PARAM_CLEANHTML);
         }
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('name', 'adaptivequizname', 'adaptivequiz');
 
-        // Adding the standard "intro" and "introformat" fields.
-        $this->add_intro_editor();
+        // Adding the standard "intro" and "introformat" fields...
+        // Use the non deprecated function if it exists.
+        if (method_exists($this, 'standard_intro_elements')) {
+            $this->standard_intro_elements();
+        } else {
+            // Deprecated as of Moodle 2.9
+            $this->add_intro_editor();
+        }
 
         // Number of attempts.
         $attemptoptions = array('0' => get_string('unlimited'));
@@ -137,7 +143,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addRule('standarderror', get_string('formelementempty', 'adaptivequiz'), 'required', null, 'client');
         $mform->addRule('standarderror', get_string('formelementdecimal', 'adaptivequiz'), 'numeric', null, 'client');
         $mform->setDefault('standarderror', 5.0);
-        $mform->setType('standarderror', PARAM_NUMBER);
+        $mform->setType('standarderror', PARAM_FLOAT);
 
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
