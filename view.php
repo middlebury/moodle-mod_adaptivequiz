@@ -46,7 +46,16 @@ if ($id) {
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-add_to_log($course->id, 'adaptivequiz', 'view', "view.php?id={$cm->id}", $adaptivequiz->name, $cm->id);
+$event = \mod_adaptivequiz\event\course_module_viewed::create(
+    array(
+        'objectid' => $PAGE->cm->instance,
+        'context' => $PAGE->context,
+    )
+);
+
+$event->add_record_snapshot('course', $PAGE->course);
+$event->add_record_snapshot($PAGE->cm->modname, $adaptivequiz);
+$event->trigger();
 
 // Print the page header.
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
