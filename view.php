@@ -29,8 +29,7 @@ require_once(dirname(__FILE__).'/../../config.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT);
-
-global $USER;
+$n  = optional_param('n', 0, PARAM_INT);
 
 if ($id) {
     $cm         = get_coursemodule_from_id('adaptivequiz', $id, 0, false, MUST_EXIST);
@@ -41,13 +40,22 @@ if ($id) {
     $course     = $DB->get_record('course', array('id' => $adaptivequiz->course), '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('adaptivequiz', $adaptivequiz->id, $course->id, false, MUST_EXIST);
 } else {
-    error('You must specify a course_module ID or an instance ID');
+    print_error('invalidarguments');
 }
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-add_to_log($course->id, 'adaptivequiz', 'view', "view.php?id={$cm->id}", $adaptivequiz->name, $cm->id);
+$event = \mod_adaptivequiz\event\course_module_viewed::create(
+    array(
+        'objectid' => $PAGE->cm->instance,
+        'context' => $PAGE->context,
+    )
+);
+
+$event->add_record_snapshot('course', $PAGE->course);
+$event->add_record_snapshot($PAGE->cm->modname, $adaptivequiz);
+$event->trigger();
 
 // Print the page header.
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));

@@ -25,7 +25,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(__FILE__).'/../..config.php');
+require_once(dirname(__FILE__).'/../../config.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/lib.php');
 
 $id = required_param('id', PARAM_INT);   // Course.
@@ -34,7 +34,7 @@ $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 
 require_course_login($course);
 
-add_to_log($course->id, 'adaptivequiz', 'view all', 'index.php?id='.$course->id, '');
+\mod_adaptivequiz\event\course_module_instance_list_viewed::create_from_course($course)->trigger();
 
 $coursecontext = context_course::instance($course->id);
 
@@ -49,6 +49,7 @@ if (!$adaptivequizinstances = get_all_instances_in_course('adaptivequiz', $cours
     notice(get_string('nonewmodules', 'adaptivequiz'), new moodle_url('/course/view.php', array('id' => $course->id)));
 }
 
+$table = new html_table();
 if ($course->format == 'weeks') {
     $table->head  = array(get_string('week'), get_string('name'));
     $table->align = array('center', 'left');
@@ -63,12 +64,12 @@ if ($course->format == 'weeks') {
 foreach ($adaptivequizinstances as $adaptivequizinstance) {
     if (!$adaptivequizinstance->visible) {
         $link = html_writer::link(
-            new moodle_url('/mod/adaptivequiz.php', array('id' => $adaptivequizinstance->coursemodule)),
+            new moodle_url('/mod/adaptivequiz/view.php', array('id' => $adaptivequizinstance->coursemodule)),
             format_string($adaptivequizinstance->name, true),
             array('class' => 'dimmed'));
     } else {
         $link = html_writer::link(
-            new moodle_url('/mod/adaptivequiz.php', array('id' => $adaptivequizinstance->coursemodule)),
+            new moodle_url('/mod/adaptivequiz/view.php', array('id' => $adaptivequizinstance->coursemodule)),
             format_string($adaptivequizinstance->name, true));
     }
 
