@@ -39,6 +39,8 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
+        //$commonquizconfig = get_config('quiz');
+
         $mform = $this->_form;
 
         // Adding the "general" fieldset, where all the common settings are showed.
@@ -155,6 +157,25 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('grademethod', 'grademethod', 'adaptivequiz');
         $mform->setDefault('grademethod', ADAPTIVEQUIZ_GRADEHIGHEST);
         $mform->disabledIf('grademethod', 'attempts', 'eq', 1);
+
+        // -------------------------------------------------------------------------------
+        $mform->addElement('header', 'interactionhdr', get_string('questionbehaviour', 'quiz'));
+
+        // How questions behave (question behaviour).
+        if (!empty($this->preferredbehaviour)) {
+            $currentbehaviour = $this->preferredbehaviour;
+        } else {
+            $currentbehaviour = '';
+        }
+        $behaviours = question_engine::get_behaviour_options($currentbehaviour);
+
+        $mform->addElement('select', 'preferredbehaviour',
+            get_string('howquestionsbehave', 'question'), $behaviours);
+        //TODO: need to display 'deferredfeedback' and 'immediatefeedback' only!
+        $mform->addHelpButton('preferredbehaviour', 'howquestionsbehave', 'question');
+        $mform->setDefault('preferredbehaviour', 'deferredfeedback');
+        //$mform->setDefault('preferredbehaviour', $quizconfig->preferredbehaviour);
+        // -------------------------------------------------------------------------------
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
