@@ -59,7 +59,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $html = '';
 
         $param = array('cmid' => $cmid);
-        $target = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+        //$target = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+        $target = new moodle_url('/mod/adaptivequiz/startattempt.php', $param);
         $attributes = array('method' => 'POST', 'action' => $target);
 
         $html .= html_writer::start_tag('form', $attributes);
