@@ -109,88 +109,8 @@ $nextdiff = null;
 $standarderror = 0.0;
 $message = '';
 
-// If uniqueid is not empty the process respones.
-if (!empty($uniqueid) && confirm_sesskey()) {
-    // Check if the uniqueid belongs to the same attempt record the user is currently using.
-    $attemptrec = $adaptiveattempt->get_attempt();
+//TODO: If uniqueid is not empty the process respones. - WILL BE MOVE TO processattempt.php!!!
 
-    if (!adaptivequiz_uniqueid_part_of_attempt($uniqueid, $cm->instance, $USER->id)) {
-        print_error('uniquenotpartofattempt', 'adaptivequiz');
-    }
-
-    // Process student's responses.
-    try {
-        // Set a time stamp for the actions below.
-        $time = time();
-        // Load the user's current usage from the DB.
-        $quba = question_engine::load_questions_usage_by_activity((int) $uniqueid);
-        // Update the actions done to the question.
-        $quba->process_all_actions($time);
-        // Finish the grade attempt at the question.
-        $quba->finish_all_questions($time);
-        // Save the data about the usage to the DB.
-        question_engine::save_questions_usage_by_activity($quba);
-
-        if (!empty($difflevel)) {
-            // Check if the minimum number of attempts have been reached.
-            $minattemptreached = adaptivequiz_min_attempts_reached($uniqueid, $cm->instance, $USER->id);
-            // Create an instance of the CAT algo class.
-            $algo = new catalgo($quba, (int) $attemptrec->id, $minattemptreached, (int) $difflevel);
-            // Calculate the next difficulty level.
-            $nextdiff = $algo->perform_calculation_steps();
-
-            // Increment difficulty level for attempt.
-            $everythingokay = false;
-            $difflogit = $algo->get_levellogit();
-            $standarderror = $algo->get_standarderror();
-            $measure = $algo->get_measure();
-            $everythingokay = adaptivequiz_update_attempt_data($uniqueid, $cm->instance, $USER->id, $difflogit, $standarderror,
-                                    $measure);
-
-            // Something went wrong with updating the attempt.  Print an error.
-            if (!$everythingokay) {
-                $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
-                print_error('unableupdatediffsum', 'adaptivequiz', $url);
-            }
-
-            // Check whether the status property is empty.
-            $message = $algo->get_status();
-
-            if (!empty($message)) {
-
-                $standarderror = $algo->get_standarderror();
-                // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the
-                // attempt finished page.
-                adaptivequiz_complete_attempt($uniqueid, $cm->instance, $USER->id, $standarderror, $message);
-
-                $param = array('cmid' => $cm->id, 'id' => $cm->instance, 'uattid' => $uniqueid);
-                $url = new moodle_url('/mod/adaptivequiz/attemptfinished.php', $param);
-                redirect($url);
-            }
-
-            // Lastly decrement the sum of questions for the attempted difficulty level.
-            $fetchquestion = new fetchquestion($quba, $difflevel, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
-            $tagquestcount = $fetchquestion->get_tagquestsum();
-            $tagquestcount = $fetchquestion->decrement_question_sum_from_difficulty($tagquestcount, $difflevel);
-            $fetchquestion->set_tagquestsum($tagquestcount);
-            // Force the class to deconstruct the object and save the updated mapping to the session global.
-            unset($fetchquestion);
-        }
-    } catch (question_out_of_sequence_exception $e) {
-        $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
-        print_error('submissionoutofsequencefriendlymessage', 'question', $url);
-
-    } catch (Exception $e) {
-        $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
-        $debuginfo = '';
-
-        if (!empty($e->debuginfo)) {
-            $debuginfo = $e->debuginfo;
-        }
-
-        print_error('errorprocessingresponses', 'question', $url, $e->getMessage(), $debuginfo);
-    }
-}
 
 $adaptivequiz->context = $context;
 $adaptivequiz->cm = $cm;
@@ -210,6 +130,12 @@ if (isset($difflevel) && !is_null($difflevel)) {
 
 $attemptstatus = $adaptiveattempt->start_attempt();
 
+var_dump($adaptivequiz);
+var_dump($adaptiveattempt);
+var_dump($attemptstatus);
+var_dump($adaptiveattempt->get_id());
+//die();
+
 // Check if attempt status is set to ready.
 if (empty($attemptstatus)) {
     // Retrieve the most recent status message for the attempt.
@@ -227,6 +153,8 @@ if (empty($attemptstatus)) {
     $url = new moodle_url('/mod/adaptivequiz/attemptfinished.php', $param);
     redirect($url);
 }
+
+//TODO: redirect to attemptphp there
 
 // Retrieve the question slot id.
 $slot = $adaptiveattempt->get_question_slot_number();

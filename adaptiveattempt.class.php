@@ -646,4 +646,8 @@ class adaptiveattempt {
 
         return $questions;
     }
+    
+    public function get_id() {
+        return $this->adpqattempt->id; 
+    }
 }
