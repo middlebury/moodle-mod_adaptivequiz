@@ -33,8 +33,10 @@ require_once($CFG->dirroot.'/mod/adaptivequiz/catalgo.class.php');
 require_once($CFG->dirroot.'/tag/lib.php');
 
 $id = required_param('cmid', PARAM_INT); // Course module id.
+$attid  = optional_param('attid', 0, PARAM_INT);  // id of the attempt. //mathetest
 $uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attempt.
 $difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question.
+var_dump("att, attid=".$attid);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -61,6 +63,7 @@ try {
 
     print_error('invalidmodule', 'error', $url, $e->getMessage(), $debuginfo);
 }
+var_dump($adaptivequiz);
 
 // Setup page global for standard viewing.
 $viewurl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
@@ -79,35 +82,19 @@ if (!adaptivequiz_allowed_attempt($adaptivequiz->attempts, $count)) {
 }
 
 // Create an instance of the module renderer class.
-$output = $PAGE->get_renderer('mod_adaptivequiz');
-// Setup password required form.
-$mform = $output->display_password_form($cm->id);
-// Check if a password is required.
-if (!empty($adaptivequiz->password)) {
-    // Check if the user has alredy entered in their password.
-    $condition = adaptivequiz_user_entered_password($adaptivequiz->id);
+//$output = $PAGE->get_renderer('mod_adaptivequiz');
 
-    if (empty($condition) && $mform->is_cancelled()) {
-        // Return user to landing page.
-        redirect($viewurl);
-    } else if (empty($condition) && $data = $mform->get_data()) {
-        $SESSION->passwordcheckedadpq = array();
-
-        if (0 == strcmp($data->quizpassword, $adaptivequiz->password)) {
-            $SESSION->passwordcheckedadpq[$adaptivequiz->id] = true;
-        } else {
-            $SESSION->passwordcheckedadpq[$adaptivequiz->id] = false;
-            $passwordattempt = true;
-        }
-    }
-}
 
 // Create an instance of the adaptiveattempt class.
-$adaptiveattempt = new adaptiveattempt($adaptivequiz, $USER->id);
+//$adaptiveattempt = new adaptiveattempt($adaptivequiz, $USER->id);
+$adaptiveattempt = get_attempt();
 $algo = new stdClass();
 $nextdiff = null;
 $standarderror = 0.0;
 $message = '';
+
+var_dump(adaptiveattempt);
+die();
 
 // If uniqueid is not empty the process respones.
 if (!empty($uniqueid) && confirm_sesskey()) {

@@ -155,6 +155,14 @@ if (empty($attemptstatus)) {
 }
 
 //TODO: redirect to attemptphp there
+// Redirect to the attempt page.
+$param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id(), 'uattid' => $adaptiveattempt->uniqueid);
+$url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+die();
+redirect($url, $param);
+
+
+
 
 // Retrieve the question slot id.
 $slot = $adaptiveattempt->get_question_slot_number();
