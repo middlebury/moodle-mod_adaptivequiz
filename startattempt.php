@@ -133,7 +133,7 @@ $attemptstatus = $adaptiveattempt->start_attempt();
 var_dump($adaptivequiz);
 var_dump($adaptiveattempt);
 var_dump($attemptstatus);
-var_dump($adaptiveattempt->get_id());
+//var_dump($adaptiveattempt->get_id());
 //die();
 
 // Check if attempt status is set to ready.
@@ -156,9 +156,9 @@ if (empty($attemptstatus)) {
 
 //TODO: redirect to attemptphp there
 // Redirect to the attempt page.
-$param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id(), 'uattid' => $adaptiveattempt->uniqueid);
+$param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id());
 $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
-die();
+//die();
 redirect($url, $param);
 
 
