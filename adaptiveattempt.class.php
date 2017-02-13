@@ -276,9 +276,9 @@ class adaptiveattempt {
             $this->status = get_string('maxquestattempted', 'adaptivequiz');
             return false;
         }
-
+//var_dump($this->adaptivequiz->preferredbehaviour); //TODO: test - remove it
         // Initialize the question usage by activity property.
-        $this->initialize_quba();
+        $this->initialize_quba($this->adaptivequiz->preferredbehaviour);
         // Find the last question viewed/answered by the user.
         $this->slot = $this->find_last_quest_used_by_attempt($this->quba);
         // Create a an instance of the fetchquestion class.
@@ -568,18 +568,21 @@ class adaptiveattempt {
      * @throws moodle_exception - exception is thrown when required behaviour could not be found
      * @return question_usage_by_activity|null returns a question usage by activity object or null
      */
-    public function initialize_quba() {
+    public function initialize_quba($preferredbehaviour=self::ATTEMPTBEHAVIOUR) {
         $quba = null;
 
-        if (!$this->behaviour_exists()) {
-            throw new moodle_exception('Missing '.self::ATTEMPTBEHAVIOUR.' behaviour', 'Behaviour: '.self::ATTEMPTBEHAVIOUR.
-                    ' must exist in order to use this activity');
+        if (!$this->behaviour_exists($preferredbehaviour)) {
+            //throw new moodle_exception('Missing '.self::ATTEMPTBEHAVIOUR.' behaviour', 'Behaviour: '.self::ATTEMPTBEHAVIOUR.
+            //        ' must exist in order to use this activity');
+			throw new moodle_exception('Missing '.$preferredbehaviour.' behaviour', 'Behaviour: '.$preferredbehaviour.
+                    ' must exist in order to use this activity');		
         }
 
         if (0 == $this->adpqattempt->uniqueid) {
             // Init question usage and set default behaviour of usage.
             $quba = question_engine::make_questions_usage_by_activity(self::MODULENAME, $this->adaptivequiz->context);
-            $quba->set_preferred_behaviour(self::ATTEMPTBEHAVIOUR);
+            //$quba->set_preferred_behaviour(self::ATTEMPTBEHAVIOUR);
+			$quba->set_preferred_behaviour($preferredbehaviour);
 
             $this->quba = $quba;
             $this->print_debug('initialized_quba() - question usage created');
@@ -599,13 +602,14 @@ class adaptiveattempt {
      * This function retrives archetypal behaviours and sets the attempt behavour to to manual grade
      * @return bool true if the behaviour exists, else false
      */
-    protected function behaviour_exists() {
+    protected function behaviour_exists($preferredbehaviour=self::ATTEMPTBEHAVIOUR) {
         $exists = false;
         $behaviours = question_engine::get_archetypal_behaviours();
 
         if (!empty($behaviours)) {
             foreach ($behaviours as $key => $behaviour) {
-                if (0 == strcmp(self::ATTEMPTBEHAVIOUR, $key)) {
+                //if (0 == strcmp(self::ATTEMPTBEHAVIOUR, $key)) {
+				if (0 == strcmp($preferredbehaviour, $key)) {	
                     // Behaviour found, exit the loop.
                     $exists = true;
                     break;
