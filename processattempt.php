@@ -36,8 +36,10 @@ $id = required_param('cmid', PARAM_INT); // Course module id.
 $attid  = optional_param('attid', 0, PARAM_INT);  // id of the attempt. //mathetest
 $uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attempt.
 $difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question.
-var_dump("process_att, attid=".$attid);
-var_dump("process_att, uniqueid=".$uniqueid);
+var_dump("processattempt.php, id=".$id);
+var_dump("processattempt.php, attid=".$attid);
+var_dump("processattempt.php, uniqueid=".$uniqueid);
+var_dump("processattempt.php, difflevel=".$difflevel);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -64,7 +66,7 @@ try {
 
     print_error('invalidmodule', 'error', $url, $e->getMessage(), $debuginfo);
 }
-var_dump($adaptivequiz);
+//var_dump($adaptivequiz);
 
 // Setup page global for standard viewing.
 $viewurl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
@@ -109,6 +111,9 @@ if (!empty($uniqueid) && confirm_sesskey()) {
     // Process student's responses.
     try {
         // Set a time stamp for the actions below.
+        //TODO: part must be donned
+        //-immediate feedback - submit="chek"
+        //-deferred feedback - submit="next_question"
         $time = time();
         // Load the user's current usage from the DB.
         $quba = question_engine::load_questions_usage_by_activity((int) $uniqueid);
@@ -119,6 +124,9 @@ if (!empty($uniqueid) && confirm_sesskey()) {
         // Save the data about the usage to the DB.
         question_engine::save_questions_usage_by_activity($quba);
 
+        //TODO: part must be donned
+        //-immediate feedback - submit="next_question"
+        //-deferred feedback - submit="next_question"
         if (!empty($difflevel)) {
             // Check if the minimum number of attempts have been reached.
             $minattemptreached = adaptivequiz_min_attempts_reached($uniqueid, $cm->instance, $USER->id);
@@ -183,6 +191,9 @@ if (!empty($uniqueid) && confirm_sesskey()) {
 $adaptivequiz->context = $context;
 $adaptivequiz->cm = $cm;
 
+        //TODO: part must be donned
+        //-immediate feedback - submit="next_question"
+        //-deferred feedback - submit="next_question"
 // If value is null then set the difficulty level to the starting level for the attempt.
 if (!is_null($nextdiff)) {
     $adaptiveattempt->set_level((int) $nextdiff);
@@ -190,6 +201,9 @@ if (!is_null($nextdiff)) {
     $adaptiveattempt->set_level((int) $adaptivequiz->startinglevel);
 }
 
+        //TODO: part must be donned
+        //-immediate feedback - submit="next_question"
+        //-deferred feedback - submit="next_question"
 // If we have a previous difficulty level, pass that off to the attempt so that it
 // can modify the next-question search process based on this level.
 if (isset($difflevel) && !is_null($difflevel)) {

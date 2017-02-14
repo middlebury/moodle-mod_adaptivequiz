@@ -36,7 +36,10 @@ $id = required_param('cmid', PARAM_INT); // Course module id.
 $attid  = optional_param('attid', 0, PARAM_INT);  // id of the attempt. //mathetest
 $uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attempt.
 $difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question.
-var_dump("att, attid=".$attid);
+var_dump("attempt.php, id=".$id);
+var_dump("attempt.php, attid=".$attid);
+var_dump("attempt.php, uniqueid=".$uniqueid);
+var_dump("attempt.php, difflevel=".$difflevel);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -63,7 +66,7 @@ try {
 
     print_error('invalidmodule', 'error', $url, $e->getMessage(), $debuginfo);
 }
-var_dump($adaptivequiz);
+//var_dump($adaptivequiz);
 
 // Setup page global for standard viewing.
 $viewurl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
