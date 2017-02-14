@@ -171,8 +171,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $quba->render_question($slot, $options);
 
         $output .= html_writer::start_tag('div', array('class' => 'submitbtns adaptivequizbtn'));
-        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
-            'value' => get_string('submitanswer', 'mod_adaptivequiz')));
+//        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
+//            'value' => get_string('submitanswer', 'mod_adaptivequiz')));
+        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'nextquestion',
+            'value' => get_string('nextquestion', 'mod_adaptivequiz')));               
         $output .= html_writer::end_tag('div');
 
         // Some hidden fields to track what is going on.
