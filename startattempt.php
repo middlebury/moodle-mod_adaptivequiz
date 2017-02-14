@@ -130,9 +130,9 @@ if (isset($difflevel) && !is_null($difflevel)) {
 
 $attemptstatus = $adaptiveattempt->start_attempt();
 
-var_dump($adaptivequiz);
-var_dump($adaptiveattempt);
-var_dump($attemptstatus);
+//var_dump($adaptivequiz);
+//var_dump($adaptiveattempt);
+//var_dump($attemptstatus);
 //var_dump($adaptiveattempt->get_id());
 //die();
 

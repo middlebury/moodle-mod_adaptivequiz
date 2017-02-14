@@ -57,7 +57,7 @@ class adaptiveattempt {
      * wrap on multiple lines
      * @var bool
      */
-    protected $debugenabled = false;
+    protected $debugenabled = true;
 
     /** @var array $debug debugging array of messages */
     protected $debug = array();
