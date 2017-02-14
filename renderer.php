@@ -154,7 +154,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     public function create_submit_form($cmid, $quba, $slot, $level) {
         $output = '';
 
-        $processurl = new moodle_url('/mod/adaptivequiz/attempt.php');
+        //$processurl = new moodle_url('/mod/adaptivequiz/attempt.php');
+        $processurl = new moodle_url('/mod/adaptivequiz/processattempt.php');
 
         // Start the form.
         $attr = array('action' => $processurl, 'method' => 'post', 'enctype' => 'multipart/form-data', 'accept-charset' => 'utf-8',
