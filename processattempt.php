@@ -95,7 +95,7 @@ $algo = new stdClass();
 //$nextdiff = null;
 //$standarderror = 0.0;
 //$message = '';
-
+var_dump("processattempt.php, attemptstatus=".$attemptstatus);
 var_dump($adaptiveattempt);
 //die();
 
@@ -210,7 +210,7 @@ if (isset($difflevel) && !is_null($difflevel)) {
     $adaptiveattempt->set_last_difficulty_level($difflevel);
 }
 
-$attemptstatus = $adaptiveattempt->start_attempt();
+//$attemptstatus = $adaptiveattempt->start_attempt();
 
 // Check if attempt status is set to ready.
 if (empty($attemptstatus)) {
