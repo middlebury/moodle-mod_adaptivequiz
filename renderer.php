@@ -167,7 +167,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $options = new question_display_options();
         $options->hide_all_feedback();
         $options->flags = question_display_options::HIDDEN;
-        $options->marks = question_display_options::MAX_ONLY;
+        //$options->marks = question_display_options::MAX_ONLY;
+        $options->marks = question_display_options::MARK_AND_MAX;  //TODO: test only 
+        $options->correctness = question_display_options::VISIBLE;  //TODO: test only 
+        $options->rightanswer = question_display_options::VISIBLE;  //TODO: test only 
 
         $output .= $quba->render_question($slot, $options);
 
