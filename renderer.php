@@ -27,6 +27,7 @@
 
 require_once($CFG->dirroot.'/mod/adaptivequiz/requiredpassword.class.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/catalgo.class.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/adaptiveattempt.class.php');
 
 class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /** @var string $sortdir the sorting direction being used */
@@ -151,7 +152,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param int $level: difficulty level of question
      * @return string - HTML markup
      */
-    public function create_submit_form($cmid, $quba, $slot, $level) {
+    public function create_submit_form($cmid, $quba, $slot, $level, $behaviour=adaptiveattempt::ATTEMPTBEHAVIOUR) {
         $output = '';
 
         //$processurl = new moodle_url('/mod/adaptivequiz/attempt.php');
@@ -175,10 +176,13 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $quba->render_question($slot, $options);
 
         $output .= html_writer::start_tag('div', array('class' => 'submitbtns adaptivequizbtn'));
-//        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
-//            'value' => get_string('submitanswer', 'mod_adaptivequiz')));
-        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'nextquestion',
-            'value' => get_string('nextquestion', 'mod_adaptivequiz')));               
+        if ($behaviour=='deferredfeedback'){
+            $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
+                'value' => get_string('submitanswer', 'mod_adaptivequiz')));
+        } elseif ($behaviour=='immediatefeedback'){
+            $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'nextquestion',
+                'value' => get_string('nextquestion', 'mod_adaptivequiz')));
+        }
         $output .= html_writer::end_tag('div');
 
         // Some hidden fields to track what is going on.
@@ -229,10 +233,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param int $level: difficulty level of question
      * @return string - HTML markup
      */
-    public function print_question($cmid, $quba, $slot, $level) {
+    public function print_question($cmid, $quba, $slot, $level, $behaviour=adaptiveattempt::ATTEMPTBEHAVIOUR) {
         $output = '';
         $output .= $this->header();
-        $output .= $this->create_submit_form($cmid, $quba, $slot, $level);
+        $output .= $this->create_submit_form($cmid, $quba, $slot, $level, $behaviour);
         $output .= $this->footer();
         return $output;
     }

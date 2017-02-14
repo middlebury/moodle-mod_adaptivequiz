@@ -210,7 +210,7 @@ if (isset($difflevel) && !is_null($difflevel)) {
     $adaptiveattempt->set_last_difficulty_level($difflevel);
 }
 
-//$attemptstatus = $adaptiveattempt->start_attempt();
+$attemptstatus = $adaptiveattempt->start_attempt();
 
 // Check if attempt status is set to ready.
 if (empty($attemptstatus)) {
@@ -233,7 +233,7 @@ if (empty($attemptstatus)) {
 // Redirect to the attempt page.
 $param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id());
 $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
-//die();
+die();
 redirect($url, $param);
 
 

@@ -186,6 +186,6 @@ if (!empty($adaptivequiz->password) && empty($condition)) {
     echo $output->print_footer();
 } else {
     // Render the question to the page.
-    echo $output->print_question($id, $quba, $slot, $level);
+    echo $output->print_question($id, $quba, $slot, $level, $adaptivequiz->preferredbehaviour);
 	die();
 }
