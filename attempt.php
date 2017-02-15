@@ -36,6 +36,8 @@ $id = required_param('cmid', PARAM_INT); // Course module id.
 $attid  = optional_param('attid', 0, PARAM_INT);  // id of the attempt. //mathetest
 $uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attempt.
 $difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question.
+$isreview = optional_param('isreview', 0, PARAM_INT);  // IMMEDIATE FEEDBACK ONLY! it it ask or answer review pass!
+
 var_dump("attempt.php, id=".$id);
 var_dump("attempt.php, attid=".$attid);
 var_dump("attempt.php, uniqueid=".$uniqueid);
@@ -187,6 +189,6 @@ if (!empty($adaptivequiz->password) && empty($condition)) {
 } else {
     // Render the question to the page.
 var_dump("attempt.php-behaviour=",$behaviour);    
-    echo $output->print_question($id, $quba, $slot, $level, $adaptivequiz->preferredbehaviour);
+    echo $output->print_question($id, $quba, $slot, $level, $adaptivequiz->preferredbehaviour, $isreview);
 	die();
 }

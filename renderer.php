@@ -152,7 +152,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param int $level: difficulty level of question
      * @return string - HTML markup
      */
-    public function create_submit_form($cmid, $quba, $slot, $level, $behaviour=adaptiveattempt::ATTEMPTBEHAVIOUR) {
+    public function create_submit_form($cmid, $quba, $slot, $level, $behaviour=adaptiveattempt::ATTEMPTBEHAVIOUR, $isreview=false) {
         $output = '';
 
         //$processurl = new moodle_url('/mod/adaptivequiz/attempt.php');
@@ -180,7 +180,7 @@ var_dump("render.php-create_submit_form-behaviour=".$behaviour);
         if ($behaviour=='deferredfeedback'){
             $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
                 'value' => get_string('submitanswer', 'mod_adaptivequiz')));
-        } elseif ($behaviour=='immediatefeedback'){
+        } elseif ($behaviour=='immediatefeedback'&&$isreview){
             $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'nextquestion',
                 'value' => get_string('nextquestion', 'mod_adaptivequiz')));
         }
@@ -234,10 +234,10 @@ var_dump("render.php-create_submit_form-behaviour=".$behaviour);
      * @param int $level: difficulty level of question
      * @return string - HTML markup
      */
-    public function print_question($cmid, $quba, $slot, $level, $behaviour=adaptiveattempt::ATTEMPTBEHAVIOUR) {
+    public function print_question($cmid, $quba, $slot, $level, $behaviour=adaptiveattempt::ATTEMPTBEHAVIOUR, $isreview=false) {
         $output = '';
         $output .= $this->header();
-        $output .= $this->create_submit_form($cmid, $quba, $slot, $level, $behaviour);
+        $output .= $this->create_submit_form($cmid, $quba, $slot, $level, $behaviour, $isreview);
         $output .= $this->footer();
         return $output;
     }

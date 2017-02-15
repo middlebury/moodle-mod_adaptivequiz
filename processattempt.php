@@ -36,10 +36,13 @@ $id = required_param('cmid', PARAM_INT); // Course module id.
 $attid  = optional_param('attid', 0, PARAM_INT);  // id of the attempt. //mathetest
 $uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attempt.
 $difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question.
+$nextquestion = optional_param('nextquestion', '', PARAM_TEXT);
+
 var_dump("processattempt.php, id=".$id);
 var_dump("processattempt.php, attid=".$attid);
 var_dump("processattempt.php, uniqueid=".$uniqueid);
 var_dump("processattempt.php, difflevel=".$difflevel);
+var_dump("processattempt.php, nextquestion=".$nextquestion);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -231,8 +234,15 @@ if (empty($attemptstatus)) {
 }
 
 // Redirect to the attempt page.
-$param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id());
+//immediate feedback only
+if ($adaptivequiz->preferredbehaviour=='immediatefeedback' &&$nextquestion =='') {
+    $isreview = 1;
+} else {
+    $isreview = 0;
+}
+$param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id(), 'isreview' =>$isreview);
 $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+var_dump("processattempt.php, url=".$url);
 die();
 redirect($url, $param);
 
