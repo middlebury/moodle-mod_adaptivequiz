@@ -508,6 +508,39 @@ class adaptiveattempt {
 
         return $attempt;
     }
+    
+    /**
+     * This function retrieves the most recent attempt, whose state is 'inprogress'.  
+     * Lastly $adpqattempt instance property gets set.
+     * @$instance   adaptivequiz->id
+     * @$userid     userid
+     * @return stdClass adaptivequiz_attempt data object
+     */
+    public function get_attempt_inprogress($instance, $userid) {
+        global $DB;
+
+        $param = array(
+//            'instance' => $this->adaptivequiz->id,
+//            'userid' => $this->userid,
+            'instance' => $instance,
+            'userid' => $userid,            
+            'attemptstate' => self::ADAPTIVEQUIZ_ATTEMPT_INPROGRESS);
+        $attempt = $DB->get_records('adaptivequiz_attempt', $param, 'timemodified DESC', '*', 0, 1);
+
+        if (!empty($attempt)) {
+            $attempt = current($attempt);
+            $this->adpqattempt = $attempt;
+
+            $this->print_debug('get_attempt_inprogress() - previous attempt loaded: '.$this->vardump($attempt));
+        } else {
+            $attempt = false;
+            $this->adpqattempt = $attempt;
+
+            $this->print_debug('get_attempt_inprogress() - there are no such attempt: '.$this->vardump($attempt));
+        }
+
+        return $attempt;
+    }    
 
     /**
      * This function retrieves the last question that was used in the attempt
