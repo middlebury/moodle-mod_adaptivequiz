@@ -257,7 +257,7 @@ class adaptiveattempt {
      * This function does the work of initializing data required to fetch a new question for the attempt.
      * @return bool true if attempt started okay otherwise false
      */
-    public function start_attempt() {
+    public function start_attempt($isreview=0) {
         global $DB;
 
         // Get most recent attempt or start a new one.
@@ -304,7 +304,7 @@ var_dump("adaptive_attempt-start_attempt-test-is first?=".(boolean)(empty($this-
             // If so fetch a new question.
 var_dump("adaptive_attempt-start_attempt-wasanswersubmitted".$this->was_answer_submitted_to_question($this->quba, $this->slot));            
 //TODO:put there test immediate or deferred feedback!!! - to allow review of attempt....
-
+if ($isreview==0) {
             // Provide the question-fetching process with limits based on our last question.
             // If the last question was correct...
             if ($this->quba->get_question_mark($this->slot) > 0) {
@@ -339,6 +339,8 @@ var_dump("adaptive_attempt-start_attempt-wasanswersubmitted".$this->was_answer_s
 
             $this->print_debug("start_attempt() - Continuing attempt.  Set level: {$this->level}.");
 
+    }
+    
         } else if (empty($this->slot) && 0 < $adpqattempt->questionsattempted) {
             // If this condition is met, then something went wrong because the slot id is empty BUT the questions attempted is
             // Greater than zero.  Stop attempt.

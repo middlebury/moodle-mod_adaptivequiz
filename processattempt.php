@@ -117,6 +117,9 @@ if (!empty($uniqueid) && confirm_sesskey()) {
         //TODO: part must be donned
         //-immediate feedback - submit="chek"
         //-deferred feedback - submit="next_question"
+        //immediate feedback only
+        if (($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion =='')){
+        
         $time = time();
         // Load the user's current usage from the DB.
         $quba = question_engine::load_questions_usage_by_activity((int) $uniqueid);
@@ -126,11 +129,11 @@ if (!empty($uniqueid) && confirm_sesskey()) {
         $quba->finish_all_questions($time);
         // Save the data about the usage to the DB.
         question_engine::save_questions_usage_by_activity($quba);
-
+        }
         //TODO: part must be donned
         //-immediate feedback - submit="next_question"
         //-deferred feedback - submit="next_question"
-        if (!empty($difflevel)) {
+        if (!empty($difflevel)&&(($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion <>''))) {
             // Check if the minimum number of attempts have been reached.
             $minattemptreached = adaptivequiz_min_attempts_reached($uniqueid, $cm->instance, $USER->id);
             // Create an instance of the CAT algo class.
@@ -197,6 +200,8 @@ $adaptivequiz->cm = $cm;
         //TODO: part must be donned
         //-immediate feedback - submit="next_question"
         //-deferred feedback - submit="next_question"
+        if (($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion <>'')) {
+        
 // If value is null then set the difficulty level to the starting level for the attempt.
 if (!is_null($nextdiff)) {
     $adaptiveattempt->set_level((int) $nextdiff);
@@ -233,17 +238,20 @@ if (empty($attemptstatus)) {
     redirect($url);
 }
 
+}
+
 // Redirect to the attempt page.
 //immediate feedback only
 if ($adaptivequiz->preferredbehaviour=='immediatefeedback' &&$nextquestion =='') {
-    $isreview = 1;
+    $isreview = 1;//re-visit previous question to show results
 } else {
-    $isreview = 0;
+    $isreview = 0;//goto the next question
 }
+$param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id(), 'isreview' =>$isreview);
 $param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id(), 'isreview' =>$isreview);
 $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
 var_dump("processattempt.php, url=".$url);
-die();
+//die();
 redirect($url, $param);
 
 

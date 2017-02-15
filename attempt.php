@@ -42,6 +42,7 @@ var_dump("attempt.php, id=".$id);
 var_dump("attempt.php, attid=".$attid);
 var_dump("attempt.php, uniqueid=".$uniqueid);
 var_dump("attempt.php, difflevel=".$difflevel);
+var_dump("attempt.php, isreview=".$isreview);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -118,7 +119,7 @@ if (isset($difflevel) && !is_null($difflevel)) {
     $adaptiveattempt->set_last_difficulty_level($difflevel);
 }
 
-$attemptstatus = $adaptiveattempt->start_attempt();
+$attemptstatus = $adaptiveattempt->start_attempt($isreview);
 var_dump("attempt.php-attemptstatus=".$attemptstatus);
 var_dump($adaptiveattempt);
 
