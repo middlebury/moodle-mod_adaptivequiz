@@ -176,6 +176,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $quba->render_question($slot, $options);
 
         $output .= html_writer::start_tag('div', array('class' => 'submitbtns adaptivequizbtn'));
+var_dump("render.php-create_submit_form-behaviour=".$behaviour);
         if ($behaviour=='deferredfeedback'){
             $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
                 'value' => get_string('submitanswer', 'mod_adaptivequiz')));

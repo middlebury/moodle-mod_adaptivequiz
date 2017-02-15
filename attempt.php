@@ -95,8 +95,6 @@ $algo = new stdClass();
 $nextdiff = null;
 $standarderror = 0.0;
 $message = '';
-
-var_dump($adaptiveattempt);
 //die();
 
 // If uniqueid is not empty the process respones.
@@ -119,6 +117,8 @@ if (isset($difflevel) && !is_null($difflevel)) {
 }
 
 $attemptstatus = $adaptiveattempt->start_attempt();
+var_dump("attempt.php-attemptstatus=".$attemptstatus);
+var_dump($adaptiveattempt);
 
 // Check if attempt status is set to ready.
 if (empty($attemptstatus)) {
@@ -186,6 +186,7 @@ if (!empty($adaptivequiz->password) && empty($condition)) {
     echo $output->print_footer();
 } else {
     // Render the question to the page.
+var_dump("attempt.php-behaviour=",$behaviour);    
     echo $output->print_question($id, $quba, $slot, $level, $adaptivequiz->preferredbehaviour);
 	die();
 }
