@@ -189,7 +189,7 @@ if (!empty($adaptivequiz->password) && empty($condition)) {
     echo $output->print_footer();
 } else {
     // Render the question to the page.
-var_dump("attempt.php-behaviour=",$behaviour);    
+var_dump("attempt.php-behaviour=".$adaptivequiz->preferredbehaviour);    
     echo $output->print_question($id, $quba, $slot, $level, $adaptivequiz->preferredbehaviour, $isreview);
-	die();
+	//die();
 }
