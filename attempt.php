@@ -38,11 +38,11 @@ $uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attem
 $difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question.
 $isreview = optional_param('isreview', 0, PARAM_INT);  // IMMEDIATE FEEDBACK ONLY! it it ask or answer review pass!
 
-var_dump("attempt.php, id=".$id);
-var_dump("attempt.php, attid=".$attid);
-var_dump("attempt.php, uniqueid=".$uniqueid);
-var_dump("attempt.php, difflevel=".$difflevel);
-var_dump("attempt.php, isreview=".$isreview);
+//var_dump("attempt.php, id=".$id);
+//var_dump("attempt.php, attid=".$attid);
+//var_dump("attempt.php, uniqueid=".$uniqueid);
+//var_dump("attempt.php, difflevel=".$difflevel);
+//var_dump("attempt.php, isreview=".$isreview);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -120,8 +120,8 @@ if (isset($difflevel) && !is_null($difflevel)) {
 }
 
 $attemptstatus = $adaptiveattempt->start_attempt($isreview);
-var_dump("attempt.php-attemptstatus=".$attemptstatus);
-var_dump($adaptiveattempt);
+//var_dump("attempt.php-attemptstatus=".$attemptstatus);
+//var_dump($adaptiveattempt);
 
 // Check if attempt status is set to ready.
 if (empty($attemptstatus)) {
@@ -189,7 +189,7 @@ if (!empty($adaptivequiz->password) && empty($condition)) {
     echo $output->print_footer();
 } else {
     // Render the question to the page.
-var_dump("attempt.php-behaviour=".$adaptivequiz->preferredbehaviour);    
+//var_dump("attempt.php-behaviour=".$adaptivequiz->preferredbehaviour);    
     echo $output->print_question($id, $quba, $slot, $level, $adaptivequiz->preferredbehaviour, $isreview);
 	//die();
 }
