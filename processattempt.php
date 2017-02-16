@@ -118,11 +118,12 @@ if (!empty($uniqueid) && confirm_sesskey()) {
         //-immediate feedback - submit="chek"
         //-deferred feedback - submit="next_question"
         //immediate feedback only
-        if (($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion =='')){
-        
         $time = time();
         // Load the user's current usage from the DB.
         $quba = question_engine::load_questions_usage_by_activity((int) $uniqueid);
+
+        if (($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion =='')){
+            
         // Update the actions done to the question.
         $quba->process_all_actions($time);
         // Finish the grade attempt at the question.
