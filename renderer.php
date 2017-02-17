@@ -289,6 +289,58 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     }
 
     /**
+     * This function print the attempt large feedback
+     * @param adaptivequiz $adaptivequiz adaptivequiz object
+     * @param $user user object
+     * @param int $cmid course module id
+     * @param bool $popup true if the attempt is using a popup window
+     * @return string HTML markup
+     */
+    public function print_largeattemptfeedback($adaptivequiz, $user, $cmid, $popup = false) {
+        $output = '';
+        $output .= $this->header();
+        $output .= $this->create_largeattemptfeedback($adaptivequiz, $user, $cmid, $popup);
+        $output .= $this->footer();
+        return $output;
+    }    
+    /**
+     * This function prepare the attempt large feedback
+     * @param adaptivequiz $adaptivequiz adaptivequiz object
+     * @param $user user object
+     * @param int $cmid course module id
+     * @param bool $popup true if the attempt is using a popup window
+     * @return string HTML markup
+     */
+    public function create_largeattemptfeedback($adaptivequiz, $user, $cmid, $popup = false) {
+        $output = '';
+        $url = new moodle_url('/mod/adaptivequiz/view.php');
+        $attr = array('action' => $url, 'method' => 'post', 'id' => 'attemptfeedback');
+        $output .= html_writer::start_tag('form', $attr);
+        
+        $output .= html_writer::tag('h2', get_string('attemptfeedback', 'adaptivequiz'));
+        $output .= html_writer::tag('p', s($adaptivequiz->attemptfeedback), array('class' => 'submitbtns adaptivequizfeedback'));
+        $output .= html_writer::start_tag('div', array('id' => 'adpq_scoring_table', 'style'=>'display:flex'));
+        $output .= $this->get_attempt_summary_listing($adaptivequiz, $user);
+        $output .= html_writer::end_tag('div');
+
+        if (empty($popup)) {
+            $attr = array('type' => 'submit', 'name' => 'attemptfinished', 'value' => get_string('continue'));
+            $output .= html_writer::empty_tag('input', $attr);
+        } else {
+            // In a 'secure' popup window.
+            $this->page->requires->js_init_call('M.mod_adaptivequiz.secure_window.init_close_button', array($url),
+                $this->adaptivequiz_get_js_module());
+            $output .= html_writer::empty_tag('input', array('type' => 'button', 'value' => get_string('continue'),
+                'id' => 'secureclosebutton'));
+        }
+
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $cmid));
+        $output .= html_writer::end_tag('form');
+
+        return $output;
+    }
+
+    /**
      * Output a page with an optional message, and JavaScript code to close the
      * current window and redirect the parent window to a new URL.
      * @param moodle_url $url the URL to redirect the parent window to.

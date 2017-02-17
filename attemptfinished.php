@@ -39,7 +39,17 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
     print_error("coursemisconf");
 }
 
-$adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*', MUST_EXIST);
+//$adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*', MUST_EXIST);
+$param = array('uniqueid' => $uniqueid, 'userid' => $USER->id, 'activityid' => $cm->instance);
+$sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, a.attemptfeedback, aa.timecreated, aa.timemodified, aa.attemptstate, aa.attemptstopcriteria,
+               aa.questionsattempted, aa.difficultysum, aa.standarderror, aa.measure
+          FROM {adaptivequiz} a
+          JOIN {adaptivequiz_attempt} aa ON a.id = aa.instance
+         WHERE aa.uniqueid = :uniqueid
+               AND aa.userid = :userid
+               AND a.id = :activityid
+      ORDER BY a.name ASC';
+$adaptivequiz  = $DB->get_record_sql($sql, $param);
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
@@ -71,4 +81,14 @@ if (!empty($adaptivequiz->browsersecurity)) {
     $PAGE->set_heading(format_string($course->fullname));
 }
 
-echo $output->print_attemptfeedback($adaptivequiz->attemptfeedback, $cm->id, $popup);
+$user = $DB->get_record('user', array('id' => $USER->id));
+if (!$user) {
+    $user = new stdClass();
+    $user->firstname = get_string('unknownuser', 'adaptivequiz');
+    $user->lastname = '#'.$userid;
+}
+
+//echo $output->print_attemptfeedback($cm->id, $popup);
+echo $output->print_largeattemptfeedback($adaptivequiz, $user, $cm->id, $popup);
+
+
