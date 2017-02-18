@@ -302,7 +302,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $this->create_largeattemptfeedback($adaptivequiz, $user, $cmid, $popup);
         $output .= $this->footer();
         return $output;
-    }    
+    }
+    
     /**
      * This function prepare the attempt large feedback
      * @param adaptivequiz $adaptivequiz adaptivequiz object
@@ -316,9 +317,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $url = new moodle_url('/mod/adaptivequiz/view.php');
         $attr = array('action' => $url, 'method' => 'post', 'id' => 'attemptfeedback');
         $output .= html_writer::start_tag('form', $attr);
-        
-        $output .= html_writer::tag('h2', get_string('attemptfeedback', 'adaptivequiz'));
-        $output .= html_writer::tag('p', s($adaptivequiz->attemptfeedback), array('class' => 'submitbtns adaptivequizfeedback'));
+        if ($adaptivequiz->attemptfeedback) {
+            $output .= html_writer::tag('h2', get_string('attemptfeedback', 'adaptivequiz'));
+            $output .= html_writer::tag('p', s($adaptivequiz->attemptfeedback), array('class' => 'submitbtns adaptivequizfeedback'));
+        }
+        $output .= html_writer::tag('h2', get_string('attempt_summary', 'adaptivequiz'));
         $output .= html_writer::start_tag('div', array('id' => 'adpq_scoring_table', 'style'=>'display:flex'));
         $output .= $this->get_attempt_summary_listing($adaptivequiz, $user);
         $output .= html_writer::end_tag('div');
