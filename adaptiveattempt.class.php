@@ -20,10 +20,11 @@
  * This class contains information about the attempt parameters
  *
  * This module was created as a collaborative effort between Middlebury College
- * and Remote Learner.
+ * and Remote Learner and Andriy Semenets.
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2017 onwards Andriy Semenets {semteacher@gmail.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptiveattempt {
@@ -283,7 +284,7 @@ class adaptiveattempt {
             $this->status = get_string('maxquestattempted', 'adaptivequiz');
             return false;
         }
-//var_dump("adaptive_attempt-start_attempt-behaviour=".$this->adaptivequiz->preferredbehaviour); //TODO: test - remove it
+
         // Initialize the question usage by activity property.
         $this->initialize_quba($this->adaptivequiz->preferredbehaviour);
         // Find the last question viewed/answered by the user.
@@ -293,9 +294,6 @@ class adaptiveattempt {
                 $this->adaptivequiz->highestlevel);
 
         // Check if this is the beginning of an attempt (and pass the starting level) or the continuation of an attempt.
-//var_dump("adaptive_attempt-start_attempt-slot=".$this->slot);
-//var_dump("adaptive_attempt-start_attempt-questionsattempted=".$this->questionsattempted);
-//var_dump("adaptive_attempt-start_attempt-test-is first?=".(boolean)(empty($this->slot) && 0 == $adpqattempt->questionsattempted));
         if (empty($this->slot) && 0 == $adpqattempt->questionsattempted) {
             // Set the starting difficulty level.
             $fetchquestion->set_level((int) $this->adaptivequiz->startinglevel);
@@ -308,10 +306,9 @@ class adaptiveattempt {
 
         } else if (!empty($this->slot) && $this->was_answer_submitted_to_question($this->quba, $this->slot)) {
             // If the attempt already has a question attached to it, check if an answer was submitted to the question.
-            // If so fetch a new question.
-//var_dump("adaptive_attempt-start_attempt-wasanswersubmitted".$this->was_answer_submitted_to_question($this->quba, $this->slot));            
-//TODO:put there test immediate or deferred feedback!!! - to allow review of attempt.... - OK
-if ($isreview==0) {
+            // If so fetch a new question.            
+            //put there test immediate or deferred feedback!!! - to allow review of attempt.... - OK
+        if ($isreview==0) {
             // Provide the question-fetching process with limits based on our last question.
             // If the last question was correct...
             if ($this->quba->get_question_mark($this->slot) > 0) {
@@ -346,7 +343,7 @@ if ($isreview==0) {
 
             $this->print_debug("start_attempt() - Continuing attempt.  Set level: {$this->level}.");
 
-    }
+        }
     
         } else if (empty($this->slot) && 0 < $adpqattempt->questionsattempted) {
             // If this condition is met, then something went wrong because the slot id is empty BUT the questions attempted is

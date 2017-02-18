@@ -15,13 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Adaptive quiz attempt script
+ * Adaptive quiz start attempt script
  *
  * This module was created as a collaborative effort between Middlebury College
- * and Remote Learner.
+ * and Remote Learner and Andriy Semenets.
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2017 onwards Andriy Semenets {semteacher@gmail.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -109,9 +110,6 @@ $nextdiff = null;
 $standarderror = 0.0;
 $message = '';
 
-//TODO: If uniqueid is not empty the process respones. - WILL BE MOVE TO processattempt.php!!!
-
-
 $adaptivequiz->context = $context;
 $adaptivequiz->cm = $cm;
 
@@ -129,12 +127,6 @@ if (isset($difflevel) && !is_null($difflevel)) {
 }
 
 $attemptstatus = $adaptiveattempt->start_attempt();
-
-//var_dump($adaptivequiz);
-//var_dump($adaptiveattempt);
-//var_dump($attemptstatus);
-//var_dump($adaptiveattempt->get_id());
-//die();
 
 // Check if attempt status is set to ready.
 if (empty($attemptstatus)) {
@@ -154,61 +146,7 @@ if (empty($attemptstatus)) {
     redirect($url);
 }
 
-//TODO: redirect to attemptphp there
 // Redirect to the attempt page.
 $param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id());
 $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
-//var_dump($adaptiveattempt);
-//die();
 redirect($url, $param);
-
-
-
-
-// Retrieve the question slot id.
-$slot = $adaptiveattempt->get_question_slot_number();
-// Retrieve the question_usage_by_activity object.
-$quba = $adaptiveattempt->get_quba();
-// If $nextdiff is null then this is either a new attempt or a continuation of an previous attempt.  Calculate the current
-// difficulty level the attempt should be at.
-if (is_null($nextdiff)) {
-    // Calculate the current difficulty level.
-    $adaptivequiz->lowestlevel = (int) $adaptivequiz->lowestlevel;
-    $adaptivequiz->highestlevel = (int) $adaptivequiz->highestlevel;
-    $adaptivequiz->startinglevel = (int) $adaptivequiz->startinglevel;
-    // Create an instance of the catalgo class, however constructor arguments are not important.
-    $algo = new catalgo($quba, 1, false, 1);
-    $level = $algo->get_current_diff_level($quba, $adaptivequiz->startinglevel, $adaptivequiz);
-} else {
-    // Retrieve the currently set difficulty level.
-    $level = $adaptiveattempt->get_level();
-}
-
-$headtags = $output->init_metadata($quba, $slot);
-$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', array($viewurl->out(), $adaptivequiz->browsersecurity),
-    false, $output->adaptivequiz_get_js_module());
-
-// Init secure window if enabled.
-if (!empty($adaptivequiz->browsersecurity)) {
-    $PAGE->blocks->show_only_fake_blocks();
-    $output->init_browser_security();
-} else {
-    $PAGE->set_heading(format_string($course->fullname));
-}
-
-// Check if the user entered a password.
-$condition = adaptivequiz_user_entered_password($adaptivequiz->id);
-
-if (!empty($adaptivequiz->password) && empty($condition)) {
-    echo $output->print_header();
-
-    if ($passwordattempt) {
-        $mform->set_data(array('message' => get_string('wrongpassword', 'adaptivequiz')));
-    }
-
-    $mform->display();
-    echo $output->print_footer();
-} else {
-    // Render the question to the page.
-    echo $output->print_question($id, $quba, $slot, $level);
-}

@@ -18,10 +18,11 @@
  * Adaptive quiz attempt script
  *
  * This module was created as a collaborative effort between Middlebury College
- * and Remote Learner.
+ * and Remote Learner and Andriy Semenets.
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2017 onwards Andriy Semenets {semteacher@gmail.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -40,6 +41,7 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 }
 
 //$adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*', MUST_EXIST);
+//get adaptivequiz info along with attempt summary info
 $param = array('uniqueid' => $uniqueid, 'userid' => $USER->id, 'activityid' => $cm->instance);
 $sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, a.attemptfeedback, aa.timecreated, aa.timemodified, aa.attemptstate, aa.attemptstopcriteria,
                aa.questionsattempted, aa.difficultysum, aa.standarderror, aa.measure

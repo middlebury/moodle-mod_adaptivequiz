@@ -18,10 +18,11 @@
  * Adaptive quiz attempt script
  *
  * This module was created as a collaborative effort between Middlebury College
- * and Remote Learner.
+ * and Remote Learner and Andriy Semenets.
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2017 onwards Andriy Semenets {semteacher@gmail.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,12 +38,6 @@ $attid  = optional_param('attid', 0, PARAM_INT);  // id of the attempt. //mathet
 $uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attempt.
 $difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question.
 $isreview = optional_param('isreview', 0, PARAM_INT);  // IMMEDIATE FEEDBACK ONLY! it it ask or answer review pass!
-
-//var_dump("attempt.php, id=".$id);
-//var_dump("attempt.php, attid=".$attid);
-//var_dump("attempt.php, uniqueid=".$uniqueid);
-//var_dump("attempt.php, difflevel=".$difflevel);
-//var_dump("attempt.php, isreview=".$isreview);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -69,7 +64,6 @@ try {
 
     print_error('invalidmodule', 'error', $url, $e->getMessage(), $debuginfo);
 }
-//var_dump($adaptivequiz);
 
 // Setup page global for standard viewing.
 $viewurl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
@@ -87,10 +81,6 @@ if (!adaptivequiz_allowed_attempt($adaptivequiz->attempts, $count)) {
     print_error('noattemptsallowed', 'adaptivequiz');
 }
 
-// Create an instance of the module renderer class.
-//$output = $PAGE->get_renderer('mod_adaptivequiz');
-
-
 // Create an instance of the adaptiveattempt class.
 $adaptiveattempt = new adaptiveattempt($adaptivequiz, $USER->id);
 //$attemptstatus = $adaptiveattempt->start_attempt();
@@ -98,10 +88,6 @@ $algo = new stdClass();
 $nextdiff = null;
 $standarderror = 0.0;
 $message = '';
-//die();
-
-// If uniqueid is not empty the process respones.
-//TODO: If uniqueid is not empty the process respones. - WILL BE MOVE TO processattempt.php!!!
 
 $adaptivequiz->context = $context;
 $adaptivequiz->cm = $cm;
@@ -120,8 +106,6 @@ if (isset($difflevel) && !is_null($difflevel)) {
 }
 
 $attemptstatus = $adaptiveattempt->start_attempt($isreview);
-//var_dump("attempt.php-attemptstatus=".$attemptstatus);
-//var_dump($adaptiveattempt);
 
 // Check if attempt status is set to ready.
 if (empty($attemptstatus)) {
@@ -188,8 +172,6 @@ if (!empty($adaptivequiz->password) && empty($condition)) {
     $mform->display();
     echo $output->print_footer();
 } else {
-    // Render the question to the page.
-//var_dump("attempt.php-behaviour=".$adaptivequiz->preferredbehaviour);    
+    // Render the question to the page.    
     echo $output->print_question($id, $quba, $slot, $level, $adaptivequiz->preferredbehaviour, $isreview);
-	//die();
 }

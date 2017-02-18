@@ -15,13 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Adaptive quiz attempt script
+ * Adaptive quiz process attempt script
  *
  * This module was created as a collaborative effort between Middlebury College
- * and Remote Learner.
+ * and Remote Learner and Andriy Semenets.
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2017 onwards Andriy Semenets {semteacher@gmail.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,12 +38,6 @@ $attid  = optional_param('attid', 0, PARAM_INT);  // id of the attempt. //mathet
 $uniqueid  = optional_param('uniqueid', 0, PARAM_INT);  // uniqueid of the attempt.
 $difflevel  = optional_param('dl', 0, PARAM_INT);  // difficulty level of question.
 $nextquestion = optional_param('nextquestion', '', PARAM_TEXT);
-
-//var_dump("processattempt.php, id=".$id);
-//var_dump("processattempt.php, attid=".$attid);
-//var_dump("processattempt.php, uniqueid=".$uniqueid);
-//var_dump("processattempt.php, difflevel=".$difflevel);
-//var_dump("processattempt.php, nextquestion=".$nextquestion);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
     print_error('invalidcoursemodule');
@@ -69,7 +64,6 @@ try {
 
     print_error('invalidmodule', 'error', $url, $e->getMessage(), $debuginfo);
 }
-//var_dump($adaptivequiz);
 
 // Setup page global for standard viewing.
 $viewurl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
@@ -87,10 +81,6 @@ if (!adaptivequiz_allowed_attempt($adaptivequiz->attempts, $count)) {
     print_error('noattemptsallowed', 'adaptivequiz');
 }
 
-// Create an instance of the module renderer class.
-//$output = $PAGE->get_renderer('mod_adaptivequiz');
-
-
 // Create an instance of the adaptiveattempt class.
 $adaptiveattempt = new adaptiveattempt($adaptivequiz, $USER->id);
 $attemptstatus = $adaptiveattempt->start_attempt();
@@ -98,9 +88,6 @@ $algo = new stdClass();
 //$nextdiff = null;
 //$standarderror = 0.0;
 //$message = '';
-//var_dump("processattempt.php, attemptstatus=".$attemptstatus);
-//var_dump($adaptiveattempt);
-//die();
 
 // If uniqueid is not empty the process respones.
 if (!empty($uniqueid) && confirm_sesskey()) {
@@ -114,26 +101,25 @@ if (!empty($uniqueid) && confirm_sesskey()) {
     // Process student's responses.
     try {
         // Set a time stamp for the actions below.
-        //TODO: part must be donned
-        //-immediate feedback - submit="chek"
-        //-deferred feedback - submit="next_question"
-        //immediate feedback only
+
         $time = time();
         // Load the user's current usage from the DB.
         $quba = question_engine::load_questions_usage_by_activity((int) $uniqueid);
 
+        //condition-immediate feedback - submit="chek"
+        //condition-deferred feedback - submit="next_question"
+        //immediate feedback only
         if (($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion =='')){
-            
-        // Update the actions done to the question.
-        $quba->process_all_actions($time);
-        // Finish the grade attempt at the question.
-        $quba->finish_all_questions($time);
-        // Save the data about the usage to the DB.
-        question_engine::save_questions_usage_by_activity($quba);
+            // Update the actions done to the question.
+            $quba->process_all_actions($time);
+            // Finish the grade attempt at the question.
+            $quba->finish_all_questions($time);
+            // Save the data about the usage to the DB.
+            question_engine::save_questions_usage_by_activity($quba);
         }
-        //TODO: part must be donned
-        //-immediate feedback - submit="next_question"
-        //-deferred feedback - submit="next_question"
+
+        //condition-immediate feedback - submit="next_question"
+        //condition-deferred feedback - submit="next_question"
         if (!empty($difflevel)&&(($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion <>''))) {
             // Check if the minimum number of attempts have been reached.
             $minattemptreached = adaptivequiz_min_attempts_reached($uniqueid, $cm->instance, $USER->id);
@@ -198,108 +184,53 @@ if (!empty($uniqueid) && confirm_sesskey()) {
 $adaptivequiz->context = $context;
 $adaptivequiz->cm = $cm;
 
-        //TODO: part must be donned
-        //-immediate feedback - submit="next_question"
-        //-deferred feedback - submit="next_question"
-        if (($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion <>'')) {
+//condition-immediate feedback - submit="next_question"
+//condition-deferred feedback - submit="next_question"
+if (($adaptivequiz->preferredbehaviour=='deferredfeedback')||($adaptivequiz->preferredbehaviour=='immediatefeedback' && $nextquestion <>'')) {
         
-// If value is null then set the difficulty level to the starting level for the attempt.
-if (!is_null($nextdiff)) {
-    $adaptiveattempt->set_level((int) $nextdiff);
-} else {
-    $adaptiveattempt->set_level((int) $adaptivequiz->startinglevel);
-}
-
-        //TODO: part must be donned
-        //-immediate feedback - submit="next_question"
-        //-deferred feedback - submit="next_question"
-// If we have a previous difficulty level, pass that off to the attempt so that it
-// can modify the next-question search process based on this level.
-if (isset($difflevel) && !is_null($difflevel)) {
-    $adaptiveattempt->set_last_difficulty_level($difflevel);
-}
-
-$attemptstatus = $adaptiveattempt->start_attempt();
-
-// Check if attempt status is set to ready.
-if (empty($attemptstatus)) {
-    // Retrieve the most recent status message for the attempt.
-    $message = $adaptiveattempt->get_status();
-
-    // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the attempt-finished
-    // page.
-    if ($algo instanceof catalgo) {
-        $standarderror = $algo->get_standarderror();
+    // If value is null then set the difficulty level to the starting level for the attempt.
+    if (!is_null($nextdiff)) {
+        $adaptiveattempt->set_level((int) $nextdiff);
+    } else {
+        $adaptiveattempt->set_level((int) $adaptivequiz->startinglevel);
     }
 
-    adaptivequiz_complete_attempt($uniqueid, $cm->instance, $USER->id, $standarderror, $message);
-    // Redirect the user to the attemptfeedback page.
-    $param = array('cmid' => $cm->id, 'id' => $cm->instance, 'uattid' => $uniqueid);
-    $url = new moodle_url('/mod/adaptivequiz/attemptfinished.php', $param);
-    redirect($url);
-}
+    //condition-immediate feedback - submit="next_question"
+    //condition-deferred feedback - submit="next_question"
+    // If we have a previous difficulty level, pass that off to the attempt so that it
+    // can modify the next-question search process based on this level.
+    if (isset($difflevel) && !is_null($difflevel)) {
+        $adaptiveattempt->set_last_difficulty_level($difflevel);
+    }
+
+    $attemptstatus = $adaptiveattempt->start_attempt();
+
+    // Check if attempt status is set to ready.
+    if (empty($attemptstatus)) {
+        // Retrieve the most recent status message for the attempt.
+        $message = $adaptiveattempt->get_status();
+
+        // Set the attempt to complete, update the standard error and attempt message, then redirect the user to the attempt-finished
+        // page.
+        if ($algo instanceof catalgo) {
+            $standarderror = $algo->get_standarderror();
+        }
+
+        adaptivequiz_complete_attempt($uniqueid, $cm->instance, $USER->id, $standarderror, $message);
+        // Redirect the user to the attemptfeedback page.
+        $param = array('cmid' => $cm->id, 'id' => $cm->instance, 'uattid' => $uniqueid);
+        $url = new moodle_url('/mod/adaptivequiz/attemptfinished.php', $param);
+        redirect($url);
+    }
 
 }
 
-// Redirect to the attempt page.
-//immediate feedback only
+// Redirect back to the attempt page.
 if ($adaptivequiz->preferredbehaviour=='immediatefeedback' &&$nextquestion =='') {
     $isreview = 1;//re-visit previous question to show results
 } else {
-    $isreview = 0;//goto the next question
+    $isreview = 0;//go to the next question
 }
-$param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id(), 'isreview' =>$isreview);
 $param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id(), 'isreview' =>$isreview);
 $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
-//var_dump("processattempt.php, url=".$url);
-//die();
 redirect($url, $param);
-
-
-// Retrieve the question slot id.
-$slot = $adaptiveattempt->get_question_slot_number();
-// Retrieve the question_usage_by_activity object.
-$quba = $adaptiveattempt->get_quba();
-// If $nextdiff is null then this is either a new attempt or a continuation of an previous attempt.  Calculate the current
-// difficulty level the attempt should be at.
-if (is_null($nextdiff)) {
-    // Calculate the current difficulty level.
-    $adaptivequiz->lowestlevel = (int) $adaptivequiz->lowestlevel;
-    $adaptivequiz->highestlevel = (int) $adaptivequiz->highestlevel;
-    $adaptivequiz->startinglevel = (int) $adaptivequiz->startinglevel;
-    // Create an instance of the catalgo class, however constructor arguments are not important.
-    $algo = new catalgo($quba, 1, false, 1);
-    $level = $algo->get_current_diff_level($quba, $adaptivequiz->startinglevel, $adaptivequiz);
-} else {
-    // Retrieve the currently set difficulty level.
-    $level = $adaptiveattempt->get_level();
-}
-
-$headtags = $output->init_metadata($quba, $slot);
-$PAGE->requires->js_init_call('M.mod_adaptivequiz.init_attempt_form', array($viewurl->out(), $adaptivequiz->browsersecurity),
-    false, $output->adaptivequiz_get_js_module());
-
-// Init secure window if enabled.
-if (!empty($adaptivequiz->browsersecurity)) {
-    $PAGE->blocks->show_only_fake_blocks();
-    $output->init_browser_security();
-} else {
-    $PAGE->set_heading(format_string($course->fullname));
-}
-
-// Check if the user entered a password.
-$condition = adaptivequiz_user_entered_password($adaptivequiz->id);
-
-if (!empty($adaptivequiz->password) && empty($condition)) {
-    echo $output->print_header();
-
-    if ($passwordattempt) {
-        $mform->set_data(array('message' => get_string('wrongpassword', 'adaptivequiz')));
-    }
-
-    $mform->display();
-    echo $output->print_footer();
-} else {
-    // Render the question to the page.
-    echo $output->print_question($id, $quba, $slot, $level);
-}

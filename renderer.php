@@ -18,10 +18,11 @@
  * Adaptive quiz renderer class
  *
  * This module was created as a collaborative effort between Middlebury College
- * and Remote Learner.
+ * and Remote Learner and Andriy Semenets.
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2017 onwards Andriy Semenets {semteacher@gmail.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -176,7 +177,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $quba->render_question($slot, $options);
 
         $output .= html_writer::start_tag('div', array('class' => 'submitbtns adaptivequizbtn'));
-//var_dump("render.php-create_submit_form-behaviour=".$behaviour);
+
         if ($behaviour=='deferredfeedback'){
             $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
                 'value' => get_string('submitanswer', 'mod_adaptivequiz')));
