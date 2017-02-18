@@ -38,6 +38,13 @@ class adaptiveattempt {
     const ATTEMPTBEHAVIOUR = 'deferredfeedback';
 
     /**
+     * Supported behaviours
+     */
+    const DEFERREDBEHAVIOUR = self::ATTEMPTBEHAVIOUR;
+    const IMMEDIATEBEHAVIOUR = 'immediatefeedback';
+    const SUPPORTEDBEHAVIOURS = [self::DEFERREDBEHAVIOUR, self::IMMEDIATEBEHAVIOUR];
+    
+    /**
      * The attempt state of in progress
      */
     const ADAPTIVEQUIZ_ATTEMPT_INPROGRESS = 'inprogress';

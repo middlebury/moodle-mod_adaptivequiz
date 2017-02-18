@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/adaptiveattempt.class.php');
 
 /**
  * Module instance settings form
@@ -167,14 +168,23 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         } else {
             $currentbehaviour = '';
         }
-        $behaviours = question_engine::get_behaviour_options($currentbehaviour);
+        
+        //Prepare list of supported behaviours
+        $adpqbehaviours = array();
+        $behaviours = question_engine::get_behaviour_options($currentbehaviour);        
+        foreach ($behaviours as $behkey => $behname) {
+            if (in_array($behkey, adaptiveattempt::SUPPORTEDBEHAVIOURS, true)) {
+                $adpqbehaviours[$behkey] = $behaviours[$behkey];
+            }            
+        }
 
+        //Display behaviour drop-down selector
         $mform->addElement('select', 'preferredbehaviour',
-            get_string('howquestionsbehave', 'question'), $behaviours);
-        //TODO: need to display 'deferredfeedback' and 'immediatefeedback' only!
+            get_string('howquestionsbehave', 'question'), $adpqbehaviours);
+
         $mform->addHelpButton('preferredbehaviour', 'howquestionsbehave', 'question');
-        $mform->setDefault('preferredbehaviour', 'deferredfeedback');
-        //$mform->setDefault('preferredbehaviour', $quizconfig->preferredbehaviour);
+        $mform->setDefault('preferredbehaviour', adaptiveattempt::ATTEMPTBEHAVIOUR);
+
         // -------------------------------------------------------------------------------
 
         // Add standard elements, common to all modules.
