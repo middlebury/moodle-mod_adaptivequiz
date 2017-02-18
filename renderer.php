@@ -165,14 +165,17 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= html_writer::start_tag('form', $attr);
         $output .= html_writer::start_tag('div');
 
-        // Print the question.
+        // Print the question. Set dafault options
         $options = new question_display_options();
         $options->hide_all_feedback();
         $options->flags = question_display_options::HIDDEN;
-        //$options->marks = question_display_options::MAX_ONLY;
-        $options->marks = question_display_options::MARK_AND_MAX;  //TODO: test only 
-        $options->correctness = question_display_options::VISIBLE;  //TODO: test only 
-        $options->rightanswer = question_display_options::VISIBLE;  //TODO: test only 
+        $options->marks = question_display_options::MAX_ONLY;
+        //set options for immediate feedback 
+        if ($behaviour == adaptiveattempt::IMMEDIATEBEHAVIOUR) {
+            $options->marks = question_display_options::MARK_AND_MAX;  
+            $options->correctness = question_display_options::VISIBLE;  
+            $options->rightanswer = question_display_options::VISIBLE; 
+        }
 
         $output .= $quba->render_question($slot, $options);
 
