@@ -345,7 +345,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockstate = $this->getMock('question_state_gradedright', array(), array(), '', false);
+        $mockstate = $this->createMock('question_state_gradedright', array(), array(), '', false);
 
         $mockquba->expects($this->once())
             ->method('get_question_state')
@@ -371,7 +371,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockstate = $this->getMock('question_state_gradedwrong', array(), array(), '', false);
+        $mockstate = $this->createMock('question_state_gradedwrong', array(), array(), '', false);
 
         $mockquba->expects($this->once())
             ->method('get_question_state')
@@ -397,7 +397,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockstate = $this->getMock('question_state_gradedpartial', array(), array(), '', false);
+        $mockstate = $this->createMock('question_state_gradedpartial', array(), array(), '', false);
 
         $mockquba->expects($this->once())
             ->method('get_question_state')
@@ -423,7 +423,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockstate = $this->getMock('question_state_gaveup', array(), array(), '', false);
+        $mockstate = $this->createMock('question_state_gaveup', array(), array(), '', false);
 
         $mockquba->expects($this->once())
             ->method('get_question_state')
@@ -449,7 +449,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockstate = $this->getMock('question_state_todo', array(), array(), '', false);
+        $mockstate = $this->createMock('question_state_todo', array(), array(), '', false);
 
         $mockquba->expects($this->once())
             ->method('get_question_state')
@@ -503,7 +503,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         // Test quba returning a mark of 1.0
-        $mockquba = $this->getMock('question_usage_by_activity', array(), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array(), array(), '', false);
 
         $mockquba->expects($this->once())
             ->method('get_question_mark')
@@ -523,7 +523,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         // Test quba returning a non float value
-        $mockqubatwo = $this->getMock('question_usage_by_activity', array(), array(), '', false);
+        $mockqubatwo = $this->createMock('question_usage_by_activity', array(), array(), '', false);
 
         $mockqubatwo->expects($this->once())
             ->method('get_question_mark')
@@ -543,7 +543,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         // Test quba returning null
-        $mockqubathree = $this->getMock('question_usage_by_activity', array(), array(), '', false);
+        $mockqubathree = $this->createMock('question_usage_by_activity', array(), array(), '', false);
 
         $mockqubathree->expects($this->once())
                 ->method('get_question_mark')
@@ -563,7 +563,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $functions = array('get_attempt', 'max_questions_answered', 'level_in_bounds');
-        $mockattempt = $this->getMock('adaptiveattempt', $functions, array(), '', false);
+        $mockattempt = $this->createMock('adaptiveattempt', $functions, array(), '', false);
 
         $mockattempt->expects($this->once())
             ->method('get_attempt')
@@ -577,7 +577,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->method('level_in_bounds')
             ->will($this->returnValue(true));
 
-        $this->assertFalse($mockattempt->start_attempt());
+        $this->assertFalse($mockattempt->start_attempt(0));
     }
 
     /**
@@ -589,7 +589,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
         $dummy->highestlevel = 100;
 
         $functions = array('get_attempt', 'max_questions_answered', 'initialize_quba', 'find_last_quest_used_by_attempt', 'level_in_bounds');
-        $mockattemptthree = $this->getMock('adaptiveattempt', $functions, array($dummy, 1), '', true);
+        $mockattemptthree = $this->createMock('adaptiveattempt', $functions, array($dummy, 1), '', true);
 
         $dummyattempt = new stdClass();
         $dummyattempt->questionsattempted = 1;
@@ -613,7 +613,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->method('find_last_quest_used_by_attempt')
             ->will($this->returnValue(0));
 
-        $this->assertFalse($mockattemptthree->start_attempt());
+        $this->assertFalse($mockattemptthree->start_attempt(0));
     }
 
     /**

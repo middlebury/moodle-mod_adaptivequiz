@@ -216,10 +216,11 @@
             <value>1</value>
             <value>2</value>
         </row>
-    </table>
+    </table>   
     <table name="tag">
         <column>id</column>
         <column>userid</column>
+        <column>tagcollid</column>
         <column>name</column>
         <column>rawname</column>
         <column>tagtype</column>
@@ -227,6 +228,7 @@
         <row>
             <value>1</value>
             <value>2</value>
+            <value>1</value>
             <value>adpq_5</value>
             <value>adpq_5</value>
             <value>default</value>
@@ -235,6 +237,7 @@
         <row>
             <value>2</value>
             <value>2</value>
+            <value>1</value>
             <value>phpunittag_5</value>
             <value>phpunittag_5</value>
             <value>default</value>
@@ -243,6 +246,7 @@
         <row>
             <value>3</value>
             <value>2</value>
+            <value>1</value>
             <value>phpunittag_888</value>
             <value>phpunittag_888</value>
             <value>default</value>
@@ -276,6 +280,7 @@
         <column>maximumquestions</column>
         <column>standarderror</column>
         <column>startinglevel</column>
+        <column>preferredbehaviour</column>
         <row>
             <value>330</value>
             <value>1</value>
@@ -288,6 +293,7 @@
             <value>20</value>
             <value>1.0</value>
             <value>50</value>
+            <value>immediatefeedback</value>
         </row>
  <!--       <row>
             <value>221</value>
