@@ -577,7 +577,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->method('level_in_bounds')
             ->will($this->returnValue(true));
 
-        $this->assertFalse($mockattempt->start_attempt(0));
+        $this->assertFalse($mockattempt->start_attempt());
     }
 
     /**
@@ -613,7 +613,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->method('find_last_quest_used_by_attempt')
             ->will($this->returnValue(0));
 
-        $this->assertFalse($mockattemptthree->start_attempt(0));
+        $this->assertFalse($mockattemptthree->start_attempt());
     }
 
     /**
