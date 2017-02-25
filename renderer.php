@@ -517,10 +517,17 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     protected function get_attempt_report_table_rows($records, $cm, $table) {
         $row = array();
         $attemptstate = '';
-
+        $context = context_module::instance($cm->id);
+        
         foreach ($records as $record) {
-            $reviewurl = new moodle_url('/mod/adaptivequiz/reviewattempt.php',
+        if (has_capability('mod/adaptivequiz:reviewownattempts', $context)) {
+                $reviewurl = new moodle_url('/mod/adaptivequiz/reviewstudentattempt.php',
                 array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
+            } else {
+                $reviewurl = new moodle_url('/mod/adaptivequiz/reviewattempt.php',
+                array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
+            }
+                
             $link = html_writer::link($reviewurl, get_string('reviewattempt', 'adaptivequiz'));
             if ($record->attemptstate != ADAPTIVEQUIZ_ATTEMPT_COMPLETED) {
                 $closeurl = new moodle_url('/mod/adaptivequiz/closeattempt.php',
@@ -532,7 +539,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $deleteurl = new moodle_url('/mod/adaptivequiz/delattempt.php',
                 array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
             
-            $context = context_module::instance($cm->id);
+            
             $dellink = '';
             if (has_capability('mod/adaptivequiz:viewreport', $context)) {
             $dellink = html_writer::link($deleteurl, get_string('deleteattemp', 'adaptivequiz'));
