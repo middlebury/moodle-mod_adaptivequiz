@@ -106,6 +106,32 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     }
 
     /**
+     * This function displays a form with a button to view student's own stubmissions report
+     * @param string $cmid: course module id
+     * @return string - HTML markup displaying the description and form with a submit button
+     */
+    public function display_view_student_own_report_form($cmid) {
+        global $USER;
+        $html = ''; 
+
+        $param = array('userid' => $USER->id, 'cmid' => $cmid);
+        $target = new moodle_url('/mod/adaptivequiz/viewstudentattemptreport.php', $param);
+        $attributes = array('method' => 'POST', 'action' => $target);
+
+        $html .= html_writer::start_tag('form', $attributes);
+
+        $html .= html_writer::empty_tag('br');
+        $html .= html_writer::empty_tag('br');
+
+        $buttonlabel = get_string('viewreportbtn', 'adaptivequiz');
+        $params = array('type' => 'submit', 'value' => $buttonlabel, 'class' => 'submitbtns adaptivequizbtn');
+        $html .= html_writer::empty_tag('input', $params);
+        $html .= html_writer::end_tag('form');
+
+        return $html;
+    }
+    
+    /**
      * This function displays a form with a button to view the question analysis report
      * @param string $cmid: course module id
      * @return string - HTML markup displaying the description and form with a submit button
@@ -505,7 +531,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
             $deleteurl = new moodle_url('/mod/adaptivequiz/delattempt.php',
                 array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
+            
+            $context = context_module::instance($cm->id);
+            $dellink = '';
+            if (has_capability('mod/adaptivequiz:viewreport', $context)) {
             $dellink = html_writer::link($deleteurl, get_string('deleteattemp', 'adaptivequiz'));
+            }
 
             if (0 == strcmp('inprogress', $record->attemptstate)) {
                 $attemptstate = get_string('recentinprogress', 'adaptivequiz');
