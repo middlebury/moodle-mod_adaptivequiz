@@ -25,7 +25,7 @@
         <FIELD NAME="grademethod" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Which of multiple attempts should be reported to the grade book. 1=highest, 3=first, 4=last." PREVIOUS="startinglevel" NEXT="timecreated"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time created timestamp" PREVIOUS="grademethod" NEXT="timemodified"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time modified timesampt" PREVIOUS="timecreated"/>
-        <FIELD NAME="preferredbehaviour" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" COMMENT="The behaviour to ask questions to use."/>
+        <FIELD NAME="preferredbehaviour" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="deferredfeedback" SEQUENCE="false" COMMENT="The behaviour to ask questions to use."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="course_foreign"/>
