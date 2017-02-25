@@ -48,6 +48,16 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         ),
     ),
+    // Ability to view question analysis adaptivequiz page.
+    'mod/adaptivequiz:quextionanalysis' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+    ),
     // Ability to view review pervious attempts.
     'mod/adaptivequiz:reviewattempts' => array(
         'riskbitmask' => RISK_PERSONAL,
@@ -56,6 +66,15 @@ $capabilities = array(
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
+        ),
+    ),
+    // Ability to view review pervious attempts.
+    'mod/adaptivequiz:reviewownattempts' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'student' => CAP_ALLOW            
         ),
     ),
     // Ability to attempt the activity.
