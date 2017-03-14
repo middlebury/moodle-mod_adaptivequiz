@@ -91,6 +91,10 @@ if (has_capability('mod/adaptivequiz:attempt', $context)) {
 
 if (has_capability('mod/adaptivequiz:viewreport', $context)) {
     echo $renderer->display_view_report_form($cm->id);
+} elseif (has_capability('mod/adaptivequiz:reviewownattempts', $context)) {
+    echo $renderer->display_view_student_own_report_form($cm->id);
+}
+if (has_capability('mod/adaptivequiz:quextionanalysis', $context)) {    
     echo $renderer->display_question_analysis_form($cm->id);
 }
 // Finish the page.
