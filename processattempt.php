@@ -233,4 +233,4 @@ if ($adaptivequiz->preferredbehaviour=='immediatefeedback' &&$nextquestion =='')
 }
 $param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id(), 'isreview' =>$isreview);
 $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
-redirect($url, $param);
+redirect($url);

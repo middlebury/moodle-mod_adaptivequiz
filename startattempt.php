@@ -149,4 +149,4 @@ if (empty($attemptstatus)) {
 // Redirect to the attempt page.
 $param = array('cmid' => $cm->id, 'attid' => $adaptiveattempt->get_id());
 $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
-redirect($url, $param);
+redirect($url);
