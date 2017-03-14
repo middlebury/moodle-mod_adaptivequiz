@@ -40,6 +40,9 @@ if (!$cm = get_coursemodule_from_id('adaptivequiz', $id)) {
 if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
     print_error("coursemisconf");
 }
+if ($uniqueid <= 0) {
+    print_error('invalidarguments');
+}
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
