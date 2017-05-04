@@ -135,7 +135,7 @@ $sql = "SELECT u.id, u.firstname, u.lastname, u.email, a.highestlevel, a.lowestl
         $groupjoin
          WHERE aa.instance = :instance
         $groupwhere
-      GROUP BY aa.userid
+      GROUP BY u.id, aa.instance, a.id, a.highestlevel, a.lowestlevel
         $orderby";
 $startfrom = $page * ADAPTIVEQUIZ_REC_PER_PAGE;
 
