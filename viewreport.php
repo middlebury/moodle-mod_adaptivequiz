@@ -98,7 +98,7 @@ $sql = "SELECT u.id, u.firstname, u.lastname, u.email, a.highestlevel, a.lowestl
                        AND caa.instance = aa.instance
                 ) AS attempts,
                 (SELECT maa.measure
-                  FROM mdl_adaptivequiz_attempt maa
+                  FROM {adaptivequiz_attempt} maa
                  WHERE maa.instance = a.id
                        AND maa.userid = u.id
                        AND maa.attemptstate = :attemptstate1
@@ -106,7 +106,7 @@ $sql = "SELECT u.id, u.firstname, u.lastname, u.email, a.highestlevel, a.lowestl
               ORDER BY measure DESC
                  LIMIT 1) AS measure,
                (SELECT saa.standarderror
-                  FROM mdl_adaptivequiz_attempt saa
+                  FROM {adaptivequiz_attempt} saa
                  WHERE saa.instance = a.id
                        AND saa.userid = u.id
                        AND saa.attemptstate = :attemptstate2
@@ -122,7 +122,7 @@ $sql = "SELECT u.id, u.firstname, u.lastname, u.email, a.highestlevel, a.lowestl
               ORDER BY measure DESC
                  LIMIT 1) AS timemodified,
                (SELECT iaa.uniqueid
-                  FROM mdl_adaptivequiz_attempt iaa
+                  FROM {adaptivequiz_attempt} iaa
                  WHERE iaa.instance = a.id
                        AND iaa.userid = u.id
                        AND iaa.attemptstate = :attemptstate4
