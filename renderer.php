@@ -772,8 +772,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $questattempt = $quba->get_question_attempt($slot);
             // Get question definition object.
             $questdef = $questattempt->get_question();
-            // Retrieve the tags associated with this question.
-            $qtags = tag_get_tags_array('question', $questdef->id);
+            // Retrieve the tags associated with this question.            
+            $qtags = core_tag_tag::get_item_tags_array('', 'question', $questdef->id, 0);
 
             $label = html_writer::tag('label', get_string('attemptquestion_level', 'adaptivequiz'));
             $output .= html_writer::tag('div', $label.': '.format_string(adaptivequiz_get_difficulty_from_tags($qtags)));
@@ -932,8 +932,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $sumcorrect = 0;
         $sumincorrect = 0;
         foreach ($quba->get_slots() as $slot) {
-            $question = $quba->get_question($slot);
-            $tags = tag_get_tags_array('question', $question->id);
+            $question = $quba->get_question($slot);            
+            $tags = core_tag_tag::get_item_tags_array('', 'question', $question->id, 0);            
+            
             $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
             $qdifficultylogits = catalgo::convert_linear_to_logit($qdifficulty, $adaptivequiz->lowestlevel,
                 $adaptivequiz->highestlevel);
@@ -993,7 +994,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         foreach ($quba->get_slots() as $i => $slot) {
             $question = $quba->get_question($slot);
-            $tags = tag_get_tags_array('question', $question->id);
+            $tags = core_tag_tag::get_item_tags_array('', 'question', $question->id, 0);            
             $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
             $correct = ($quba->get_question_mark($slot) > 0);
 
