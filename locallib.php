@@ -424,3 +424,17 @@ function adaptivequiz_get_user_grades($adaptivequiz, $userid = 0) {
     }
     return $grades;
 }
+
+/**
+* @param int $attemptid the id of an attempt.
+* @param int $page optional page number to go to in the attempt.
+* @return string the URL of that attempt.
+*/
+function adaptivequiz_attempt_url($attemptid, $page = 0) {
+    global $CFG;
+    $url = $CFG->wwwroot . '/mod/adaptivequiz/attempt.php?attempt=' . $attemptid;
+    if ($page) {
+        $url .= '&page=' . $page;
+    }
+    return $url;
+}

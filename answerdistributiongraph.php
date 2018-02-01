@@ -47,7 +47,8 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-require_capability('mod/adaptivequiz:viewreport', $context);
+//require_capability('mod/adaptivequiz:viewreport', $context);
+require_capability('mod/adaptivequiz:reviewownattempts', $context);
 
 $param = array('uniqueid' => $uniqueid, 'userid' => $userid, 'activityid' => $cm->instance);
 $sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, a.startinglevel, aa.timecreated, aa.timemodified, aa.attemptstate,

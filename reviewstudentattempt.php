@@ -47,7 +47,7 @@ if ($uniqueid <= 0) {
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-require_capability('mod/adaptivequiz:viewreport', $context);
+require_capability('mod/adaptivequiz:reviewownattempts', $context);
 
 $param = array('uniqueid' => $uniqueid, 'userid' => $userid, 'activityid' => $cm->instance);
 $sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, aa.timecreated, aa.timemodified, aa.attemptstate, aa.attemptstopcriteria,
@@ -79,7 +79,7 @@ $quba = question_engine::load_questions_usage_by_activity($uniqueid);
 /* render pager links */
 $pager = $output->print_questions_for_review_pager($quba, $page, $cm->id, $userid);
 /* Render a button on the page */
-$url = new moodle_url('/mod/adaptivequiz/viewattemptreport.php', array('cmid' => $cm->id, 'userid' => $userid));
+$url = new moodle_url('/mod/adaptivequiz/viewstudentattemptreport.php', array('cmid' => $cm->id, 'userid' => $userid));
 $txt = get_string('backtoviewattemptreport', 'adaptivequiz');
 $button = $output->print_form_and_button($url, $txt);
 

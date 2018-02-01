@@ -66,35 +66,38 @@ class adaptivequiz_quiz_analyser {
             array('instance' => $instance, 'attemptstate' => ADAPTIVEQUIZ_ATTEMPT_COMPLETED));
 
         foreach ($attempts as $attempt) {
-            $user = $DB->get_record('user', array('id' => $attempt->userid));
-            if (!$user) {
-                $user = new stdClass();
-                $user->firstname = get_string('unknownuser', 'adaptivequiz');
-                $user->lastname = '#'.$userid;
-            }
-
-            // For each attempt, get the attempt's final score.
-            $score = new adaptivequiz_attempt_score($attempt->measure, $attempt->standarderror, $adaptivequiz->lowestlevel,
-                $adaptivequiz->highestlevel);
-
-            // For each attempt, loop through all questions asked and add that usage
-            // to the question.
-            $quba = question_engine::load_questions_usage_by_activity($attempt->uniqueid);
-            foreach ($quba->get_slots() as $i => $slot) {
-                $question = $quba->get_question($slot);
-
-                // Create a question-analyser for the question.
-                if (empty($this->questions[$question->id])) {
-                    $tags = tag_get_tags_array('question', $question->id);
-                    $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
-                    $this->questions[$question->id] = new adaptivequiz_question_analyser($quba->get_owning_context(), $question,
-                        $difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+            //additional fix to skip attempt without asked anyone questions - prevent "coding_error"
+            if ($attempt->uniqueid > 0) {
+                
+                $user = $DB->get_record('user', array('id' => $attempt->userid));
+                if (!$user) {
+                    $user = new stdClass();
+                    $user->firstname = get_string('unknownuser', 'adaptivequiz');
+                    $user->lastname = '#'.$userid;
                 }
 
-                // Record the attempt score and the individual question result.
-                $correct = ($quba->get_question_mark($slot) > 0);
-                $answer = $quba->get_response_summary($slot);
-                $this->questions[$question->id]->add_result($attempt->uniqueid, $user, $score, $correct, $answer);
+                // For each attempt, get the attempt's final score.
+                $score = new adaptivequiz_attempt_score($attempt->measure, $attempt->standarderror, $adaptivequiz->lowestlevel,
+                    $adaptivequiz->highestlevel);
+
+                // For each attempt, loop through all questions asked and add that usage
+                // to the question.
+                $quba = question_engine::load_questions_usage_by_activity($attempt->uniqueid);
+                foreach ($quba->get_slots() as $i => $slot) {
+                    $question = $quba->get_question($slot);
+
+                    // Create a question-analyser for the question.
+                    if (empty($this->questions[$question->id])) {
+                        $tags = tag_get_tags_array('question', $question->id);
+                        $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
+                        $this->questions[$question->id] = new adaptivequiz_question_analyser($quba->get_owning_context(), $question, $difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
+                    }
+
+                    // Record the attempt score and the individual question result.
+                    $correct = ($quba->get_question_mark($slot) > 0);
+                    $answer = $quba->get_response_summary($slot);
+                    $this->questions[$question->id]->add_result($attempt->uniqueid, $user, $score, $correct, $answer);
+                }
             }
         }
     }

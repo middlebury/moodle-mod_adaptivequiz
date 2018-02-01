@@ -18,15 +18,17 @@
  * Adaptive quiz renderer class
  *
  * This module was created as a collaborative effort between Middlebury College
- * and Remote Learner.
+ * and Remote Learner and Andriy Semenets.
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2017 onwards Andriy Semenets {semteacher@gmail.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once($CFG->dirroot.'/mod/adaptivequiz/requiredpassword.class.php');
 require_once($CFG->dirroot.'/mod/adaptivequiz/catalgo.class.php');
+require_once($CFG->dirroot.'/mod/adaptivequiz/adaptiveattempt.class.php');
 
 class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /** @var string $sortdir the sorting direction being used */
@@ -59,7 +61,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $html = '';
 
         $param = array('cmid' => $cmid);
-        $target = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+        //$target = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+        $target = new moodle_url('/mod/adaptivequiz/startattempt.php', $param);
         $attributes = array('method' => 'POST', 'action' => $target);
 
         $html .= html_writer::start_tag('form', $attributes);
@@ -102,6 +105,32 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         return $html;
     }
 
+    /**
+     * This function displays a form with a button to view student's own stubmissions report
+     * @param string $cmid: course module id
+     * @return string - HTML markup displaying the description and form with a submit button
+     */
+    public function display_view_student_own_report_form($cmid) {
+        global $USER;
+        $html = ''; 
+
+        $param = array('userid' => $USER->id, 'cmid' => $cmid);
+        $target = new moodle_url('/mod/adaptivequiz/viewstudentattemptreport.php', $param);
+        $attributes = array('method' => 'POST', 'action' => $target);
+
+        $html .= html_writer::start_tag('form', $attributes);
+
+        $html .= html_writer::empty_tag('br');
+        $html .= html_writer::empty_tag('br');
+
+        $buttonlabel = get_string('viewreportbtn', 'adaptivequiz');
+        $params = array('type' => 'submit', 'value' => $buttonlabel, 'class' => 'submitbtns adaptivequizbtn');
+        $html .= html_writer::empty_tag('input', $params);
+        $html .= html_writer::end_tag('form');
+
+        return $html;
+    }
+    
     /**
      * This function displays a form with a button to view the question analysis report
      * @param string $cmid: course module id
@@ -150,10 +179,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param int $level: difficulty level of question
      * @return string - HTML markup
      */
-    public function create_submit_form($cmid, $quba, $slot, $level) {
+    public function create_submit_form($cmid, $quba, $slot, $level, $behaviour=adaptiveattempt::ATTEMPTBEHAVIOUR, $isreview=false) {
         $output = '';
 
-        $processurl = new moodle_url('/mod/adaptivequiz/attempt.php');
+        //$processurl = new moodle_url('/mod/adaptivequiz/attempt.php');
+        $processurl = new moodle_url('/mod/adaptivequiz/processattempt.php');
 
         // Start the form.
         $attr = array('action' => $processurl, 'method' => 'post', 'enctype' => 'multipart/form-data', 'accept-charset' => 'utf-8',
@@ -161,17 +191,29 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= html_writer::start_tag('form', $attr);
         $output .= html_writer::start_tag('div');
 
-        // Print the question.
+        // Print the question. Set dafault options
         $options = new question_display_options();
         $options->hide_all_feedback();
         $options->flags = question_display_options::HIDDEN;
         $options->marks = question_display_options::MAX_ONLY;
+        //set options for immediate feedback 
+        if ($behaviour == adaptiveattempt::IMMEDIATEBEHAVIOUR) {
+            $options->marks = question_display_options::MARK_AND_MAX;  
+            $options->correctness = question_display_options::VISIBLE;  
+            $options->rightanswer = question_display_options::VISIBLE; 
+        }
 
         $output .= $quba->render_question($slot, $options);
 
         $output .= html_writer::start_tag('div', array('class' => 'submitbtns adaptivequizbtn'));
-        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
-            'value' => get_string('submitanswer', 'mod_adaptivequiz')));
+
+        if ($behaviour=='deferredfeedback'){
+            $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submitanswer',
+                'value' => get_string('submitanswer', 'mod_adaptivequiz')));
+        } elseif ($behaviour=='immediatefeedback'&&$isreview){
+            $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'nextquestion',
+                'value' => get_string('nextquestion', 'mod_adaptivequiz')));
+        }
         $output .= html_writer::end_tag('div');
 
         // Some hidden fields to track what is going on.
@@ -222,10 +264,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param int $level: difficulty level of question
      * @return string - HTML markup
      */
-    public function print_question($cmid, $quba, $slot, $level) {
+    public function print_question($cmid, $quba, $slot, $level, $behaviour=adaptiveattempt::ATTEMPTBEHAVIOUR, $isreview=false) {
         $output = '';
         $output .= $this->header();
-        $output .= $this->create_submit_form($cmid, $quba, $slot, $level);
+        $output .= $this->create_submit_form($cmid, $quba, $slot, $level, $behaviour, $isreview);
         $output .= $this->footer();
         return $output;
     }
@@ -258,6 +300,61 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $attr = array('action' => $url, 'method' => 'post', 'id' => 'attemptfeedback');
         $output .= html_writer::start_tag('form', $attr);
         $output .= html_writer::tag('p', s($attemptfeedback), array('class' => 'submitbtns adaptivequizfeedback'));
+
+        if (empty($popup)) {
+            $attr = array('type' => 'submit', 'name' => 'attemptfinished', 'value' => get_string('continue'));
+            $output .= html_writer::empty_tag('input', $attr);
+        } else {
+            // In a 'secure' popup window.
+            $this->page->requires->js_init_call('M.mod_adaptivequiz.secure_window.init_close_button', array($url),
+                $this->adaptivequiz_get_js_module());
+            $output .= html_writer::empty_tag('input', array('type' => 'button', 'value' => get_string('continue'),
+                'id' => 'secureclosebutton'));
+        }
+
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $cmid));
+        $output .= html_writer::end_tag('form');
+
+        return $output;
+    }
+
+    /**
+     * This function print the attempt large feedback
+     * @param adaptivequiz $adaptivequiz adaptivequiz object
+     * @param $user user object
+     * @param int $cmid course module id
+     * @param bool $popup true if the attempt is using a popup window
+     * @return string HTML markup
+     */
+    public function print_largeattemptfeedback($adaptivequiz, $user, $cmid, $popup = false) {
+        $output = '';
+        $output .= $this->header();
+        $output .= $this->create_largeattemptfeedback($adaptivequiz, $user, $cmid, $popup);
+        $output .= $this->footer();
+        return $output;
+    }
+    
+    /**
+     * This function prepare the attempt large feedback
+     * @param adaptivequiz $adaptivequiz adaptivequiz object
+     * @param $user user object
+     * @param int $cmid course module id
+     * @param bool $popup true if the attempt is using a popup window
+     * @return string HTML markup
+     */
+    public function create_largeattemptfeedback($adaptivequiz, $user, $cmid, $popup = false) {
+        $output = '';
+        $url = new moodle_url('/mod/adaptivequiz/view.php');
+        $attr = array('action' => $url, 'method' => 'post', 'id' => 'attemptfeedback');
+        $output .= html_writer::start_tag('form', $attr);
+        if ($adaptivequiz->attemptfeedback) {
+            $output .= html_writer::tag('h2', get_string('attemptfeedback', 'adaptivequiz'));
+            $output .= html_writer::tag('p', s($adaptivequiz->attemptfeedback), array('class' => 'submitbtns adaptivequizfeedback'));
+        }
+        $output .= html_writer::tag('h2', get_string('attempt_summary', 'adaptivequiz'));
+        $output .= html_writer::start_tag('div', array('id' => 'adpq_scoring_table', 'style'=>'display:flex'));
+        $output .= $this->get_attempt_summary_listing($adaptivequiz, $user);
+        $output .= html_writer::end_tag('div');
 
         if (empty($popup)) {
             $attr = array('type' => 'submit', 'name' => 'attemptfinished', 'value' => get_string('continue'));
@@ -420,10 +517,17 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     protected function get_attempt_report_table_rows($records, $cm, $table) {
         $row = array();
         $attemptstate = '';
-
+        $context = context_module::instance($cm->id);
+        
         foreach ($records as $record) {
-            $reviewurl = new moodle_url('/mod/adaptivequiz/reviewattempt.php',
+        if (has_capability('mod/adaptivequiz:reviewownattempts', $context)) {
+                $reviewurl = new moodle_url('/mod/adaptivequiz/reviewstudentattempt.php',
                 array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
+            } else {
+                $reviewurl = new moodle_url('/mod/adaptivequiz/reviewattempt.php',
+                array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
+            }
+                
             $link = html_writer::link($reviewurl, get_string('reviewattempt', 'adaptivequiz'));
             if ($record->attemptstate != ADAPTIVEQUIZ_ATTEMPT_COMPLETED) {
                 $closeurl = new moodle_url('/mod/adaptivequiz/closeattempt.php',
@@ -434,7 +538,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
             $deleteurl = new moodle_url('/mod/adaptivequiz/delattempt.php',
                 array('uniqueid' => $record->uniqueid, 'cmid' => $cm->id, 'userid' => $record->userid));
+            
+            
+            $dellink = '';
+            if (has_capability('mod/adaptivequiz:viewreport', $context)) {
             $dellink = html_writer::link($deleteurl, get_string('deleteattemp', 'adaptivequiz'));
+            }
 
             if (0 == strcmp('inprogress', $record->attemptstate)) {
                 $attemptstate = get_string('recentinprogress', 'adaptivequiz');
@@ -772,8 +881,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $questattempt = $quba->get_question_attempt($slot);
             // Get question definition object.
             $questdef = $questattempt->get_question();
-            // Retrieve the tags associated with this question.
-            $qtags = tag_get_tags_array('question', $questdef->id);
+            // Retrieve the tags associated with this question.            
+            $qtags = core_tag_tag::get_item_tags_array('', 'question', $questdef->id, 0);
 
             $label = html_writer::tag('label', get_string('attemptquestion_level', 'adaptivequiz'));
             $output .= html_writer::tag('div', $label.': '.format_string(adaptivequiz_get_difficulty_from_tags($qtags)));
@@ -932,8 +1041,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $sumcorrect = 0;
         $sumincorrect = 0;
         foreach ($quba->get_slots() as $slot) {
-            $question = $quba->get_question($slot);
-            $tags = tag_get_tags_array('question', $question->id);
+            $question = $quba->get_question($slot);            
+            $tags = core_tag_tag::get_item_tags_array('', 'question', $question->id, 0);            
+            
             $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
             $qdifficultylogits = catalgo::convert_linear_to_logit($qdifficulty, $adaptivequiz->lowestlevel,
                 $adaptivequiz->highestlevel);
@@ -993,7 +1103,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         foreach ($quba->get_slots() as $i => $slot) {
             $question = $quba->get_question($slot);
-            $tags = tag_get_tags_array('question', $question->id);
+            $tags = core_tag_tag::get_item_tags_array('', 'question', $question->id, 0);            
             $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
             $correct = ($quba->get_question_mark($slot) > 0);
 

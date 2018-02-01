@@ -20,10 +20,11 @@
  * This class contains information about the attempt parameters
  *
  * This module was created as a collaborative effort between Middlebury College
- * and Remote Learner.
+ * and Remote Learner and Andriy Semenets.
  *
  * @package    mod_adaptivequiz
  * @copyright  2013 onwards Remote-Learner {@link http://www.remote-learner.ca/}
+ * @copyright  2017 onwards Andriy Semenets {semteacher@gmail.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class adaptiveattempt {
@@ -37,6 +38,13 @@ class adaptiveattempt {
      */
     const ATTEMPTBEHAVIOUR = 'deferredfeedback';
 
+    /**
+     * Supported behaviours
+     */
+    const DEFERREDBEHAVIOUR = self::ATTEMPTBEHAVIOUR;
+    const IMMEDIATEBEHAVIOUR = 'immediatefeedback';
+    const SUPPORTEDBEHAVIOURS = [self::DEFERREDBEHAVIOUR, self::IMMEDIATEBEHAVIOUR];
+    
     /**
      * The attempt state of in progress
      */
@@ -57,7 +65,7 @@ class adaptiveattempt {
      * wrap on multiple lines
      * @var bool
      */
-    protected $debugenabled = false;
+    protected $debugenabled = true;
 
     /** @var array $debug debugging array of messages */
     protected $debug = array();
@@ -257,7 +265,7 @@ class adaptiveattempt {
      * This function does the work of initializing data required to fetch a new question for the attempt.
      * @return bool true if attempt started okay otherwise false
      */
-    public function start_attempt() {
+    public function start_attempt($isreview=0) {
         global $DB;
 
         // Get most recent attempt or start a new one.
@@ -278,7 +286,7 @@ class adaptiveattempt {
         }
 
         // Initialize the question usage by activity property.
-        $this->initialize_quba();
+        $this->initialize_quba($this->adaptivequiz->preferredbehaviour);
         // Find the last question viewed/answered by the user.
         $this->slot = $this->find_last_quest_used_by_attempt($this->quba);
         // Create a an instance of the fetchquestion class.
@@ -298,8 +306,9 @@ class adaptiveattempt {
 
         } else if (!empty($this->slot) && $this->was_answer_submitted_to_question($this->quba, $this->slot)) {
             // If the attempt already has a question attached to it, check if an answer was submitted to the question.
-            // If so fetch a new question.
-
+            // If so fetch a new question.            
+            //put there test immediate or deferred feedback!!! - to allow review of attempt.... - OK
+        if ($isreview==0) {
             // Provide the question-fetching process with limits based on our last question.
             // If the last question was correct...
             if ($this->quba->get_question_mark($this->slot) > 0) {
@@ -334,6 +343,8 @@ class adaptiveattempt {
 
             $this->print_debug("start_attempt() - Continuing attempt.  Set level: {$this->level}.");
 
+        }
+    
         } else if (empty($this->slot) && 0 < $adpqattempt->questionsattempted) {
             // If this condition is met, then something went wrong because the slot id is empty BUT the questions attempted is
             // Greater than zero.  Stop attempt.
@@ -508,6 +519,39 @@ class adaptiveattempt {
 
         return $attempt;
     }
+    
+    /**
+     * This function retrieves the most recent attempt, whose state is 'inprogress'.  
+     * Lastly $adpqattempt instance property gets set.
+     * @$instance   adaptivequiz->id
+     * @$userid     userid
+     * @return stdClass adaptivequiz_attempt data object
+     */
+    public function get_attempt_inprogress($instance, $userid) {
+        global $DB;
+
+        $param = array(
+//            'instance' => $this->adaptivequiz->id,
+//            'userid' => $this->userid,
+            'instance' => $instance,
+            'userid' => $userid,            
+            'attemptstate' => self::ADAPTIVEQUIZ_ATTEMPT_INPROGRESS);
+        $attempt = $DB->get_records('adaptivequiz_attempt', $param, 'timemodified DESC', '*', 0, 1);
+
+        if (!empty($attempt)) {
+            $attempt = current($attempt);
+            $this->adpqattempt = $attempt;
+
+            $this->print_debug('get_attempt_inprogress() - previous attempt loaded: '.$this->vardump($attempt));
+        } else {
+            $attempt = false;
+            $this->adpqattempt = $attempt;
+
+            $this->print_debug('get_attempt_inprogress() - there are no such attempt: '.$this->vardump($attempt));
+        }
+
+        return $attempt;
+    }    
 
     /**
      * This function retrieves the last question that was used in the attempt
@@ -568,18 +612,21 @@ class adaptiveattempt {
      * @throws moodle_exception - exception is thrown when required behaviour could not be found
      * @return question_usage_by_activity|null returns a question usage by activity object or null
      */
-    public function initialize_quba() {
+    public function initialize_quba($preferredbehaviour=self::ATTEMPTBEHAVIOUR) {
         $quba = null;
 
-        if (!$this->behaviour_exists()) {
-            throw new moodle_exception('Missing '.self::ATTEMPTBEHAVIOUR.' behaviour', 'Behaviour: '.self::ATTEMPTBEHAVIOUR.
-                    ' must exist in order to use this activity');
+        if (!$this->behaviour_exists($preferredbehaviour)) {
+            //throw new moodle_exception('Missing '.self::ATTEMPTBEHAVIOUR.' behaviour', 'Behaviour: '.self::ATTEMPTBEHAVIOUR.
+            //        ' must exist in order to use this activity');
+			throw new moodle_exception('Missing '.$preferredbehaviour.' behaviour', 'Behaviour: '.$preferredbehaviour.
+                    ' must exist in order to use this activity');		
         }
 
         if (0 == $this->adpqattempt->uniqueid) {
             // Init question usage and set default behaviour of usage.
             $quba = question_engine::make_questions_usage_by_activity(self::MODULENAME, $this->adaptivequiz->context);
-            $quba->set_preferred_behaviour(self::ATTEMPTBEHAVIOUR);
+            //$quba->set_preferred_behaviour(self::ATTEMPTBEHAVIOUR);
+			$quba->set_preferred_behaviour($preferredbehaviour);
 
             $this->quba = $quba;
             $this->print_debug('initialized_quba() - question usage created');
@@ -599,13 +646,14 @@ class adaptiveattempt {
      * This function retrives archetypal behaviours and sets the attempt behavour to to manual grade
      * @return bool true if the behaviour exists, else false
      */
-    protected function behaviour_exists() {
+    protected function behaviour_exists($preferredbehaviour=self::ATTEMPTBEHAVIOUR) {
         $exists = false;
         $behaviours = question_engine::get_archetypal_behaviours();
 
         if (!empty($behaviours)) {
             foreach ($behaviours as $key => $behaviour) {
-                if (0 == strcmp(self::ATTEMPTBEHAVIOUR, $key)) {
+                //if (0 == strcmp(self::ATTEMPTBEHAVIOUR, $key)) {
+				if (0 == strcmp($preferredbehaviour, $key)) {	
                     // Behaviour found, exit the loop.
                     $exists = true;
                     break;
@@ -645,5 +693,9 @@ class adaptiveattempt {
         $questions = $DB->get_records_menu('question_attempts', array('questionusageid' => $uniqueid), 'id ASC', 'id,questionid');
 
         return $questions;
+    }
+    
+    public function get_id() {
+        return $this->adpqattempt->id; 
     }
 }

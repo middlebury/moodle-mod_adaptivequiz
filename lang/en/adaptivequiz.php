@@ -73,6 +73,7 @@ $string['attemptfeedback'] = 'Attempt feedback';
 $string['attemptfeedback_help'] = 'The attempt feedback is displayed to the user once the attempt is finished';
 $string['formquestionpool'] = 'Select at least one question category';
 $string['submitanswer'] = 'Submit answer';
+$string['nextquestion'] = 'Next question'; //mathetest
 $string['startattemptbtn'] = 'Start attempt';
 $string['viewreportbtn'] = 'View report';
 $string['errorfetchingquest'] = 'Unable to fetch a questions for level {$a->level}';
