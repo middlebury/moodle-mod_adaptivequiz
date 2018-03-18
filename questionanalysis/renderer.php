@@ -101,11 +101,11 @@ class mod_adaptivequiz_questions_renderer extends plugin_renderer_base {
                 $seperator = ' ';
                 if ($sortdir == 'DESC') {
                     $sortdir = 'ASC';
-                    $imageparam = array('src' => $OUTPUT->pix_url('t/up'), 'alt' => '');
+                    $imageparam = array('src' => $OUTPUT->image_url('t/up'), 'alt' => '');
                     $icon = html_writer::empty_tag('img', $imageparam);
                 } else {
                     $sortdir = 'DESC';
-                    $imageparam = array('src' => $OUTPUT->pix_url('t/down'), 'alt' => '');
+                    $imageparam = array('src' => $OUTPUT->image_url('t/down'), 'alt' => '');
                     $icon = html_writer::empty_tag('img', $imageparam);
                 }
             } else {
