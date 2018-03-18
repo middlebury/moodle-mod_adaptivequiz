@@ -109,7 +109,7 @@ foreach ($quba->get_slots() as $i => $slot) {
     }
 
     $question = $quba->get_question($slot);
-    $tags = tag_get_tags_array('question', $question->id);
+    $tags = core_tag_tag::get_item_tags_array('', 'question', $question->id);
     $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
     $qdifficultylogits = catalgo::convert_linear_to_logit($qdifficulty, $adaptivequiz->lowestlevel,
         $adaptivequiz->highestlevel);
