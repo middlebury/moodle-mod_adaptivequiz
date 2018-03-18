@@ -65,6 +65,8 @@ function adaptivequiz_supports($feature) {
             return true;
         case FEATURE_GRADE_HAS_GRADE:
             return true;
+		case FEATURE_USES_QUESTIONS:
+            return true;
         default:
             return null;
     }
@@ -211,7 +213,8 @@ function adaptivequiz_delete_instance($id) {
     }
 
     // Remove association table data.
-    if ($DB->get_record('adaptivequiz_question', array('instance' => $id))) {
+	if ($DB->record_exists('adaptivequiz_question', array ('instance' => $id))) {
+    //if ($DB->get_record('adaptivequiz_question', array('instance' => $id))) {
         $DB->delete_records('adaptivequiz_question', array('instance' => $id));
     }
 
@@ -428,7 +431,7 @@ function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $
         $attr = array('class' => 'title');
         $content .= html_writer::start_tag('div', $attr);
         // Create img markup.
-        $attr = array('src' => $OUTPUT->pix_url('icon', $activity->type), 'class' => 'icon', 'alt' => $modname);
+        $attr = array('src' => $OUTPUT->image_url('icon', $activity->type), 'class' => 'icon', 'alt' => $modname);
         $content .= html_writer::empty_tag('img', $attr);
         // Create anchor markup.
         $attr = array('href' => "{$CFG->wwwroot}/mod/adaptivequiz/view.php?id={$activity->cmid}",
