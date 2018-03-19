@@ -101,7 +101,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $target = 'mod_adaptivequiz';
         $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
 
-        $mockquba = $this->getMock('question_usage_by_activity', array('render_question'), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array('render_question'), array(), '', false);
 
         $mockquba->expects($this->once())
                 ->method('render_question')
@@ -210,7 +210,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $target = 'mod_adaptivequiz';
         $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
 
-        $mockquba = $this->getMock('question_usage_by_activity', array('render_question_head_html'), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array('render_question_head_html'), array(), '', false);
 
         $mockquba->expects($this->once())
                 ->method('render_question_head_html')
@@ -228,7 +228,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $target = 'mod_adaptivequiz';
         $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
 
-        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots'), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array('get_slots'), array(), '', false);
 
         $mockquba->expects($this->once())
                 ->method('get_slots')
@@ -246,7 +246,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $target = 'mod_adaptivequiz';
         $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
 
-        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots'), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array('get_slots'), array(), '', false);
 
         $mockpages = array_keys(array_fill(0, 25, 1));
         $mockquba->expects($this->once())
@@ -274,7 +274,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $target = 'mod_adaptivequiz';
         $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
 
-        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots'), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array('get_slots'), array(), '', false);
 
         $mockpages = array_keys(array_fill(0, 11, 1));
         $mockquba->expects($this->once())
@@ -299,7 +299,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $target = 'mod_adaptivequiz';
         $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
 
-        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots'), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array('get_slots'), array(), '', false);
 
         $mockpages = array_keys(array_fill(0, 11, 1));
         $mockquba->expects($this->once())
@@ -324,7 +324,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         global $DB;
         $user = $DB->get_record('user', array('id' => 2));
 
-        $renderer = $this->getMock('mod_adaptivequiz_renderer', array('init_metadata', 'heading'), array(), '', false);
+        $renderer = $this->createMock('mod_adaptivequiz_renderer', array('init_metadata', 'heading'), array(), '', false);
 
         $renderer->expects($this->once())
                 ->method('init_metadata')
@@ -334,7 +334,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
                 ->method('heading')
                 ->will($this->returnValue('phpunit test heading'));
 
-        $mockquestattempt = $this->getMock('question_attempt', array('get_question'), array(), '', false);
+        $mockquestattempt = $this->createMock('question_attempt', array('get_question'), array(), '', false);
 
         $dummy = new stdClass();
         $dummy->id = 1;
@@ -342,7 +342,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
                 ->method('get_question')
                 ->will($this->returnValue($dummy));
 
-        $mockquba = $this->getMock('question_usage_by_activity', array('get_slots', 'render_question', 'get_question_attempt'), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array('get_slots', 'render_question', 'get_question_attempt'), array(), '', false);
 
         $mockquba->expects($this->once())
                 ->method('get_slots')

@@ -135,7 +135,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->setup_test_data_xml();
         $this->setup_generator_data();
 
-        $attempt = $this->getMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance, 1, 1, 100));
+        $attempt = $this->createMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance, 1, 1, 100));
 
         $attempt->expects($this->exactly(2))
                 ->method('retrieve_question_categories')
@@ -158,7 +158,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->setup_test_data_xml();
         $this->setup_generator_data();
 
-        $mockclass = $this->getMock(
+        $mockclass = $this->createMock(
                 'fetchquestion',
                 array('retrieve_question_categories'),
                 array($this->activityinstance, 1, 1, 100)
@@ -187,7 +187,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->setup_test_data_xml();
         $this->setup_generator_data();
 
-        $mockclass = $this->getMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance, 1, 1, 100));
+        $mockclass = $this->createMock('fetchquestion', array('retrieve_question_categories'), array($this->activityinstance, 1, 1, 100));
 
         $mockclass->expects($this->once())
                 ->method('retrieve_question_categories')
@@ -269,7 +269,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $dummyclass = new stdClass();
 
         $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
-        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+        $mockclass = $this->createMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
 
         $mockclass->expects($this->once())
                 ->method('initalize_tags_with_quest_count')
@@ -294,7 +294,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $dummyclass = new stdClass();
 
         $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
-        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+        $mockclass = $this->createMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
 
         $tagquestsum = array(5 => 2);
         $mockclass->expects($this->once())
@@ -325,7 +325,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $dummyclass = new stdClass();
 
         $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
-        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+        $mockclass = $this->createMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
 
         $tagquestsum = array(5 => 0, 6 => 1);
         $mockclass->expects($this->once())
@@ -356,7 +356,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $dummyclass = new stdClass();
 
         $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
-        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+        $mockclass = $this->createMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
 
         $tagquestsum = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 2);
         $mockclass->expects($this->once())
@@ -387,7 +387,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $dummyclass = new stdClass();
 
         $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
-        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
+        $mockclass = $this->createMock('fetchquestion', $functions, array($dummyclass, 5, 1, 100));
 
         $tagquestsum = array(1 => 1, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0);
         $mockclass->expects($this->once())
@@ -418,7 +418,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $dummyclass = new stdClass();
 
         $functions = array('initalize_tags_with_quest_count', 'retrieve_tag', 'find_questions_with_tags');
-        $mockclass = $this->getMock('fetchquestion', $functions, array($dummyclass, 50, 49, 51));
+        $mockclass = $this->createMock('fetchquestion', $functions, array($dummyclass, 50, 49, 51));
 
         $tagquestsum = array(48 => 1, 52 => 1);
         $mockclass->expects($this->once())
@@ -521,7 +521,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $dummyclass = new stdClass();
-        $mockclass = $this->getMock(
+        $mockclass = $this->createMock(
                 'fetchquestion',
                 array('retrieve_question_categories', 'retrieve_all_tag_ids', 'retrieve_tags_with_question_count'),
                 array($dummyclass, 1, 1, 100)
@@ -556,7 +556,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $dummyclass = new stdClass();
-        $mockclass = $this->getMock(
+        $mockclass = $this->createMock(
                 'fetchquestion',
                 array('retrieve_question_categories', 'retrieve_all_tag_ids', 'retrieve_tags_with_question_count'),
                 array($dummyclass, 1, 1, 100)
@@ -583,7 +583,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $dummyclass = new stdClass();
-        $mockclass = $this->getMock(
+        $mockclass = $this->createMock(
                 'fetchquestion',
                 array('retrieve_question_categories', 'retrieve_all_tag_ids', 'retrieve_tags_with_question_count'),
                 array($dummyclass, 1, 1, 100)
@@ -649,7 +649,7 @@ class mod_adaptivequiz_fetchquestion_testcase extends advanced_testcase {
         $this->setup_test_data_xml();
         $this->setup_generator_data();
 
-        $mockclass = $this->getMock('fetchquestion', array('retrieve_question_categories'), array(new stdClass(), 1, 1, 100));
+        $mockclass = $this->createMock('fetchquestion', array('retrieve_question_categories'), array(new stdClass(), 1, 1, 100));
 
         $mockclass->expects($this->once())
                 ->method('retrieve_question_categories')
