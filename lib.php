@@ -691,9 +691,11 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
         $filearea, $qubaid, $slot, $args, $forcedownload, array $options=array()) {
     global $CFG, $DB, $USER;
 
-    if (!$cm = get_coursemodule_from_id('adaptivequiz', $course->id)) {
-        print_error('invalidcoursemodule');
-    }
+    list($context, $course, $cm) = get_context_info_array($context->id);//TODO: $cm == NULL - because on course level
+    //TODO: incorrect second param - should be cmid!
+    //if (!$cm = get_coursemodule_from_id('adaptivequiz', $course->id)) {
+    //    print_error('invalidcoursemodule');
+    //}
     require_login($course, true, $cm);
 
     // Check if the user has the attempt capability.
@@ -701,13 +703,17 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
       print_error('nopermission', 'adaptivequiz');
     }
 
-    $quiz_context = $context->get_parent_context();
+    //$quiz_context = $context->get_parent_context();//TODO: incorrect - will get category!
     // Load the quiz data.
     try {
-        $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $quiz_context->instanceid), '*', MUST_EXIST);
-        $attemptrec = $DB->get_record('adaptivequiz_attempt', array('uniqueid' => $qubaid, 'instance' => $quiz_context->instanceid), '*', MUST_EXIST);
+        $attemptrec = $DB->get_record('adaptivequiz_attempt', array('uniqueid' => $qubaid), '*', MUST_EXIST);
+        $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $attemptrec->instance), '*', MUST_EXIST);
+        //TODO: need testing if cm is every time correct
+        $cm = $DB->get_record_sql("SELECT * FROM {course_modules} cm INNER JOIN {modules} m ON cm.module = m.id WHERE m.name = 'adaptivequiz' AND cm.course = :courseid AND cm.instance = :cminstance", array('courseid' => $context->instanceid,'cminstance' => $attemptrec->instance), MUST_EXIST);
+        //$adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $quiz_context->instanceid), '*', MUST_EXIST);
+        //$attemptrec = $DB->get_record('adaptivequiz_attempt', array('uniqueid' => $qubaid, 'instance' => $quiz_context->instanceid), '*', MUST_EXIST);
+        
     } catch (dml_exception $e) {
-
         $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
         $debuginfo = '';
 
@@ -744,7 +750,7 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
-    $fullpath = "/$context->id/$component/$filearea/$relativepath";
+    $fullpath = "/{$context->id}/{$component}/{$filearea}/{$relativepath}";
     if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
         send_file_not_found();
     }
