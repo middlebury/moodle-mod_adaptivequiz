@@ -31,53 +31,62 @@
         <column>name</column>
         <column>contextid</column>
         <column>info</column>
+        <column>stamp</column>
         <row>
             <value>1</value>
             <value>Default for 101</value>
             <value>16</value>
             <value>default question category</value>
+            <value>example.loc+161208110835+ZNzubk</value>
         </row>
         <row>
             <value>2</value>
             <value>Default for Miscellaneous</value>
             <value>3</value>
             <value>default question category</value>
+            <value>example.loc+161208112421+aQXIHP</value>
         </row>
         <row>
             <value>3</value>
             <value>Default for System</value>
             <value>1</value>
             <value>default question category</value>
+            <value>example.loc+161208112421+HX4iPR</value>
         </row>
         <row>
             <value>4</value>
             <value>Test reattempt</value>
             <value>16</value>
             <value>Data test for fetch_question</value>
+            <value>example.loc+161208112853+RAFrV1</value>
         </row>
         <row>
             <value>5</value>
             <value>retrieve_tags_with_question_count</value>
             <value>16</value>
             <value>test_retrieve_tags_with_question_count</value>
+            <value>example.loc+161208112930+1oAcF9</value>
         </row>
         <row>
             <value>6</value>
             <value>find_questions_with_tags_with_multiple_quest_in_quest_category 1</value>
             <value>16</value>
             <value>find_questions_with_tags_with_multiple_quest_in_quest_category</value>
+            <value>example.loc+161208120113+5PvXXH</value>
         </row>
         <row>
             <value>7</value>
             <value>find_questions_with_tags_with_multiple_quest_in_quest_category 2</value>
             <value>16</value>
             <value>find_questions_with_tags_with_multiple_quest_in_quest_category</value>
+            <value>example.loc+170110181010+Ig7DE6</value>
         </row>
         <row>
             <value>8</value>
             <value>find_questions_with_tags_with_multiple_quest_in_quest_category 3</value>
             <value>16</value>
             <value>find_questions_with_tags_with_multiple_quest_in_quest_category</value>
+            <value>example.loc+170110181307+5LFZK2</value>
         </row>
     </table>
     <table name="question">
@@ -263,6 +272,7 @@
     <table name="tag">
         <column>id</column>
         <column>userid</column>
+        <column>tagcollid</column>
         <column>name</column>
         <column>rawname</column>
         <column>tagtype</column>
@@ -270,6 +280,7 @@
         <row>
             <value>1</value>
             <value>2</value>
+            <value>1</value>
             <value>adpq_5</value>
             <value>adpq_5</value>
             <value>default</value>
@@ -278,6 +289,7 @@
         <row>
             <value>2</value>
             <value>2</value>
+            <value>1</value>
             <value>phpunittag_5</value>
             <value>phpunittag_5</value>
             <value>default</value>
@@ -286,6 +298,7 @@
         <row>
             <value>3</value>
             <value>2</value>
+            <value>1</value>
             <value>phpunittag_888</value>
             <value>phpunittag_888</value>
             <value>default</value>
@@ -294,6 +307,7 @@
         <row>
             <value>4</value>
             <value>2</value>
+            <value>1</value>
             <value>adpq_6</value>
             <value>adpq_6</value>
             <value>default</value>
@@ -302,6 +316,7 @@
         <row>
             <value>5</value>
             <value>2</value>
+            <value>1</value>
             <value>adpq_7</value>
             <value>adpq_7</value>
             <value>default</value>
@@ -310,6 +325,7 @@
         <row>
             <value>6</value>
             <value>2</value>
+            <value>1</value>
             <value>adpq_8</value>
             <value>adpq_8</value>
             <value>default</value>
@@ -318,6 +334,7 @@
         <row>
             <value>7</value>
             <value>2</value>
+            <value>1</value>
             <value>adpq_9</value>
             <value>adpq_9</value>
             <value>default</value>
@@ -326,6 +343,7 @@
         <row>
             <value>8</value>
             <value>2</value>
+            <value>1</value>
             <value>adpq_10</value>
             <value>adpq_10</value>
             <value>default</value>
@@ -334,6 +352,7 @@
         <row>
             <value>22</value>
             <value>2</value>
+            <value>1</value>
             <value>test1_22</value>
             <value>test1_22</value>
             <value>default</value>
@@ -342,6 +361,7 @@
         <row>
             <value>23</value>
             <value>2</value>
+            <value>1</value>
             <value>test1_23</value>
             <value>test1_23</value>
             <value>default</value>
@@ -350,6 +370,7 @@
         <row>
             <value>24</value>
             <value>2</value>
+            <value>1</value>
             <value>test1_24</value>
             <value>test1_24</value>
             <value>default</value>
