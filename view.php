@@ -94,7 +94,7 @@ if (has_capability('mod/adaptivequiz:viewreport', $context)) {
 } elseif (has_capability('mod/adaptivequiz:reviewownattempts', $context)) {
     echo $renderer->display_view_student_own_report_form($cm->id);
 }
-if (has_capability('mod/adaptivequiz:quextionanalysis', $context)) {    
+if (has_capability('mod/adaptivequiz:questionanalysis', $context)) {    
     echo $renderer->display_question_analysis_form($cm->id);
 }
 // Finish the page.

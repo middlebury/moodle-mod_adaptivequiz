@@ -49,7 +49,7 @@ $capabilities = array(
         ),
     ),
     // Ability to view question analysis adaptivequiz page.
-    'mod/adaptivequiz:quextionanalysis' => array(
+    'mod/adaptivequiz:questionanalysis' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
