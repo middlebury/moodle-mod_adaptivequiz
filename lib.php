@@ -742,10 +742,13 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
       if (!adaptivequiz_uniqueid_part_of_attempt($qubaid, $cm->instance, $USER->id)) {
           print_error('uniquenotpartofattempt', 'adaptivequiz');
       }
-      // Verify that the attempt is still in progress.
-      if ($attemptrec->attemptstate != adaptiveattempt::ADAPTIVEQUIZ_ATTEMPT_INPROGRESS) {
-        print_error('notinprogress', 'adaptivequiz');
-      }
+        // Verify that the attempt is still in progress.
+        if ($attemptrec->attemptstate != adaptiveattempt::ADAPTIVEQUIZ_ATTEMPT_INPROGRESS) {
+            // user must have at least "teacher" role in course
+            $coursecontext = context_course::instance($course->id);
+            require_capability('moodle/grade:viewall', $coursecontext, $USER->id);
+            //print_error('notinprogress', 'adaptivequiz');
+        }
     }
 
     $fs = get_file_storage();
