@@ -107,7 +107,7 @@ for ($i = $adaptivequiz->lowestlevel; $i <= $adaptivequiz->highestlevel; $i++) {
 $quba = question_engine::load_questions_usage_by_activity($uniqueid);
 foreach ($quba->get_slots() as $i => $slot) {
     $question = $quba->get_question($slot);
-    $tags = core_tag_tag::get_item_tags_array('', 'question', $question->id);
+    $tags = core_tag_tag::get_item_tags_array('core_question', 'question', $question->id);
     $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
     $correct = ($quba->get_question_mark($slot) > 0);
 
