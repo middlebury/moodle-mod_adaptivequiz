@@ -845,7 +845,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param int $timestamp time attmept was last modified
      * @return string HTML markup
      */
-    public function print_questions_for_review($quba, $offset = 0, $user, $timestamp) {
+    public function print_questions_for_review($quba, $offset = 0, $user, $timestamp, $cmid) {
+        global $PAGE;
         $questslots = $quba->get_slots();
         $attr = array('class' => 'questiontags');
         $offset *= ADAPTIVEQUIZ_REV_QUEST_PER_PAGE;
@@ -867,7 +868,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $options->rightanswer = question_display_options::VISIBLE;
         $options->correctness = question_display_options::VISIBLE;
         $options->numpartscorrect = question_display_options::VISIBLE;
-
+        $context = context_module::instance($cmid);
+        if (has_capability('mod/adaptivequiz:addinstance', $context)){
+            $options->editquestionparams['cmid'] = $cmid;
+            $options->editquestionparams['returnurl'] = $PAGE->url;
+        }
         // Setup quesiton header metadata.
         $output .= $this->init_metadata($quba, $pageqslots);
 

@@ -699,9 +699,9 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
     require_login($course, true, $cm);
 
     // Check if the user has the attempt capability.
-    if (!has_capability('mod/adaptivequiz:attempt', $context) && !has_capability('mod/adaptivequiz:viewreport', $context)) {
-      print_error('nopermission', 'adaptivequiz');
-    }
+    //if (!has_capability('mod/adaptivequiz:attempt', $context) && !has_capability('mod/adaptivequiz:viewreport', $context)) {
+    //  print_error('nopermission', 'adaptivequiz');
+    //}
 
     //$quiz_context = $context->get_parent_context();//TODO: incorrect - will get category!
     // Load the quiz data.
@@ -725,7 +725,9 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
 
     // If we are reviewing an attempt, require the viewreport capability.
     if ($attemptrec->userid != $USER->id) {
-      require_capability('mod/adaptivequiz:viewreport', $context);
+        // user must have at least "teacher" role in course
+        $coursecontext = context_course::instance($course->id);
+        require_capability('moodle/grade:viewall', $coursecontext, $USER->id);      
     }
     // Otherwise, check that the attempt is active.
     else {
@@ -744,9 +746,7 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
       }
         // Verify that the attempt is still in progress.
         if ($attemptrec->attemptstate != adaptiveattempt::ADAPTIVEQUIZ_ATTEMPT_INPROGRESS) {
-            // user must have at least "teacher" role in course
-            $coursecontext = context_course::instance($course->id);
-            require_capability('moodle/grade:viewall', $coursecontext, $USER->id);
+            require_capability('mod/adaptivequiz:reviewownattempts', $context);
             //print_error('notinprogress', 'adaptivequiz');
         }
     }
