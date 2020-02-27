@@ -88,7 +88,7 @@ class adaptivequiz_quiz_analyser {
 
                     // Create a question-analyser for the question.
                     if (empty($this->questions[$question->id])) {
-                        $tags = tag_get_tags_array('question', $question->id);
+                        $tags = core_tag_tag::get_item_tags_array('core_question', 'question', $question->id);
                         $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
                         $this->questions[$question->id] = new adaptivequiz_question_analyser($quba->get_owning_context(), $question, $difficulty, $adaptivequiz->lowestlevel, $adaptivequiz->highestlevel);
                     }
@@ -167,16 +167,17 @@ class adaptivequiz_quiz_analyser {
 
         if (!is_null($sort)) {
             $sortkeys = array();
+            $sorttype = array();
             foreach ($this->questions as $question) {
                 if ($sort == 'name') {
                     $sortkeys[] = $question->get_question_definition()->name;
-                    $sorttype = SORT_REGULAR;
+                    $sorttype[] = SORT_REGULAR;
                 } else if ($sort == 'level') {
                     $sortkeys[] = $question->get_question_level();
-                    $sorttype = SORT_NUMERIC;
+                    $sorttype[] = SORT_NUMERIC;
                 } else {
                     $sortkeys[] = $question->get_statistic_result($sort)->sortable();
-                    $sorttype = SORT_NUMERIC;
+                    $sorttype[] = SORT_NUMERIC;
                 }
             }
             array_multisort($sortkeys, $direction, $sorttype, $records);
