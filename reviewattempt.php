@@ -121,7 +121,7 @@ echo html_writer::end_tag('div');
 
 echo html_writer::tag('h2', get_string('attempt_questiondetails', 'adaptivequiz'));
 echo $pager;
-echo $output->print_questions_for_review($quba, $page, $user, $adaptivequiz->timemodified);
+echo $output->print_questions_for_review($quba, $page, $user, $adaptivequiz->timemodified, $cm->id);
 echo $button;
 echo html_writer::empty_tag('br');
 echo $pager;
