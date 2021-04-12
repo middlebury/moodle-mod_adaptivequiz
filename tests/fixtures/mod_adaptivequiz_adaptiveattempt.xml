@@ -87,6 +87,38 @@
             <value>multichoice</value>
         </row>
     </table>
+    <table name="qtype_multichoice_options">
+        <column>id</column>
+        <column>questionid</column>
+        <column>layout</column>
+        <column>single</column>
+        <column>shuffleanswers</column>
+        <column>answernumbering</column>
+        <column>showstandardinstruction</column>
+        <column>correctfeedback</column>
+        <column>correctfeedbackformat</column>
+        <column>partiallycorrectfeedback</column>
+        <column>partiallycorrectfeedbackformat</column>
+        <column>incorrectfeedback</column>
+        <column>incorrectfeedbackformat</column>
+        <column>shownumcorrect</column>
+        <row>
+            <value>1</value>
+            <value>2</value>
+            <value>0</value>
+            <value>1</value>
+            <value>1</value>
+            <value>abc</value>
+            <value>0</value>
+            <value>Your answer is correct.</value>
+            <value>1</value>
+            <value>Your answer is partially correct.</value>
+            <value>1</value>
+            <value>Your answer is incorrect.</value>
+            <value>1</value>
+            <value>0</value>
+        </row>    
+    </table>  
     <table name="question_answers">
         <column>id</column>
         <column>question</column>
