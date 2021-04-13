@@ -691,23 +691,29 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
         $filearea, $qubaid, $slot, $args, $forcedownload, array $options=array()) {
     global $CFG, $DB, $USER;
 
-    if (!$cm = get_coursemodule_from_id('adaptivequiz', $course->id)) {
-        print_error('invalidcoursemodule');
-    }
+    list($context, $course, $cm) = get_context_info_array($context->id);//TODO: $cm == NULL - because on course level
+    //TODO: incorrect second param - should be cmid!
+    //if (!$cm = get_coursemodule_from_id('adaptivequiz', $course->id)) {
+    //    print_error('invalidcoursemodule');
+    //}
     require_login($course, true, $cm);
 
     // Check if the user has the attempt capability.
-    if (!has_capability('mod/adaptivequiz:attempt', $context) && !has_capability('mod/adaptivequiz:viewreport', $context)) {
-      print_error('nopermission', 'adaptivequiz');
-    }
+    //if (!has_capability('mod/adaptivequiz:attempt', $context) && !has_capability('mod/adaptivequiz:viewreport', $context)) {
+    //  print_error('nopermission', 'adaptivequiz');
+    //}
 
-    $quiz_context = $context->get_parent_context();
+    //$quiz_context = $context->get_parent_context();//TODO: incorrect - will get category!
     // Load the quiz data.
     try {
-        $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $quiz_context->instanceid), '*', MUST_EXIST);
-        $attemptrec = $DB->get_record('adaptivequiz_attempt', array('uniqueid' => $qubaid, 'instance' => $quiz_context->instanceid), '*', MUST_EXIST);
+        $attemptrec = $DB->get_record('adaptivequiz_attempt', array('uniqueid' => $qubaid), '*', MUST_EXIST);
+        $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $attemptrec->instance), '*', MUST_EXIST);
+        //TODO: need testing if cm is every time correct
+        $cm = $DB->get_record_sql("SELECT * FROM {course_modules} cm INNER JOIN {modules} m ON cm.module = m.id WHERE m.name = 'adaptivequiz' AND cm.course = :courseid AND cm.instance = :cminstance", array('courseid' => $context->instanceid,'cminstance' => $attemptrec->instance), MUST_EXIST);
+        //$adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $quiz_context->instanceid), '*', MUST_EXIST);
+        //$attemptrec = $DB->get_record('adaptivequiz_attempt', array('uniqueid' => $qubaid, 'instance' => $quiz_context->instanceid), '*', MUST_EXIST);
+        
     } catch (dml_exception $e) {
-
         $url = new moodle_url('/mod/adaptivequiz/attempt.php', array('cmid' => $id));
         $debuginfo = '';
 
@@ -719,7 +725,9 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
 
     // If we are reviewing an attempt, require the viewreport capability.
     if ($attemptrec->userid != $USER->id) {
-      require_capability('mod/adaptivequiz:viewreport', $context);
+        // user must have at least "teacher" role in course
+        $coursecontext = context_course::instance($course->id);
+        require_capability('moodle/grade:viewall', $coursecontext, $USER->id);      
     }
     // Otherwise, check that the attempt is active.
     else {
@@ -736,15 +744,16 @@ function mod_adaptivequiz_question_pluginfile($course, $context, $component,
       if (!adaptivequiz_uniqueid_part_of_attempt($qubaid, $cm->instance, $USER->id)) {
           print_error('uniquenotpartofattempt', 'adaptivequiz');
       }
-      // Verify that the attempt is still in progress.
-      if ($attemptrec->attemptstate != adaptiveattempt::ADAPTIVEQUIZ_ATTEMPT_INPROGRESS) {
-        print_error('notinprogress', 'adaptivequiz');
-      }
+        // Verify that the attempt is still in progress.
+        if ($attemptrec->attemptstate != adaptiveattempt::ADAPTIVEQUIZ_ATTEMPT_INPROGRESS) {
+            require_capability('mod/adaptivequiz:reviewownattempts', $context);
+            //print_error('notinprogress', 'adaptivequiz');
+        }
     }
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
-    $fullpath = "/$context->id/$component/$filearea/$relativepath";
+    $fullpath = "/{$context->id}/{$component}/{$filearea}/{$relativepath}";
     if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
         send_file_not_found();
     }

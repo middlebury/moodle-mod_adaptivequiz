@@ -46,7 +46,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $output = $renderer->display_start_attempt_form(9999);
 
         $this->assertContains('<form', $output);
-        $this->assertContains('/mod/adaptivequiz/attempt.php?cmid=9999', $output);
+        $this->assertContains('/mod/adaptivequiz/startattempt.php?cmid=9999', $output);
         $this->assertContains('<input', $output);
         $this->assertContains('type="submit"', $output);
         $this->assertContains('class="submitbtns adaptivequizbtn"', $output);
@@ -356,7 +356,7 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
                 ->method('get_question_attempt')
                 ->will($this->returnValue($mockquestattempt));
 
-        $output = $renderer->print_questions_for_review($mockquba, 0, $user, 12345);
+        $output = $renderer->print_questions_for_review($mockquba, 0, $user, 12345, 9999);
 
         $this->assertContains('mock render question output', $output);
         $this->assertContains('phpunit test heading', $output);
@@ -388,6 +388,10 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
      * This functions tests the output from print_attempt_report_table()
      */
     public function test_print_attempt_report_table() {
+        global $SITE;
+
+        $this->resetAfterTest(true);
+        
         $dummypage = new moodle_page();
         $target = 'mod_adaptivequiz';
         $renderer = new mod_adaptivequiz_renderer($dummypage, $target);
@@ -409,15 +413,17 @@ class mod_adaptivequiz_renderer_testcase extends advanced_testcase {
         $records[1]->timemodified = 12345678;
         $records[1]->timecreated = 12345600;
 
-        $cm = new stdClass();
-        $cm->id = 1;
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_adaptivequiz');
+        $generator->create_instance(array('course' => $SITE->id));
+        $adaptivequiz = $generator->create_instance(array('course' => $SITE->id));
+        $cm = get_coursemodule_from_instance('adaptivequiz', $adaptivequiz->id);
 
         $output = $renderer->print_attempt_report_table($records, $cm, new stdClass);
         $this->assertContains('<table', $output);
         $this->assertContains('/mod/adaptivequiz/reviewattempt.php', $output);
         $this->assertContains('uniqueid=123', $output);
         $this->assertContains('userid=1', $output);
-        $this->assertContains('cmid=1', $output);
+        $this->assertContains('cmid='.$cm->id, $output);
         /* Check table row */
         $this->assertContains('stopped for some reason', $output);
         $this->assertContains('6.3 &plusmn; 4%', $output);

@@ -111,7 +111,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
         $expected->questionsattempted = '0';
         $expected->attemptstopcriteria = '';
         $expected->standarderror = '1.00000';
-        $expected->difficultysum = '0.00000';
+        $expected->difficultysum = '0.0000000';
         $expected->measure = '0.00000';
         $expected->timemodified = '0';
         $expected->timecreated = '0';
@@ -577,7 +577,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->method('level_in_bounds')
             ->will($this->returnValue(true));
 
-        $this->assertFalse($mockattempt->start_attempt());
+        $this->assertFalse((bool)$mockattempt->start_attempt());
     }
 
     /**
@@ -613,7 +613,7 @@ class mod_adaptivequiz_adaptiveattempt_testcase extends advanced_testcase {
             ->method('find_last_quest_used_by_attempt')
             ->will($this->returnValue(0));
 
-        $this->assertFalse($mockattemptthree->start_attempt());
+        $this->assertFalse((bool)$mockattemptthree->start_attempt());
     }
 
     /**

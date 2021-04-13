@@ -223,7 +223,7 @@ class mod_adaptivequiz_catalgo_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $mockcatalgo = $this->createMock('catalgo', array('find_last_quest_used_by_attempt', 'was_answer_submitted_to_question', 'get_question_mark'), array(), '', false);
-        $mockquba = $this->getMock('question_usage_by_activity', array(), array(), '', false);
+        $mockquba = $this->createMock('question_usage_by_activity', array(), array(), '', false);
 
         $mockcatalgo->expects($this->once())
                 ->method('find_last_quest_used_by_attempt')

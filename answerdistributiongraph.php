@@ -47,7 +47,8 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-require_capability('mod/adaptivequiz:viewreport', $context);
+//require_capability('mod/adaptivequiz:viewreport', $context);
+require_capability('mod/adaptivequiz:reviewownattempts', $context);
 
 $param = array('uniqueid' => $uniqueid, 'userid' => $userid, 'activityid' => $cm->instance);
 $sql = 'SELECT a.name, a.highestlevel, a.lowestlevel, a.startinglevel, aa.timecreated, aa.timemodified, aa.attemptstate,
@@ -106,7 +107,7 @@ for ($i = $adaptivequiz->lowestlevel; $i <= $adaptivequiz->highestlevel; $i++) {
 $quba = question_engine::load_questions_usage_by_activity($uniqueid);
 foreach ($quba->get_slots() as $i => $slot) {
     $question = $quba->get_question($slot);
-    $tags = core_tag_tag::get_item_tags_array('', 'question', $question->id);
+    $tags = core_tag_tag::get_item_tags_array('core_question', 'question', $question->id);
     $difficulty = adaptivequiz_get_difficulty_from_tags($tags);
     $correct = ($quba->get_question_mark($slot) > 0);
 

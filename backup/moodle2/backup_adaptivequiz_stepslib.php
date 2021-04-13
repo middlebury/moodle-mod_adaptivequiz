@@ -48,7 +48,7 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
                 'name', 'intro', 'introformat', 'attempts', 'password', 'browsersecurity',
                 'attemptfeedback', 'attemptfeedbackformat', 'highestlevel', 'lowestlevel',
                 'minimumquestions', 'maximumquestions', 'standarderror', 'startinglevel',
-                'timecreated', 'timemodified');
+                'timecreated', 'timemodified', 'preferredbehaviour');
         $adaptivequiz = new backup_nested_element('adaptivequiz', array('id'), $nodes);
 
         // Attempts.

@@ -47,5 +47,19 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014020400, 'adaptivequiz');
     }
 
+    if ($oldversion < 2017022000) {
+        // Define field canredoquestions to be added to quiz.
+        $table = new xmldb_table('adaptivequiz');
+        $field = new xmldb_field('preferredbehaviour', XMLDB_TYPE_CHAR, '32', null, null, null, 'deferredfeedback', 'timemodified');
+
+        // Conditionally launch add field completionpass.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Quiz savepoint reached.
+        upgrade_mod_savepoint(true, 2017022000, 'adaptivequiz');
+    }
+
     return true;
 }
