@@ -102,4 +102,5 @@ echo $returnlink;
 echo $title;
 echo $details;
 echo $reporttable;
+echo $returnlink;
 echo $footer;

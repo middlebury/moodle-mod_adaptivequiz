@@ -760,7 +760,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     public function display_start_attempt_form_scured($cmid) {
         $param = array('cmid' => $cmid);
-        $url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+        //$url = new moodle_url('/mod/adaptivequiz/attempt.php', $param);
+        $url = new moodle_url('/mod/adaptivequiz/startattempt.php', $param);
 
         $buttonlabel = get_string('startattemptbtn', 'adaptivequiz');
         $button = new single_button($url, $buttonlabel);
