@@ -1,3 +1,5 @@
+**This repository is now archived: The sponsor of this plugin, Middlebury College, is no longer using Moodle. Development is continuing on other forks of the project. See https://moodle.org/plugins/mod_adaptivequiz for more information and latest releases.**
+
 Moodle Adaptive Test Activity
 ===============================
 The Adaptive Test activity enables a teacher to create tests that efficiently measure
